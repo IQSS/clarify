@@ -4,9 +4,13 @@
 \alias{sim_plot}
 \title{Title}
 \usage{
-sim_plot(x, est, ci = TRUE, alpha = 0.05)
+sim_plot(x, est, ci = TRUE, alpha = 0.05, normal = FALSE, transform = NULL)
 }
 \arguments{
+\item{x}{a `simbased_est1 object`; the output of a call to `sim_apply()`.}
+
+\item{est}{a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be plotted.}
+
 \item{alpha}{}
 }
 \description{

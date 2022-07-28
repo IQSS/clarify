@@ -8,14 +8,19 @@
 #' @export
 #'
 #' @examples
-sim_apply <- function(sim, FUN, ...) {
+sim_apply <- function(sim, FUN, verbose = TRUE, ...) {
   if (missing(FUN)) {
     stop("FUN must be supplied.")
   }
 
-  test <- try(FUN(sim$fit, ...))
+  FUN <- process_FUN(FUN)
+
+  apply_FUN <- make_apply_FUN(FUN)
+
+  test <- try(apply_FUN(fit = sim$fit, coefs = coef(fit), ...), silent = TRUE)
   if (inherits(test, "try-error")) {
-    stop("Initial check failed.")
+    chk::err("`FUN` failed to run on an initial check with the following error:\n",
+             conditionMessage(attr(test, "condition")))
   }
 
   if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
@@ -23,49 +28,65 @@ sim_apply <- function(sim, FUN, ...) {
   ests <- matrix(NA_real_, nrow = nrow(sim$coefs), ncol = length(test),
                  dimnames = list(NULL, names(test)))
 
-  pb <- txtProgressBar(0, nrow(ests), style = 3)
+  if (verbose) pb <- txtProgressBar(0, nrow(ests), style = 3)
   for (i in seq_len(nrow(ests))) {
-    sim$fit <- coef_assign(sim$fit, sim$coefs[i,])
-    ests[i,] <- FUN(sim$fit, ...)
-    setTxtProgressBar(pb, i)
+    ests[i,] <- apply_FUN(fit = sim$fit, coefs = sim$coefs[i,], ...)
+    if (verbose) setTxtProgressBar(pb, i)
   }
-  close(pb)
+  if (verbose) close(pb)
 
-  out <- list(est = ests)
+  out <- list(est = ests,
+              original = test)
   class(out) <- "simbased_est"
 
   out
 }
 
-summary.simbased_est <- function(object, alpha = .05, ...) {
-  ans <- list()
-  est <- coef(object)
-  se <- sqrt(diag(vcov(object)))
-  z <- est/se
-  p <- 2 * pnorm(abs(z), lower.tail = FALSE)
-
-  fmt.prc <- function(probs, digits = 3) {
-    paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), "%")
-  }
-
-  pct <- fmt.prc(c(alpha/2, 1-alpha/2))
-  zcrit <- qnorm(c(alpha/2, 1-alpha/2))
-
-  ci <- matrix(nrow = length(est), ncol = 2,
-               dimnames = list(names(est), pct))
-  ci[,1] <- est + se*zcrit[1]
-  ci[,2] <- est + se*zcrit[2]
-
-  ans <- list(coefficients = cbind(Estimate = est, `Std. Error` = se,
-                                   `z value` = z, `Pr(>|z|)` = p,
-                                   ci))
-  class(ans) <- "summary.simbased_est"
-  ans
-}
-
 coef.simbased_est <- function(object, ...) {
-  colMeans(object$est)
+  object$original
 }
 vcov.simbased_est <- function(object, ...) {
   cov(object$est)
+}
+
+process_FUN <- function(FUN) {
+  chk::chk_function(FUN)
+  FUN_arg_names <- names(formals(FUN))
+
+  if (length(FUN_arg_names) == 0) {
+    chk::err("`FUN` must accept one or more arguments")
+  }
+
+  attr(FUN, "use_coefs") <- any(FUN_arg_names == "coefs")
+  attr(FUN, "use_fit") <- any(FUN_arg_names == "fit")
+
+  return(FUN)
+}
+
+make_apply_FUN <- function(FUN) {
+  if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
+    apply_FUN <- function(fit, coefs, ...) {
+      fit <- coef_assign(fit, coefs)
+      FUN(fit = fit, coefs = coefs, ...)
+    }
+  }
+  else if (isTRUE(attr(FUN, "use_coefs"))) {
+    apply_FUN <- function(fit, coefs, ...) {
+      FUN(coefs = coefs, ...)
+    }
+  }
+  else if (isTRUE(attr(FUN, "use_fit"))) {
+    apply_FUN <- function(fit, coefs, ...) {
+      fit <- coef_assign(fit, coefs)
+      FUN(fit = fit, ...)
+    }
+  }
+  else {
+    apply_FUN <- function(fit, coefs, ...) {
+      fit <- coef_assign(fit, coefs)
+      FUN(fit, ...)
+    }
+  }
+
+  return(apply_FUN)
 }

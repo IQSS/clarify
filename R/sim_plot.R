@@ -1,7 +1,7 @@
 #' Title
 #'
 #' @param x a `simbased_est1 object`; the output of a call to `sim_apply()`.
-#' @param est
+#' @param est a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be plotted.
 #' @param ci
 #' @param alpha
 #'
@@ -9,10 +9,15 @@
 #' @export
 #' @import ggplot2
 #' @examples
-sim_plot <- function(x, est, ci = TRUE, alpha = .05) {
+sim_plot <- function(x, est, ci = TRUE, alpha = .05, normal = FALSE, transform = NULL) {
 
   if (!inherits(x, "simbased_est")) {
     stop("'x' must be a simbased_est object.")
+  }
+
+  if (!is.null(transform)) {
+    chk::chk_function(transform)
+    x$est <- transform(x$est)
   }
 
   est_names <- colnames(x$est)
@@ -36,14 +41,21 @@ sim_plot <- function(x, est, ci = TRUE, alpha = .05) {
 
   p <- ggplot() +
     geom_density(data = est_long, mapping = aes(x = val),
-                 color = "black", fill = "white") +
+                 color = "black", fill = "white", trim = TRUE) +
     geom_hline(yintercept = 0)
 
   if (ci) {
-    zcrit <- qnorm(c(alpha/2, 1-alpha/2))
-    ci <- do.call("rbind", lapply(est, function(e) {
-      data.frame(est = est_names[e], val = mean(x$est[,e]) + sd(x$est[,e])*zcrit)
-    }))
+    if (normal) {
+      zcrit <- qnorm(c(alpha/2, 1-alpha/2))
+      ci <- do.call("rbind", lapply(est, function(e) {
+        data.frame(est = est_names[e], val = mean(x$est[,e]) + sd(x$est[,e])*zcrit)
+      }))
+    }
+    else {
+      ci <- do.call("rbind", lapply(est, function(e) {
+        data.frame(est = est_names[e], val = quantile(x$est[,e], probs = c(alpha/2, 1-alpha/2)))
+      }))
+    }
 
     p <- p + geom_vline(data = ci, mapping = aes(xintercept = val), color = "red",
                         linetype = 1)

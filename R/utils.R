@@ -90,3 +90,8 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
 
   choices[i]
 }
+
+#Format percentage for CI labels
+fmt.prc <- function(probs, digits = 3) {
+  paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), "%")
+}
