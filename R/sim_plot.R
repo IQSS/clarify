@@ -1,6 +1,6 @@
 #' Title
 #'
-#' @param x
+#' @param x a `simbased_est1 object`; the output of a call to `sim_apply()`.
 #' @param est
 #' @param ci
 #' @param alpha
