@@ -45,7 +45,7 @@ add_quotes <- function(x, quotes = 2L) {
   if (!isFALSE(quotes)) {
     if (isTRUE(quotes) || as.integer(quotes) == 2L) x <- paste0("\"", x, "\"")
     else if (as.integer(quotes) == 1L) x <- paste0("\'", x, "\'")
-    else stop("'quotes' must be boolean, 1, or 2.")
+    else if (as.integer(quotes) != 0L) stop("'quotes' must be boolean, 1, or 2.")
   }
   x
 }
@@ -55,7 +55,7 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   #Replaces match.arg() but gives cleaner error message and processing
   #of arg.
   if (missing(arg))
-    stop("No argument was supplied to match_arg.", call. = FALSE)
+    stop("No argument was supplied to match_arg().")
   arg.name <- deparse1(substitute(arg))
 
   if (missing(choices)) {
@@ -66,21 +66,21 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
 
   if (is.null(arg)) return(choices[1L])
   else if (!is.character(arg))
-    stop(paste0("The argument to '", arg.name, "' must be NULL or a character vector"), call. = FALSE)
+    stop(sprintf("The argument to `%s` must be NULL or a character vector", arg.name), call. = FALSE)
 
   if (!several.ok) {
     if (identical(arg, choices)) return(arg[1L])
     if (length(arg) > 1L) {
-      stop(paste0("The argument to '", arg.name, "' must be of length 1"), call. = FALSE)
+      stop(sprintf("The argument to `%s` must be of length 1", arg.name), call. = FALSE)
     }
   }
   else if (length(arg) == 0) {
-    stop(paste0("The argument to '", arg.name, "' must be of length >= 1"), call. = FALSE)
+    stop(sprintf("The argument to `%s` must be of length >= 1", arg.name), call. = FALSE)
   }
 
   i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
   if (all(i == 0L))
-    stop(sprintf("The argument to '%s' should be %s%s.",
+    stop(sprintf("The argument to `%s` should be %s%s.",
                  arg.name,
                  ngettext(length(choices), "", if (several.ok) "at least one of " else "one of "),
                  word_list(choices, and.or = "or", quotes = 2)),
@@ -94,4 +94,17 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
 #Format percentage for CI labels
 fmt.prc <- function(probs, digits = 3) {
   paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), "%")
+}
+
+#Check if all values are the same
+all_the_same <- function(x) {
+  if (is.numeric(x)) return(abs(max(x) - min(x)) < 1e-9)
+  return(length(unique(x)) == 1)
+}
+
+#Tidy tryCatching
+try_chk <- function(expr) {
+  tryCatch(expr,
+           error = function(e) chk::err(conditionMessage(e)),
+           warning = function(w) chk::err(conditionMessage(w)))
 }

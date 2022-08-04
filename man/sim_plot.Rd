@@ -2,17 +2,24 @@
 % Please edit documentation in R/sim_plot.R
 \name{sim_plot}
 \alias{sim_plot}
-\title{Title}
+\title{Plot distribution of simulated estimates}
 \usage{
-sim_plot(x, est, ci = TRUE, alpha = 0.05, normal = FALSE, transform = NULL)
+sim_plot(x, est, ci = TRUE, alpha = 0.05, normal = FALSE)
 }
 \arguments{
-\item{x}{a `simbased_est1 object`; the output of a call to `sim_apply()`.}
+\item{x}{a `simbased_est` object; the output of a call to `sim_apply()`.}
 
 \item{est}{a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be plotted.}
 
-\item{alpha}{}
+\item{ci}{`logical`; whether to display confidence interval limits for the estimates. Default is `TRUE`.}
+
+\item{alpha}{the $\alpha$ used to compute the confidence interval. Default is .05 for 95% confidence intervals.}
+
+\item{normal}{`logical`; whether to compute confidence intervals using a normal approximation (`TRUE`) or the simulated sampling distribution (`FALSE`; default). See `[summary.simbased_est()]` for details.}
+}
+\value{
+a `ggplot` object
 }
 \description{
-Title
+`sim_plot()` plots the distribution of the simulated estimates in a density plot.
 }

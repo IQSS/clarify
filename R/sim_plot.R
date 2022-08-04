@@ -1,68 +1,93 @@
-#' Title
+#' Plot distribution of simulated estimates
 #'
-#' @param x a `simbased_est1 object`; the output of a call to `sim_apply()`.
+#' `sim_plot()` plots the distribution of the simulated estimates in a density plot.
+#'
+#' @inheritParams summary.simbased_est
+#' @param x a `simbased_est` object; the output of a call to `sim_apply()`.
 #' @param est a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be plotted.
-#' @param ci
-#' @param alpha
+#' @param ci `logical`; whether to display confidence interval limits for the estimates. Default is `TRUE`.
+#' @param normal `logical`; whether to compute confidence intervals using a normal approximation (`TRUE`) or the simulated sampling distribution (`FALSE`; default). See `[summary.simbased_est()]` for details.
 #'
-#' @return
+#' @return a `ggplot` object
+# @examples
 #' @export
-#' @import ggplot2
-#' @examples
-sim_plot <- function(x, est, ci = TRUE, alpha = .05, normal = FALSE, transform = NULL) {
+sim_plot <- function(x, est, ci = TRUE, alpha = .05, normal = FALSE) {
+
+  #' @import ggplot2
 
   if (!inherits(x, "simbased_est")) {
     stop("'x' must be a simbased_est object.")
   }
 
-  if (!is.null(transform)) {
-    chk::chk_function(transform)
-    x$est <- transform(x$est)
-  }
+  original_est <- coef(x)
+  est_names <- colnames(x)
 
-  est_names <- colnames(x$est)
-  if (missing(est)) est <- seq_len(ncol(x$est))
+  if (missing(est)) est <- seq_len(ncol(x))
 
   if (is.character(est)) {
-    ind <- match(est, est_names)
+    ind <- match(est, colnames(x))
     if (anyNA(ind)) {
-      stop(sprintf("%s not the %s of any estimated quantities.",
+      chk::err(sprintf("%s not the %s of any estimated quantities.",
                    word_list(est[is.na(ind)], is.are = TRUE, quotes = TRUE),
                    ngettext(sum(is.na(ind)), "name", "names")))
     }
-    est <- ind[!is.na(ind)]
+    est <- ind
+  }
+  else if (is.numeric(est)) {
+    chk::chk_whole_numeric(est)
+    if (length(est) > 1 && ncol(x) == 1) {
+      chk::wrn("ignoring `est` because only one estimate is available to plot")
+    }
+    if (any(est < 1) || any(est > ncol(x))) {
+      chk::err(sprintf("all values in `est` must be between 1 and %s", ncol(x)))
+    }
+  }
+  else {
+    chk::err("`est` must be a numeric or character vector identifiying the estimates to plot")
   }
 
-  est_long <- do.call("rbind", lapply(est, function(e) {
-    data.frame(est = est_names[e], val = x$est[,e])
-  }))
+  est_names <- colnames(x)[est]
 
-  est_long[[1]] <- factor(est_long[[1]], levels = est_names[est])
+  est_long <- setNames(stack(as.data.frame(x[,est_names, drop = FALSE])),
+                       c("val", "est"))
+  original_est_long <- setNames(stack(original_est[est_names]),
+                                c("val", "est"))
 
   p <- ggplot() +
-    geom_density(data = est_long, mapping = aes(x = val),
-                 color = "black", fill = "white", trim = TRUE) +
-    geom_hline(yintercept = 0)
+    geom_density(data = est_long, mapping = aes(x = .data$val),
+                 color = "black", fill = "gray90", trim = TRUE) +
+    geom_hline(yintercept = 0) +
+    geom_vline(data = original_est_long, mapping = aes(xintercept = .data$val))
 
+  chk::chk_flag(ci)
   if (ci) {
+    chk::chk_number(alpha)
+    if (alpha <= 0 || alpha >= .5) {
+      chk::err("`alpha` must be between 0 and .5")
+    }
+    chk::chk_flag(normal)
+
     if (normal) {
       zcrit <- qnorm(c(alpha/2, 1-alpha/2))
-      ci <- do.call("rbind", lapply(est, function(e) {
-        data.frame(est = est_names[e], val = mean(x$est[,e]) + sd(x$est[,e])*zcrit)
-      }))
+      ci <- setNames(as.data.frame(lapply(est_names, function(e) {
+        original_est[e] + sd(x[,e])*zcrit
+      })), est_names)
     }
     else {
-      ci <- do.call("rbind", lapply(est, function(e) {
-        data.frame(est = est_names[e], val = quantile(x$est[,e], probs = c(alpha/2, 1-alpha/2)))
-      }))
+      ci <- setNames(as.data.frame(lapply(est_names, function(e) {
+        quantile(x[,e], probs = c(alpha/2, 1-alpha/2))
+      })), est_names)
     }
 
-    p <- p + geom_vline(data = ci, mapping = aes(xintercept = val), color = "red",
-                        linetype = 1)
+    ci_long <- setNames(stack(ci), c("val", "est"))
+    p <- p + geom_vline(data = ci_long, mapping = aes(xintercept = .data$val),
+                        linetype = 2)
   }
 
-  p <- p + facet_wrap(vars(est), scales = "free") +
-    labs(x = "Estimate")
+  p <- p + facet_wrap(vars(.data$est), scales = "free") +
+    labs(x = "Estimate", y = "Density") +
+    theme(panel.background = element_rect(fill = "white", color = "black"),
+          panel.border = element_rect(color = "black", fill = NA))
 
   p
 }
