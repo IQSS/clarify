@@ -1,9 +1,11 @@
-#' @export
+#' @importFrom stats coef
+#' @exportS3Method coef simbased_est
 coef.simbased_est <- function(object, ...) {
   attr(object, "original")
 }
 
-#' @export
+#' @importFrom stats vcov
+#' @exportS3Method vcov simbased_est
 vcov.simbased_est <- function(object, ...) {
   class(object) <- setdiff(class(object), "simbased_est")
   cov(object)
@@ -69,4 +71,28 @@ transform.simbased_est <- function(`_data`, ...) {
   else {
     return(`_data`)
   }
+}
+
+#' @export
+names.simbased_est <- function(x) {
+  colnames(x)
+}
+
+#' @export
+`names<-.simbased_est` <- function(x, value) {
+  original_names <- names(x)
+  colnames(x) <- value
+  names(attr(x, "original")) <- value
+  for (i in names(attributes(x))) {
+    if (identical(names(attr(x, i)), original_names)) {
+      names(attr(x, i)) <- value
+    }
+    if (identical(rownames(attr(x, i)), original_names)) {
+      rownames(attr(x, i)) <- value
+    }
+    if (identical(colnames(attr(x, i)), original_names)) {
+      colnames(attr(x, i)) <- value
+    }
+  }
+  x
 }

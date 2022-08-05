@@ -2,28 +2,28 @@
 % Please edit documentation in R/summary.simbased_est.R
 \name{summary.simbased_est}
 \alias{summary.simbased_est}
-\title{Inference for `simbased_est` objects}
+\title{Inference for \code{simbased_est} objects}
 \usage{
 \method{summary}{simbased_est}(object, alpha = 0.05, normal = FALSE, null = NA, ...)
 }
 \arguments{
-\item{object}{a `simbased_est` object; the output of a call to `sim_apply()`.}
+\item{object}{a \code{simbased_est} object; the output of a call to \code{\link[=sim_apply]{sim_apply()}}.}
 
-\item{alpha}{the $\alpha$ used to compute the confidence interval. Default is .05 for 95% confidence intervals.}
+\item{alpha}{the \eqn{\alpha} used to compute the confidence interval. Default is .05 for 95\% confidence intervals.}
 
-\item{normal}{`logical`; whether to compute p-values and confidence intervals using a normal approximation (`TRUE`) or the simulated sampling distribution (`FALSE`; default). See Details.}
+\item{normal}{\code{logical}; whether to compute p-values and confidence intervals using a normal approximation (\code{TRUE}) or the simulated sampling distribution (\code{FALSE}; default). See Details.}
 
-\item{null}{the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled. Set values to `NA` to omit p-values for those quantities. When all values are `NA`, the default, no p-values are produced.}
+\item{null}{the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled. Set values to \code{NA} to omit p-values for those quantities. When all values are \code{NA}, the default, no p-values are produced.}
 
 \item{...}{ignored.}
 }
 \value{
-A `summary.simbased_est` object, which contains the following components:
-\item{coefficients}{a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to `summary()`.}
+A \code{summary.simbased_est} object, which contains the following components:
+\item{coefficients}{a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to \code{summary()}.}
 }
 \description{
-`summary()` tabulates the estimates and simulation-based confidence intervals and (optionally) p-values from a `simbased_est` object.
+\code{summary()} tabulates the estimates and simulation-based confidence intervals and (optionally) p-values from a \code{simbased_est} object.
 }
 \details{
-`summary()` uses the estimates computed from the original model as its estimates and uses the simulated parameters for inference only. When `normal = TRUE`, the standard deviation of the simulation estimates is used as the standard error, which is used in the t- or z- statistic and the confidence interval. The p-values and confidence intervals are valid only when the sampling distribution of the resulting statistic is normal (which can be assessed using `[sim_plot()]`. When `normal = FALSE`, the confidence interval is calculated using the `alpha/2` and `1 - alpha/2` quantiles of the simulation estimates, and the p-value is calculated as twice the proportion of simulation estimates less than or greater than `null`, whichever is smaller. Using `normal = FALSE` (the default) is recommended because the confidence intervals and p-values will be valid even if the sampling distribution is not normally distributed. The precision of the p-values and confidence intervals depends on the number of simulation requested (the value of `n` supplied to `[sim()]`).
+\code{summary()} uses the estimates computed from the original model as its estimates and uses the simulated parameters for inference only. When \code{normal = TRUE}, the standard deviation of the simulation estimates is used as the standard error, which is used in the t- or z- statistic and the confidence interval. The p-values and confidence intervals are valid only when the sampling distribution of the resulting statistic is normal (which can be assessed using \code{\link[=sim_plot]{sim_plot()}}. When \code{normal = FALSE}, the confidence interval is calculated using the \code{alpha/2} and \code{1 - alpha/2} quantiles of the simulation estimates, and the p-value is calculated as twice the proportion of simulation estimates less than or greater than \code{null}, whichever is smaller. Using \code{normal = FALSE} (the default) is recommended because the confidence intervals and p-values will be valid even if the sampling distribution is not normally distributed. The precision of the p-values and confidence intervals depends on the number of simulation requested (the value of \code{n} supplied to \code{\link[=sim]{sim()}}).
 }

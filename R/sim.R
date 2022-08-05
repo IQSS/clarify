@@ -1,11 +1,11 @@
 #' Simulate model coefficients
 #'
-#' @description `sim()` simulates model parameters from a multivariate normal or t distribution that are then used by `[sim_apply()]` to calculate quantities of interest.
+#' @description `sim()` simulates model parameters from a multivariate normal or t distribution that are then used by [sim_apply()] to calculate quantities of interest.
 #'
-#' @param fit a model fit, such as the output of a call to `[lm()]` or `[glm()]`. Can be left unspecified if `coefs` and `vcov` are not functions.
+#' @param fit a model fit, such as the output of a call to [lm()] or [glm()]. Can be left unspecified if `coefs` and `vcov` are not functions.
 #' @param n the number of simulations to run; default is 1000. More is always better but resulting calculations will take longer.
-#' @param vcov either a square covariance matrix of the parameter estimates or a function to use to extract it from `fit`. By default, uses `[stats::vcov()]`.
-#' @param coefs either a vector of coefficient estimates or a function to use to extract it from `fit`. By default, uses `[stats::coef()]`. Using anything but the default changes some options in `sim_apply()`; see `[sim_apply()]`'s Details section for more information.
+#' @param vcov either a square covariance matrix of the parameter estimates or a function to use to extract it from `fit`. By default, uses [stats::vcov()].
+#' @param coefs either a vector of coefficient estimates or a function to use to extract it from `fit`. By default, uses [stats::coef()]. Using anything but the default changes some options in `sim_apply()`; see [sim_apply()]'s Details section for more information.
 #' @param dist a string containing the name of the multivariate distribution to use to draw simulated coefficients. Should be one of `"normal"` (multivariate normal distribution) or `"t_{#}"` (multivariate t distribution), where `{#}` corresponds to the desired degrees of freedom (e.g., `"t_100"`). If `NULL`, `sim()` will attempt to figure out the right distribution to use; see Details.
 #'
 #' @return A `simbased_sim` object, which has the following components:
@@ -15,14 +15,19 @@
 #'
 #' @details When `dist` is `NULL`, `sim()` samples from a multivariate normal or t distribution depending on whether `df.residual(fit)` is `NULL` or not. If `NULL` or `fit` is unspecified, a multivariate normal distribution is used. Otherwise (primarily for linear models fit with `lm()`), a multivariate t distribution is used, with `df.residual(fit)` used as the degrees of freedom.
 #'
-#' When a multivariate normal is used, it is sampled from with means equal to the estimated coefficients and the parameter covariance matrix as the covariance matrix using `[mvnfast::rmvn()]`. When a multivariate t distribution is used, it is sampled from with means equal to the estimated coefficients and scaling matrix equal to `cov*(df - 2)/df`, where `cov` is the parameter covariance matrix and `df` is the residual degrees of freedom for the model, using `[mvnfast::rmvt()]`.
+#' When a multivariate normal is used, it is sampled from with means equal to the estimated coefficients and the parameter covariance matrix as the covariance matrix using [mvnfast::rmvn()]. When a multivariate t distribution is used, it is sampled from with means equal to the estimated coefficients and scaling matrix equal to `cov*(df - 2)/df`, where `cov` is the parameter covariance matrix and `df` is the residual degrees of freedom for the model, using [mvnfast::rmvt()].
 #'
-#' @seealso `[sim_apply()]` for applying a function to each set of simulated coefficients.
+#' @seealso
+#' * [sim_apply()] for applying a function to each set of simulated coefficients.
 #'
 # @examples
 #'
 #' @export
-sim <- function(fit, n = 1e3, vcov = stats::vcov, coefs = stats::coef, dist = NULL) {
+sim <- function(fit,
+                n = 1e3,
+                vcov = stats::vcov,
+                coefs = stats::coef,
+                dist = NULL) {
 
   if (missing(fit)) fit <- NULL
 

@@ -1,14 +1,14 @@
 #' Apply a function to simulated parameter values
 #'
-#' @description `sim_apply()` applies a function that produces quantities of interest to each set of simulated coefficients produced by `[sim()]`; these calculated quantities form the posterior sampling distribution for the quantities of interest. Capabilities are available for parallelization.
+#' @description `sim_apply()` applies a function that produces quantities of interest to each set of simulated coefficients produced by [sim()]; these calculated quantities form the posterior sampling distribution for the quantities of interest. Capabilities are available for parallelization.
 #'
-#' @param sim a `simbased_sim` object; the output of a call to `[sim()]`.
+#' @param sim a `simbased_sim` object; the output of a call to [sim()].
 #' @param FUN a function to be applied to each set of simulated coefficients. See Details.
 #' @param verbose `logical`; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is `TRUE`.
-#' @param cl a cluster object created by `[parallel::makeCluster()]`, or an integer to indicate number of child-processes (integer values are ignored on Windows) for parallel evaluations. See `[pbapply::pblapply()]` for details. If `NULL`, no parallelization will take place.
+#' @param cl a cluster object created by [parallel::makeCluster()], or an integer to indicate number of child-processes (integer values are ignored on Windows) for parallel evaluations. See [pbapply::pblapply()] for details. If `NULL`, no parallelization will take place.
 #' @param ... optional arguments passed to `FUN`.
 #'
-#' @details `sim_apply()` applies a function to each set of simulated coefficients, similar to `[apply()]`. This function should produce an estimated quantity for which inference is to take place.
+#' @details `sim_apply()` applies a function to each set of simulated coefficients, similar to [apply()]. This function should produce an estimated quantity for which inference is to take place.
 #'
 #' `FUN` should return a numeric vector containing one or more estimated quantities. This should be a named vector to more easily keep track of the meaning of each estimated quantity. Care should be taken to ensure that the returned vector is the same length each time `FUN` is called. `NA`s are allowed in the output but should be avoided if possible.
 #'
@@ -18,12 +18,21 @@
 #'
 #' @return A `simbased_est` object, which is a matrix with a column for each estimated quantity and a row for each simulation. The original estimates (`FUN` applied to the original coefficients or model fit object) are stored in the attribute `"original"`. The `"sim_hash"` attributes contained the simulation hash produced by `sim()`.
 #'
-#' @seealso `[sim()]` for generating the simulated coefficients, `[coef.simbased_est()]` and `[vcov.simbased_est()]` for extracting the estimates that their covariance matrix from a `simbased_est` object, `[cbind.simbased_est()]` and `[transform.simbased_est()]` for combining and transforming `simbased_est` objects, `[summary.simbased_est()]` for computing p-values and confidence intervals for the estimated quantities, `[sim_plot()]` for plotting simulated quantities and their simulated posterior sampling distribution.
+#' @seealso
+#' * [sim()] for generating the simulated coefficients
+#' * [cbind.simbased_est()] and [transform.simbased_est()] for combining and transforming `simbased_est` objects
+#' * [summary.simbased_est()] for computing p-values and confidence intervals for the estimated quantities
+#' * [sim_plot()] for plotting estimated quantities and their simulated posterior sampling distribution.
 #'
 # @examples
 #'
 #' @export
-sim_apply <- function(sim, FUN, verbose = TRUE, cl = NULL, ...) {
+sim_apply <- function(sim,
+                      FUN,
+                      verbose = TRUE,
+                      cl = NULL,
+                      ...) {
+
   chk::chk_is(sim, "simbased_sim")
   chk::chk_flag(verbose)
 

@@ -108,3 +108,29 @@ try_chk <- function(expr) {
            error = function(e) chk::err(conditionMessage(e)),
            warning = function(w) chk::err(conditionMessage(w)))
 }
+
+#mode
+Mode <- function(v, na.rm = TRUE) {
+  if (anyNA(v)) {
+    if (na.rm) v <- v[!is.na(v)]
+    else {
+      #Return NA, keeping type of `v`
+      v <- v[1]
+      is.na(v) <- TRUE
+      return(v)
+    }
+  }
+
+  if (length(v) == 0) return(v)
+  if (is.factor(v)) {
+    if (nlevels(v) == 1) return(levels(v)[1])
+    mode <- levels(v)[which.max(tabulate(v, nbins = nlevels(v)))]
+    mode <- factor(mode, levels = levels(v))
+  }
+  else {
+    uv <- unique(v)
+    if (length(uv) == 1) return(uv)
+    mode <- uv[which.max(tabulate(match(v, uv)))]
+  }
+  mode
+}
