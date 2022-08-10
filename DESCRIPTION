@@ -25,7 +25,8 @@ Suggests:
 Config/testthat/edition: 3
 RoxygenNote: 7.2.0
 Roxygen: list(markdown = TRUE)
-URL: https://github.com/ngreifer/simbased
+URL: https://github.com/ngreifer/simbased,
+    https://ngreifer.github.io/simbased/
 BugReports: https://github.com/ngreifer/simbased/issues
 Depends: 
     R (>= 3.0.0)

@@ -12,6 +12,7 @@ Performs simulation-based inference as an alternative to the delta method for ob
 Useful links:
 \itemize{
   \item \url{https://github.com/ngreifer/simbased}
+  \item \url{https://ngreifer.github.io/simbased/}
   \item Report bugs at \url{https://github.com/ngreifer/simbased/issues}
 }
 
