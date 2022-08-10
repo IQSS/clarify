@@ -13,7 +13,7 @@ sim_apply(sim, FUN, verbose = TRUE, cl = NULL, ...)
 
 \item{verbose}{\code{logical}; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
 
-\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
+\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
 
 \item{...}{optional arguments passed to \code{FUN}.}
 }
@@ -32,10 +32,48 @@ The arguments to \code{FUN} can be specified in a few ways. If \code{FUN} has an
 
 When custom coefficients are supplied to \code{sim()}, i.e., when the \code{coefs} argument to \code{sim()} is not left at its default value, \code{FUN} must accept a \code{coefs} argument and a warning will be thrown if it accepts a \code{fit} argument. This is because \code{sim_apply()} does not know how to reconstruct the original fit object with the new coefficients inserted. The quantities computed by \code{sim_apply()} must therefore be computed directly from the coefficients.
 }
+\examples{
+
+data("lalonde", package = "MatchIt")
+fit <- lm(re78 ~ treat + age + race + nodegree + re74,
+          data = lalonde)
+coef(fit)
+
+set.seed(123)
+s <- sim(fit, n = 100)
+
+# Function to compare predicted values for two units
+# using `fit` argument
+sim_fun <- function(fit) {
+  pred1 <- unname(predict(fit, newdata = lalonde[1,]))
+  pred2 <- unname(predict(fit, newdata = lalonde[2,]))
+  c(pred1 = pred1, pred2 = pred2)
+}
+
+est <- sim_apply(s, sim_fun, verbose = FALSE)
+
+# Add difference between predicted values as
+# additional quantity
+est <- transform(est, `diff 1-2` = pred1 - pred2)
+
+# Examine estimates and confidence intervals
+summary(est)
+
+# Function to compare coefficients using `coefs`
+# argument
+sim_fun <- function(coefs) {
+  c(`wh - his` = coefs["racewhite"] - coefs["racehispan"])
+}
+
+est <- sim_apply(s, sim_fun, verbose = FALSE)
+
+# Examine estimates and confidence intervals
+summary(est)
+
+}
 \seealso{
 \itemize{
 \item \code{\link[=sim]{sim()}} for generating the simulated coefficients
-\item \code{\link[=cbind.simbased_est]{cbind.simbased_est()}} and \code{\link[=transform.simbased_est]{transform.simbased_est()}} for combining and transforming \code{simbased_est} objects
 \item \code{\link[=summary.simbased_est]{summary.simbased_est()}} for computing p-values and confidence intervals for the estimated quantities
 \item \code{\link[=sim_plot]{sim_plot()}} for plotting estimated quantities and their simulated posterior sampling distribution.
 }

@@ -4,10 +4,12 @@
 \alias{summary.simbased_est}
 \title{Inference for \code{simbased_est} objects}
 \usage{
-\method{summary}{simbased_est}(object, alpha = 0.05, normal = FALSE, null = NA, ...)
+\method{summary}{simbased_est}(object, est, alpha = 0.05, normal = FALSE, null = NA, ...)
 }
 \arguments{
 \item{object}{a \code{simbased_est} object; the output of a call to \code{\link[=sim_apply]{sim_apply()}}.}
+
+\item{est}{a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be plotted.}
 
 \item{alpha}{the \eqn{\alpha} used to compute the confidence interval. Default is .05 for 95\% confidence intervals.}
 
@@ -25,5 +27,31 @@ A \code{summary.simbased_est} object, which contains the following components:
 \code{summary()} tabulates the estimates and simulation-based confidence intervals and (optionally) p-values from a \code{simbased_est} object.
 }
 \details{
-\code{summary()} uses the estimates computed from the original model as its estimates and uses the simulated parameters for inference only. When \code{normal = TRUE}, the standard deviation of the simulation estimates is used as the standard error, which is used in the t- or z- statistic and the confidence interval. The p-values and confidence intervals are valid only when the sampling distribution of the resulting statistic is normal (which can be assessed using \code{\link[=sim_plot]{sim_plot()}}. When \code{normal = FALSE}, the confidence interval is calculated using the \code{alpha/2} and \code{1 - alpha/2} quantiles of the simulation estimates, and the p-value is calculated as twice the proportion of simulation estimates less than or greater than \code{null}, whichever is smaller. Using \code{normal = FALSE} (the default) is recommended because the confidence intervals and p-values will be valid even if the sampling distribution is not normally distributed. The precision of the p-values and confidence intervals depends on the number of simulation requested (the value of \code{n} supplied to \code{\link[=sim]{sim()}}).
+\code{summary()} uses the estimates computed from the original model as its estimates and uses the simulated parameters for inference only. When \code{normal = TRUE}, the standard deviation of the simulation estimates is used as the standard error, which is used in the t- or z- statistic and the confidence interval. The p-values and confidence intervals are valid only when the sampling distribution of the resulting statistic is normal (which can be assessed using \code{\link[=sim_plot]{sim_plot()}}. When \code{normal = FALSE}, the confidence interval is calculated using the \code{alpha/2} and \code{1 - alpha/2} quantiles of the simulation estimates, and the p-value is calculated as twice the proportion of simulation estimates less than or greater than \code{null}, whichever is smaller; this is equivalent to inverting the confidence interval but is only truly valid when the true sampling distribution is only a location shift from the sampling distribution under the null hypothesis and should therefore be interpreted with caution. Using \code{normal = FALSE} (the default) is recommended because the confidence intervals will be valid even if the sampling distribution is not normally distributed. The precision of the p-values and confidence intervals depends on the number of simulation requested (the value of \code{n} supplied to \code{\link[=sim]{sim()}}).
+}
+\examples{
+data("lalonde", package = "MatchIt")
+fit <- glm(I(re78 > 0) ~ treat + age + race + nodegree + re74,
+          data = lalonde)
+
+s <- sim(fit, n = 100)
+
+# Compute average marginal means for `treat`
+est <- sim_ame(s, var = "treat")
+coef(est)
+
+# Compute average marginal effects on risk difference
+# (RD) and risk ratio (RR) scale
+est <- transform(est,
+                 RD = `E[Y(1)]` - `E[Y(0)]`,
+                 RR = `E[Y(1)]` / `E[Y(0)]`)
+
+# Compute confidence intervals and p-values,
+# using given null values for computing p-values
+summary(est, null = c(NA, NA, 0, 1))
+
+# Same tests using normal approximation
+summary(est, null = c(NA, NA, 0, 1),
+        normal = TRUE)
+
 }

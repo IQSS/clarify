@@ -30,6 +30,10 @@ When the focal varying predictor is a factor or character or only takes on two o
 
 Marginal predictions are identified by the corresponding levels of the predictors that vary. The user should keep track of whether the non-varying predictors are set at specified or automatically set "typical" levels.
 }
+\examples{
+## See help("sim_sext") for examples
+
+}
 \seealso{
 \code{\link[=sim_plot]{sim_plot()}} for a another way to plot estimates; \code{\link[=summary.simbased_est]{summary.simbased_est()}} for computing p-values and confidence intervals for the estimated quantities.
 }

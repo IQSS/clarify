@@ -1,22 +1,81 @@
 #' Compute predictions and first differences at set values
 #'
-#' `sim_setx()` is a wrapper for [sim_apply()] that computes predicted values of the outcome at specified values of the predictors, sometimes called marginal predictions. One can also compute the difference between two marginal predictions (the "first difference"). Although any function that accepted `simbased_est` objects can be used with `sim_setx()` output objects, a special plotting function, [setx_plot()], can be used to plot marginal predictions.
+#' `sim_setx()` is a wrapper for [sim_apply()] that computes predicted values of
+#' the outcome at specified values of the predictors, sometimes called marginal
+#' predictions. One can also compute the difference between two marginal
+#' predictions (the "first difference"). Although any function that accepted
+#' `simbased_est` objects can be used with `sim_setx()` output objects, a
+#' special plotting function, [setx_plot()], can be used to plot marginal
+#' predictions.
 #'
 #' @inheritParams sim_apply
-#' @param x a named list of values each predictor should take defining a reference grid of predictor values, e.g., `list(v1 = 1:4, v2 = c("A", "B"))`. Any omitted predictors are fixed at a "typical" value. See Details. When `x1` is specified, `x` should identify a single reference unit.
-#' @param x1 a named list of the value each predictor should take to compute the first difference from the predictor combination specified in `x`. `x1` can only identify a single unit. See Details.
+#' @param x a named list of values each predictor should take defining a
+#'   reference grid of predictor values, e.g., `list(v1 = 1:4, v2 = c("A",
+#'   "B"))`. Any omitted predictors are fixed at a "typical" value. See Details.
+#'   When `x1` is specified, `x` should identify a single reference unit.
+#' @param x1 a named list of the value each predictor should take to compute the
+#'   first difference from the predictor combination specified in `x`. `x1` can
+#'   only identify a single unit. See Details.
 #'
-#' @return a `simbased_est` object, similar to the output of `sim_apply()`, with the following additional attributes:
-#' * `"setx"` - a data frame containing the values at which predictions are to be made
-#' * `"fd"` - whether or not the first difference is to be computed; set to `TRUE` if `x1` is specified and `FALSE` otherwise
+#' @return a `simbased_est` object, similar to the output of `sim_apply()`, with
+#'   the following additional attributes: * `"setx"` - a data frame containing
+#'   the values at which predictions are to be made * `"fd"` - whether or not
+#'   the first difference is to be computed; set to `TRUE` if `x1` is specified
+#'   and `FALSE` otherwise
 #'
-#' @details `x` should be a named list of predictor values that will be crossed to form a reference grid for the marginal predictions. Any predictors not set in `x` are assigned their "typical" value, which, for factor, character, logical, and binary variables is the mode, for numeric variables is the mean, and for ordered variables is the median. These values can be seen in the `"setx"` attribute of the output object. If `x` is empty, a prediction will be made at a point corresponding to the typical value of every predictor. Estimates are identified (in `summary()`, etc.) only by the variables that differ across predictions.
+#' @details `x` should be a named list of predictor values that will be crossed
+#'   to form a reference grid for the marginal predictions. Any predictors not
+#'   set in `x` are assigned their "typical" value, which, for factor,
+#'   character, logical, and binary variables is the mode, for numeric variables
+#'   is the mean, and for ordered variables is the median. These values can be
+#'   seen in the `"setx"` attribute of the output object. If `x` is empty, a
+#'   prediction will be made at a point corresponding to the typical value of
+#'   every predictor. Estimates are identified (in `summary()`, etc.) only by
+#'   the variables that differ across predictions.
 #'
-#' When `x1` is supplied, the first difference is computed, which here is considered as the difference between two marginal predictions. One marginal prediction must be specified in `x` and another, ideally with a single predictor changed, specified in `x1`.
+#'   When `x1` is supplied, the first difference is computed, which here is
+#'   considered as the difference between two marginal predictions. One marginal
+#'   prediction must be specified in `x` and another, ideally with a single
+#'   predictor changed, specified in `x1`.
 #'
-#' @seealso [sim_apply()], which provides a general interface to computing any quantities for simulation-based inference; [setx_plot()] for plotting the output of a call to `sim_setx()`; [summary.simbased_est()] for computing p-values and confidence intervals for the estimated quantities.
+#' @seealso [sim_apply()], which provides a general interface to computing any
+#'   quantities for simulation-based inference; [setx_plot()] for plotting the
+#'   output of a call to `sim_setx()`; [summary.simbased_est()] for computing
+#'   p-values and confidence intervals for the estimated quantities.
 #'
 #' @examples
+#' data("lalonde", package = "MatchIt")
+#'
+#' fit <- lm(re78 ~ treat + age + educ + married + race + re74,
+#'           data = lalonde)
+#'
+#' # Simulate coefficients
+#' set.seed(123)
+#' s <- sim(fit, n = 100)
+#'
+#' # Predicted values at specified values of treat, typical
+#' # values for other predictors
+#' est <- sim_setx(s, x = list(treat = 0:1,
+#'                             re74 = c(0, 10000)),
+#'                 verbose = FALSE)
+#' summary(est)
+#' setx_plot(est)
+#'
+#' # Predicted values at specified grid of values, typical
+#' # values for other predictors
+#' est <- sim_setx(s, x = list(age = c(20, 25, 30, 35),
+#'                             married = 0:1),
+#'                 verbose = FALSE)
+#' summary(est)
+#' setx_plot(est)
+#'
+#' # First differences of treat at specified value of
+#' # race, typical values for other predictors
+#' est <- sim_setx(s, x = list(treat = 0, race = "hispan"),
+#'                 x1 = list(treat = 1, race = "hispan"),
+#'                 verbose = FALSE)
+#' summary(est)
+#' setx_plot(est)
 #'
 #' @export
 sim_setx <- function(sim, x = list(), x1 = list(), verbose = TRUE, cl = NULL) {
@@ -72,13 +131,13 @@ sim_setx <- function(sim, x = list(), x1 = list(), verbose = TRUE, cl = NULL) {
   #make FUN for sim_apply()
   if (fd) {
     FUN <- function(fit) {
-      p <- insight::get_predicted(fit, data = newdata, predict = "expectation")
+      p <- simbased_predict(fit, newdata = newdata)
       c(p, "FD" = unname(diff(p)))
     }
   }
   else {
     FUN <- function(fit) {
-      insight::get_predicted(fit, data = newdata, predict = "expectation")
+      simbased_predict(fit, newdata = newdata)
     }
   }
 

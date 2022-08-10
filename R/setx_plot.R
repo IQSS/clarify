@@ -17,6 +17,7 @@
 #' @seealso [sim_plot()] for a another way to plot estimates; [summary.simbased_est()] for computing p-values and confidence intervals for the estimated quantities.
 #'
 #' @examples
+#' ## See help("sim_sext") for examples
 #'
 #' @export
 setx_plot <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = FALSE) {
@@ -64,7 +65,7 @@ setx_plot <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = FALSE) {
   else {
     chk::chk_string(var)
     if (!var %in% varying) {
-      chk::err("`var` must be the name of a predictor set to be varying. Allowable options include ", word_list(varying, quote = TRUE))
+      chk::err("`var` must be the name of a predictor set to be varying. Allowable options include ", word_list(varying, quotes = TRUE))
     }
   }
 
@@ -89,14 +90,14 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05
   original_est <- coef(x)
   est_names <- rownames(newdata)
 
-  est_long <- setNames(stack(as.data.frame(x[,est_names, drop = FALSE])),
+  est_long <- setNames(utils::stack(as.data.frame(x[,est_names, drop = FALSE])),
                        c("val", "est"))
   est_long <- merge(est_long,
                     newdata[c(var, non_var_varying)],
                     by.x = "est", by.y = 0)
   est_long[[var]] <- paste0(var, " = ", add_quotes(est_long[[var]], chk::vld_character_or_factor(est_long[[var]])))
 
-  original_est_long <- setNames(stack(original_est[est_names]),
+  original_est_long <- setNames(utils::stack(original_est[est_names]),
                                 c("val", "est"))
   original_est_long <- merge(original_est_long,
                              newdata[c(var, non_var_varying)],
@@ -146,7 +147,7 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05
       })), est_names)
     }
 
-    ci_long <- setNames(stack(ci), c("val", "est"))
+    ci_long <- setNames(utils::stack(ci), c("val", "est"))
     ci_long <- merge(ci_long,
                      newdata[c(var, non_var_varying)],
                      by.x = "est", by.y = 0)
@@ -192,7 +193,7 @@ setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05
   }
 
   if (ci) {
-    s <- summary.simbased_est(x, alpha = alpha, normal = normal)$coefficients[rownames(newdata),, drop = FALSE]
+    s <- summary.simbased_est(x, alpha = alpha, normal = normal)[rownames(newdata),, drop = FALSE]
   }
   else {
     s <- matrix(coef(x)[rownames(newdata)], ncol = 1,

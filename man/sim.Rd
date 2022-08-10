@@ -31,6 +31,25 @@ When \code{dist} is \code{NULL}, \code{sim()} samples from a multivariate normal
 
 When a multivariate normal is used, it is sampled from with means equal to the estimated coefficients and the parameter covariance matrix as the covariance matrix using \code{\link[mvnfast:rmvn]{mvnfast::rmvn()}}. When a multivariate t distribution is used, it is sampled from with means equal to the estimated coefficients and scaling matrix equal to \code{cov*(df - 2)/df}, where \code{cov} is the parameter covariance matrix and \code{df} is the residual degrees of freedom for the model, using \code{\link[mvnfast:rmvt]{mvnfast::rmvt()}}.
 }
+\examples{
+
+data("lalonde", package = "MatchIt")
+fit <- lm(re78 ~ treat * (age + race + nodegree + re74), data = lalonde)
+
+# Simulate coefficients
+s <- sim(fit)
+s
+
+## Could also use a robust covariance matrix, e.g.,
+# s <- sim(fit, vcov = sandwich::vcovHC)
+
+# Simulated coefficients assuming a normal distribution
+# for coefficients; default for `lm` objects is a t-
+# distribution
+s <- sim(fit, dist = "normal")
+s
+
+}
 \seealso{
 \itemize{
 \item \code{\link[=sim_apply]{sim_apply()}} for applying a function to each set of simulated coefficients.

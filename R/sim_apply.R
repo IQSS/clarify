@@ -5,7 +5,7 @@
 #' @param sim a `simbased_sim` object; the output of a call to [sim()].
 #' @param FUN a function to be applied to each set of simulated coefficients. See Details.
 #' @param verbose `logical`; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is `TRUE`.
-#' @param cl a cluster object created by [parallel::makeCluster()], or an integer to indicate number of child-processes (integer values are ignored on Windows) for parallel evaluations. See [pbapply::pblapply()] for details. If `NULL`, no parallelization will take place.
+#' @param cl a cluster object created by [parallel::makeCluster()], or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See [pbapply::pblapply()] for details. If `NULL`, no parallelization will take place.
 #' @param ... optional arguments passed to `FUN`.
 #'
 #' @details `sim_apply()` applies a function to each set of simulated coefficients, similar to [apply()]. This function should produce an estimated quantity for which inference is to take place.
@@ -20,11 +20,46 @@
 #'
 #' @seealso
 #' * [sim()] for generating the simulated coefficients
-#' * [cbind.simbased_est()] and [transform.simbased_est()] for combining and transforming `simbased_est` objects
 #' * [summary.simbased_est()] for computing p-values and confidence intervals for the estimated quantities
 #' * [sim_plot()] for plotting estimated quantities and their simulated posterior sampling distribution.
 #'
-# @examples
+#' @examples
+#'
+#' data("lalonde", package = "MatchIt")
+#' fit <- lm(re78 ~ treat + age + race + nodegree + re74,
+#'           data = lalonde)
+#' coef(fit)
+#'
+#' set.seed(123)
+#' s <- sim(fit, n = 100)
+#'
+#' # Function to compare predicted values for two units
+#' # using `fit` argument
+#' sim_fun <- function(fit) {
+#'   pred1 <- unname(predict(fit, newdata = lalonde[1,]))
+#'   pred2 <- unname(predict(fit, newdata = lalonde[2,]))
+#'   c(pred1 = pred1, pred2 = pred2)
+#' }
+#'
+#' est <- sim_apply(s, sim_fun, verbose = FALSE)
+#'
+#' # Add difference between predicted values as
+#' # additional quantity
+#' est <- transform(est, `diff 1-2` = pred1 - pred2)
+#'
+#' # Examine estimates and confidence intervals
+#' summary(est)
+#'
+#' # Function to compare coefficients using `coefs`
+#' # argument
+#' sim_fun <- function(coefs) {
+#'   c(`wh - his` = coefs["racewhite"] - coefs["racehispan"])
+#' }
+#'
+#' est <- sim_apply(s, sim_fun, verbose = FALSE)
+#'
+#' # Examine estimates and confidence intervals
+#' summary(est)
 #'
 #' @export
 sim_apply <- function(sim,
@@ -82,6 +117,27 @@ sim_apply <- function(sim,
   class(ests) <- c("simbased_est", class(ests))
 
   return(ests)
+}
+
+#' @export
+print.simbased_est <- function(x, digits = NULL, ...) {
+  cat(sprintf("A simbased_est object (from %s)\n",
+              if (!is.null(attr(x, "var"))) "`sim_ame()`"
+              else if (!is.null(attr(x, "setx"))) "`sim_setx()`"
+              else "`sim_apply()`"))
+  if (!is.null(attr(x, "var"))) {
+    cat(sprintf(" - Average marginal effect of `%s`\n", attr(x, "var")))
+  }
+  else if (isTRUE(attr(x, "fd"))) {
+    cat(" - First difference\n")
+  }
+  else if (!is.null(attr(x, "setx"))) {
+    cat(" - Predicted outcomes at specified values\n")
+  }
+  cat(sprintf(" - %s quantities estimated:\n", length(attr(x, "original"))))
+  print(attr(x, "original"))
+  cat(sprintf(" - %s simulated values\n", nrow(x)))
+
 }
 
 make_apply_FUN <- function(FUN) {

@@ -20,7 +20,23 @@
 #' @seealso
 #' * [sim_apply()] for applying a function to each set of simulated coefficients.
 #'
-# @examples
+#' @examples
+#'
+#' data("lalonde", package = "MatchIt")
+#' fit <- lm(re78 ~ treat * (age + race + nodegree + re74), data = lalonde)
+#'
+#' # Simulate coefficients
+#' s <- sim(fit)
+#' s
+#'
+#' ## Could also use a robust covariance matrix, e.g.,
+#' # s <- sim(fit, vcov = sandwich::vcovHC)
+#'
+#' # Simulated coefficients assuming a normal distribution
+#' # for coefficients; default for `lm` objects is a t-
+#' # distribution
+#' s <- sim(fit, dist = "normal")
+#' s
 #'
 #' @export
 sim <- function(fit,
@@ -106,7 +122,7 @@ get_sampling_dist <- function(fit = NULL, dist = NULL) {
       df <- as.numeric(df)
       dist <- "t"
     }
-    else if (anyNA(pmatch(dist, "normal"))) {
+    else if (!anyNA(pmatch(dist, "normal"))) {
       dist <- "normal"
     }
     else {
@@ -119,7 +135,7 @@ get_sampling_dist <- function(fit = NULL, dist = NULL) {
   else {
     if (inherits(fit, "glm")) df <- NULL
     else {
-      df <- try(df.residual(fit), silent = TRUE)
+      df <- try(stats::df.residual(fit), silent = TRUE)
       if (inherits(df, "try-error")) df <- NULL
     }
 

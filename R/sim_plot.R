@@ -4,7 +4,6 @@
 #'
 #' @inheritParams summary.simbased_est
 #' @param x a `simbased_est` object; the output of a call to `sim_apply()`.
-#' @param est a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be plotted.
 #' @param ci `logical`; whether to display confidence interval limits for the estimates. Default is `TRUE`.
 #' @param normal `logical`; whether to compute confidence intervals using a normal approximation (`TRUE`) or the simulated sampling distribution (`FALSE`; default). See [summary.simbased_est()] for details.
 #'
@@ -50,9 +49,9 @@ sim_plot <- function(x, est, ci = TRUE, alpha = .05, normal = FALSE) {
 
   est_names <- colnames(x)[est]
 
-  est_long <- setNames(stack(as.data.frame(x[,est_names, drop = FALSE])),
+  est_long <- setNames(utils::stack(as.data.frame(x[,est_names, drop = FALSE])),
                        c("val", "est"))
-  original_est_long <- setNames(stack(original_est[est_names]),
+  original_est_long <- setNames(utils::stack(original_est[est_names]),
                                 c("val", "est"))
 
   p <- ggplot() +
@@ -81,7 +80,7 @@ sim_plot <- function(x, est, ci = TRUE, alpha = .05, normal = FALSE) {
       })), est_names)
     }
 
-    ci_long <- setNames(stack(ci), c("val", "est"))
+    ci_long <- setNames(utils::stack(ci), c("val", "est"))
     p <- p + geom_vline(data = ci_long, mapping = aes(xintercept = .data$val),
                         linetype = 2)
   }

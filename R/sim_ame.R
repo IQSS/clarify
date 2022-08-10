@@ -1,3 +1,64 @@
+#' Compute average marginal effects
+#'
+#' @description
+#' `sim_ame()` is a wrapper for [sim_apply()] that computes average marginal effects, the average effect of changing a single variable from one value to another (i.e., from one category to another for categorical variables or a tiny change for continuous variables).
+#'
+#' @inheritParams sim_apply
+#' @param var either the name of a variable for which marginal effects are to be computed or a named list of length one containing the values the variable should take. If a list is supplied or the named variables is categorical (factor, character, or having two values), categorical calculations will be triggered. Otherwise, continuous calculations will be triggered. See Details.
+#' @param subset optional; a vector used to subset the data used to compute the marginal effects. This will be evaluated within the original dataset used to fit the model using [subset()], so nonstandard evaluation is allowed.
+#' @param contrast a string containing the name of a contrast between the average marginal means when the variable named in `var` is categorical and takes on two values. Allowed options include `"diff"` for the difference in means (also `"rd"`), `"rr"` for the risk ratio (also `"irr"`), `"log(rr):` for the log risk ratio (also `"log(irr)"`), `"or"` for the odds ratio, `"log(or)"` for the log odds ratio, and `"nnt"` for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.
+#'
+#' @details
+#' `sim_ame()` operates differently depending on whether continuous or categorical calculations are trigger. To trigger categorical calculations, `var` should be a string naming a factor, character, or binary variable or a named list with specific values given (e.g., `var = list(x1 = c(1, 2 ,3))`). Otherwise, continuous calculations are triggered.
+#'
+#' Categorical calculations involve computing average marginal means at each level of `var`. The average marginal mean is the average predicted outcome value after setting all units' value of `var` to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When `var` only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to `contrast`. Contrasts can be manually computed using [transform()] afterward as well.
+#'
+#' Continuous calculations involve computing the average of marginal effects of `var` across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of `var` by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of `var` is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is .0001 times the range of the focal variable.
+#'
+#' ## Effect measures
+#'
+#' The effect measures specified in `contrast` are defined below. Typically only `"diff"` is appropriate for continuous outcomes and `"diff"` or `"irr"` are appropriate for count outcomes; the rest are appropriate for binary outcomes. For a focal variable with two levels, `0` and `1`, and an outcome `Y`, the average marginal means will be denoted in the below formulas as `E[Y(0)]` and `E[Y(1)]`, respectively.
+#' |`contrast`| Formula|
+#' | --- | --- |
+#' |`"diff"`| `E[Y(1)] - E[Y(0)]` |
+#' |`"rr"`  | `E[Y(1)] / E[Y(0)]` |
+#' |`"or"`  | `O[Y(1)] / O[Y(0)]`, where `O[Y(.)]` = `E[Y(.)] / (1 - E[Y(.)])` |
+#' |`"nnt"` | `1 / (E[Y(1)] - E[Y(0)])` |
+#'
+#' The `log(.)` versions are defined by taking the [log()] (natural log) of the corresponding effect measure.
+#'
+#' @return
+#' A a `simbased_est` object, similar to the output of `sim_apply()`, with the additional attribute `"var"` containing the variable named in `var`. The average marginal means will be named `E[Y({v})]`, where `{v}` is replaced with the values the focal variable (`var`) takes on. The average marginal effect for a continuous `var` will be named `dY/d({x})` where `{x}` is replaced with `var`.
+#'
+#' @examples
+#' data("lalonde", package = "MatchIt")
+#'
+#' # Fit the model
+#' fit <- glm(I(re78 > 0) ~ treat + age + race + re74,
+#'            data = lalonde, family = binomial)
+#'
+#' # Simulate coefficients
+#' set.seed(123)
+#' s <- sim(fit, n = 100)
+#'
+#' # Average marginal effect of `age`
+#' est <- sim_ame(s, var = "age", verbose = FALSE)
+#' summary(est)
+#'
+#' # Contrast between average marginal means for `treat`
+#' est <- sim_ame(s, var = "treat", contrast = "rr",
+#'                verbose = FALSE)
+#' summary(est)
+#'
+#' # Average marginal means for `race`; need to follow up
+#' # with contrasts for specific levels
+#' est <- sim_ame(s, var = "race", verbose = FALSE)
+#'
+#' est <- transform(est,
+#'                  `RR(h,b)` = `E[Y(hispan)]` / `E[Y(black)]`)
+#'
+#' summary(est)
+#'
 #' @export
 sim_ame <- function(sim,
                     var,
@@ -29,8 +90,11 @@ sim_ame <- function(sim,
 
   var_val <- dat[[var]]
 
-  index <- eval(substitute(subset), dat, parent.frame())
-  dat <- dat[index,]
+  index <- eval(substitute(subset), insight::get_data(sim$fit), parent.frame())
+
+  if (length(index) > 0) {
+    dat <- dat[index,]
+  }
 
   if (!is.null(vals) && !all(vals %in% var_val)) {
     chk::err(sprintf("the values mentioned in `var` must be values %s takes on", var))
@@ -70,9 +134,7 @@ sim_ame <- function(sim,
     FUN <- function(fit) {
       vapply(vals, function(x) {
         dat[[var]] <- x
-        mean(insight::get_predicted(fit, data = dat, predict = "expectation",
-                                    verbose = FALSE))
-        # mean(predict(fit, newdata = dat, type = "response"))
+        mean(simbased_predict(fit, newdata = dat))
       }, numeric(1L))
     }
 
@@ -96,7 +158,12 @@ sim_ame <- function(sim,
 
   }
   else {
-    eps <- 1e-6 * diff(range(var_val))
+    if (!is.null(contrast)) {
+      chk::wrn("`contrast` is ignored when the focal variable is continuous")
+      contrast <- NULL
+    }
+
+    eps <- .0001 * (max(var_val) - min(var_val))
 
     FUN <- function(fit) {
       dat[[var]] <- dat[[var]] - eps/2
@@ -112,10 +179,8 @@ sim_ame <- function(sim,
     names(out) <- sprintf("dY/d(%s)", var)
   }
 
-
   attr(out, type) <- type
   attr(out, "var") <- var
-  attr(out, "by") <- by
   out
 }
 

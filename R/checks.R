@@ -67,10 +67,10 @@ check_ests <- function(ests) {
 
 #Edits to stats::.checkMFClasses
 check_classes <- function(olddata, newdata) {
-  new <- vapply(newdata, .MFclass, character(1L))
-  old <- vapply(olddata, .MFclass, character(1L))
+  new <- vapply(newdata, stats::.MFclass, character(1L))
+  old <- vapply(olddata, stats::.MFclass, character(1L))
   new <- new[names(new) %in% names(old)]
-  if (length(new) == 0L) return(invisible())
+  if (length(new) == 0L) return(invisible(NULL))
   old <- old[names(new)]
   old[old == "ordered"] <- "factor"
   new[new == "ordered"] <- "factor"
@@ -84,5 +84,5 @@ check_classes <- function(olddata, newdata) {
     else chk::err(sprintf("variables %s were specified with different types from the original model fit",
                           word_list(names(old)[wrong], quotes = TRUE)))
   }
-  else invisible()
+  else invisible(NULL)
 }
