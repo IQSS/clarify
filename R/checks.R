@@ -79,7 +79,7 @@ check_classes <- function(olddata, newdata) {
   if (!identical(old, new)) {
     wrong <- old != new
     if (sum(wrong) == 1)
-      chk::err(sprintf("variable '%s' was fitted with type \"%s\" but type \"%s\" was supplied",
+      chk::err(sprintf("variable '%s' was fit with type \"%s\" but type \"%s\" was supplied",
                     names(old)[wrong], old[wrong], new[wrong]))
     else chk::err(sprintf("variables %s were specified with different types from the original model fit",
                           word_list(names(old)[wrong], quotes = TRUE)))

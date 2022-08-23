@@ -53,10 +53,10 @@ sim <- function(fit,
     if (is.null(fit)) {
       chk::err("`fit` must be supplied when `coefs` is a function")
     }
-    if (!identical(coefs, stats::coef)) {
-      use.fit <- FALSE
-    }
-    coefs <- coef(fit)
+    # if (!identical(coefs, stats::coef)) {
+    #   use.fit <- FALSE
+    # }
+    coefs <- coefs(fit)
     if (!check_valid_coef(coefs)) {
       chk::err("the output of the function supplied to `coefs` must be a numeric vector")
     }
