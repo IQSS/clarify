@@ -147,3 +147,18 @@ simbased_predict <- function(x, newdata = NULL) {
              rownames(newdata))
   }
 }
+
+#Recursively search a list for a value (key) and return location of value
+list.search <- function(x, key) {
+  for (i in seq_along(x)) {
+    if (typeof(x[[i]]) == typeof(key) && all(x[[i]] == key)) {
+      return(i)
+    }
+    else if (is.list(x[[i]])) {
+      l <- list.search(x[[i]], key)
+      if (!is.null(l)) return(c(i, l))
+    }
+  }
+
+  NULL
+}

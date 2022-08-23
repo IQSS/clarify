@@ -86,7 +86,9 @@ sim_apply <- function(sim,
 
   FUN <- process_FUN(FUN)
 
-  apply_FUN <- make_apply_FUN(FUN)
+  coef_location <- get_coef_location(sim$fit, sim$coefs)
+
+  apply_FUN <- make_apply_FUN(FUN, coef_location)
 
   test <- try(apply_FUN(fit = sim$fit, coefs = sim$coefs, ...), silent = TRUE)
   if (inherits(test, "try-error")) {
@@ -134,16 +136,19 @@ print.simbased_est <- function(x, digits = NULL, ...) {
   else if (!is.null(attr(x, "setx"))) {
     cat(" - Predicted outcomes at specified values\n")
   }
-  cat(sprintf(" - %s quantities estimated:\n", length(attr(x, "original"))))
+  cat(sprintf(" - %s %s estimated:\n", length(attr(x, "original")),
+              ngettext(length(attr(x, "original")), "quantity", "quantities")))
   print(attr(x, "original"))
   cat(sprintf(" - %s simulated values\n", nrow(x)))
 
 }
 
-make_apply_FUN <- function(FUN) {
+make_apply_FUN <- function(FUN, coef_location = NULL) {
+  warn_location <- FALSE
   if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
+    if (is.null(coef_location)) warn_location <- TRUE
     apply_FUN <- function(fit, coefs, ...) {
-      fit <- coef_assign(fit, coefs)
+      fit <- coef_assign(fit, coefs, coef_location)
       FUN(fit = fit, coefs = coefs, ...)
     }
   }
@@ -153,17 +158,26 @@ make_apply_FUN <- function(FUN) {
     }
   }
   else if (isTRUE(attr(FUN, "use_fit"))) {
+    if (is.null(coef_location)) warn_location <- TRUE
     apply_FUN <- function(fit, coefs, ...) {
-      fit <- coef_assign(fit, coefs)
+      fit <- coef_assign(fit, coefs, coef_location)
       FUN(fit = fit, ...)
     }
   }
   else {
+    if (is.null(coef_location)) {
+      chk::err("the location of the coefficients in the model object cannot found, so `FUN` must have a `coefs` argument")
+    }
     apply_FUN <- function(fit, coefs, ...) {
-      fit <- coef_assign(fit, coefs)
+      fit <- coef_assign(fit, coefs, coef_location)
       FUN(fit, ...)
     }
   }
 
   return(apply_FUN)
+}
+
+coef_assign <- function(fit, coefs, coef_location) {
+  fit[[coef_location]] <- coefs
+  return(fit)
 }
