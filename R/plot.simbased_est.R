@@ -1,6 +1,6 @@
 #' Plot distribution of simulated estimates
 #'
-#' `sim_plot()` plots the distribution of the simulated estimates in a density plot.
+#' `plot()` plots the distribution of the simulated estimates in a density plot.
 #'
 #' @inheritParams summary.simbased_est
 #' @param x a `simbased_est` object; the output of a call to `sim_apply()`.
@@ -9,10 +9,10 @@
 #'
 #' @details These plots are produced using [ggplot2::geom_density()].
 #'
-#' @return a `ggplot` object
+#' @return A `ggplot` object.
 # @examples
 #' @export
-sim_plot <- function(x, est, ci = TRUE, alpha = .05, normal = FALSE) {
+plot.simbased_est <- function(x, est, ci = TRUE, alpha = .05, normal = FALSE) {
 
   #' @import ggplot2
 

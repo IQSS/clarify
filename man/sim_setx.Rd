@@ -22,11 +22,11 @@ only identify a single unit. See Details.}
 \item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
 }
 \value{
-a \code{simbased_est} object, similar to the output of \code{sim_apply()}, with
-the following additional attributes: * \code{"setx"} - a data frame containing
-the values at which predictions are to be made * \code{"fd"} - whether or not
-the first difference is to be computed; set to \code{TRUE} if \code{x1} is specified
-and \code{FALSE} otherwise
+a \code{simbased_setx} object, which inherits from \code{simbased_est} and is similar to the output of \code{sim_apply()}, with the following additional attributes:
+\itemize{
+\item \code{"setx"} - a data frame containing the values at which predictions are to be made
+\item \code{"fd"} - whether or not the first difference is to be computed; set to \code{TRUE} if \code{x1} is specified and \code{FALSE} otherwise
+}
 }
 \description{
 \code{sim_setx()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes predicted values of
@@ -34,7 +34,7 @@ the outcome at specified values of the predictors, sometimes called marginal
 predictions. One can also compute the difference between two marginal
 predictions (the "first difference"). Although any function that accepted
 \code{simbased_est} objects can be used with \code{sim_setx()} output objects, a
-special plotting function, \code{\link[=setx_plot]{setx_plot()}}, can be used to plot marginal
+special plotting function, \code{\link[=plot.simbased_setx]{plot.simbased_setx()}}, can be used to plot marginal
 predictions.
 }
 \details{
@@ -90,7 +90,7 @@ setx_plot(est)
 }
 \seealso{
 \code{\link[=sim_apply]{sim_apply()}}, which provides a general interface to computing any
-quantities for simulation-based inference; \code{\link[=setx_plot]{setx_plot()}} for plotting the
+quantities for simulation-based inference; \code{\link[=plot.simbased_setx]{plot.simbased_setx()}} for plotting the
 output of a call to \code{sim_setx()}; \code{\link[=summary.simbased_est]{summary.simbased_est()}} for computing
 p-values and confidence intervals for the estimated quantities.
 }

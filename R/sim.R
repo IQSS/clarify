@@ -19,6 +19,8 @@
 #'
 #' @seealso
 #' * [sim_apply()] for applying a function to each set of simulated coefficients.
+#' * [sim_ame()] for computing average marginal effects in each simulation draw
+#' * [sim_setx()] for computing marginal predictions and first differences at typical values in each simulation draw
 #'
 #' @examples
 #'

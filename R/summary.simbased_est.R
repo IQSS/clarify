@@ -2,18 +2,18 @@
 #'
 #' `summary()` tabulates the estimates and simulation-based confidence intervals and (optionally) p-values from a `simbased_est` object.
 #'
-#' @param object a `simbased_est` object; the output of a call to [sim_apply()].
+#' @param object a `simbased_est` object; the output of a call to [sim_apply()] or its wrappers.
 #' @param est a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be plotted.
 #' @param alpha the \eqn{\alpha} used to compute the confidence interval. Default is .05 for 95% confidence intervals.
 #' @param normal `logical`; whether to compute p-values and confidence intervals using a normal approximation (`TRUE`) or the simulated sampling distribution (`FALSE`; default). See Details.
 #' @param null the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled. Set values to `NA` to omit p-values for those quantities. When all values are `NA`, the default, no p-values are produced.
 #' @param ... ignored.
 #'
-#' @return A `summary.simbased_est` object, which contains the following components:
-#' \item{coefficients}{a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to `summary()`.}
-#'
+#' @return A `summary.simbased_est` object, which is a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to `summary()`.
 #'
 #' @details `summary()` uses the estimates computed from the original model as its estimates and uses the simulated parameters for inference only. When `normal = TRUE`, the standard deviation of the simulation estimates is used as the standard error, which is used in the t- or z- statistic and the confidence interval. The p-values and confidence intervals are valid only when the sampling distribution of the resulting statistic is normal (which can be assessed using [sim_plot()]. When `normal = FALSE`, the confidence interval is calculated using the `alpha/2` and `1 - alpha/2` quantiles of the simulation estimates, and the p-value is calculated as twice the proportion of simulation estimates less than or greater than `null`, whichever is smaller; this is equivalent to inverting the confidence interval but is only truly valid when the true sampling distribution is only a location shift from the sampling distribution under the null hypothesis and should therefore be interpreted with caution. Using `normal = FALSE` (the default) is recommended because the confidence intervals will be valid even if the sampling distribution is not normally distributed. The precision of the p-values and confidence intervals depends on the number of simulation requested (the value of `n` supplied to [sim()]).
+#'
+#' @seealso [plot.simbased_est()] for plotting the simulation distribution of the estimates.
 #'
 #' @examples
 #' data("lalonde", package = "MatchIt")

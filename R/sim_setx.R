@@ -5,7 +5,7 @@
 #' predictions. One can also compute the difference between two marginal
 #' predictions (the "first difference"). Although any function that accepted
 #' `simbased_est` objects can be used with `sim_setx()` output objects, a
-#' special plotting function, [setx_plot()], can be used to plot marginal
+#' special plotting function, [plot.simbased_setx()], can be used to plot marginal
 #' predictions.
 #'
 #' @inheritParams sim_apply
@@ -17,11 +17,9 @@
 #'   first difference from the predictor combination specified in `x`. `x1` can
 #'   only identify a single unit. See Details.
 #'
-#' @return a `simbased_est` object, similar to the output of `sim_apply()`, with
-#'   the following additional attributes: * `"setx"` - a data frame containing
-#'   the values at which predictions are to be made * `"fd"` - whether or not
-#'   the first difference is to be computed; set to `TRUE` if `x1` is specified
-#'   and `FALSE` otherwise
+#' @return a `simbased_setx` object, which inherits from `simbased_est` and is similar to the output of `sim_apply()`, with the following additional attributes:
+#' * `"setx"` - a data frame containing the values at which predictions are to be made
+#' * `"fd"` - whether or not the first difference is to be computed; set to `TRUE` if `x1` is specified and `FALSE` otherwise
 #'
 #' @details `x` should be a named list of predictor values that will be crossed
 #'   to form a reference grid for the marginal predictions. Any predictors not
@@ -39,7 +37,7 @@
 #'   predictor changed, specified in `x1`.
 #'
 #' @seealso [sim_apply()], which provides a general interface to computing any
-#'   quantities for simulation-based inference; [setx_plot()] for plotting the
+#'   quantities for simulation-based inference; [plot.simbased_setx()] for plotting the
 #'   output of a call to `sim_setx()`; [summary.simbased_est()] for computing
 #'   p-values and confidence intervals for the estimated quantities.
 #'
@@ -144,7 +142,24 @@ sim_setx <- function(sim, x = list(), x1 = list(), verbose = TRUE, cl = NULL) {
   out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
   attr(out, "setx") <- newdata
   attr(out, "fd") <- fd
+  class(out) <- c("simbsed_setx", class(out))
   out
+}
+
+#' @export
+print.simbased_est <- function(x, digits = NULL, ...) {
+  cat("A simbased_est object (from `sim_setx()`)\n")
+  if (isTRUE(attr(x, "fd"))) {
+    cat(" - First difference\n")
+  }
+  else {
+    cat(" - Predicted outcomes at specified values\n")
+  }
+  cat(sprintf(" - %s %s estimated:\n", length(attr(x, "original")),
+              ngettext(length(attr(x, "original")), "quantity", "quantities")))
+  print(attr(x, "original"))
+  cat(sprintf(" - %s simulated values\n", nrow(x)))
+
 }
 
 process_x <- function(x, dat, arg_name) {

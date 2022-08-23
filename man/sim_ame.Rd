@@ -20,13 +20,13 @@ sim_ame(sim, var, subset = NULL, contrast = NULL, verbose = TRUE, cl = NULL)
 \item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
 }
 \value{
-A a \code{simbased_est} object, similar to the output of \code{sim_apply()}, with the additional attribute \code{"var"} containing the variable named in \code{var}. The average marginal means will be named \code{E[Y({v})]}, where \code{{v}} is replaced with the values the focal variable (\code{var}) takes on. The average marginal effect for a continuous \code{var} will be named \code{dY/d({x})} where \code{{x}} is replaced with \code{var}.
+A \code{simbased_ame} object, which inherits from \code{simbased_est} and is similar to the output of \code{sim_apply()}, with the additional attribute \code{"var"} containing the variable named in \code{var}. The average marginal means will be named \code{E[Y({v})]}, where \code{{v}} is replaced with the values the focal variable (\code{var}) takes on. The average marginal effect for a continuous \code{var} will be named \code{dY/d({x})} where \code{{x}} is replaced with \code{var}.
 }
 \description{
 \code{sim_ame()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes average marginal effects, the average effect of changing a single variable from one value to another (i.e., from one category to another for categorical variables or a tiny change for continuous variables).
 }
 \details{
-\code{sim_ame()} operates differently depending on whether continuous or categorical calculations are trigger. To trigger categorical calculations, \code{var} should be a string naming a factor, character, or binary variable or a named list with specific values given (e.g., \code{var = list(x1 = c(1, 2 ,3))}). Otherwise, continuous calculations are triggered.
+\code{sim_ame()} operates differently depending on whether continuous or categorical calculations are triggered. To trigger categorical calculations, \code{var} should be a string naming a factor, character, or binary variable or a named list with specific values given (e.g., \code{var = list(x1 = c(1, 2 ,3))}). Otherwise, continuous calculations are triggered.
 
 Categorical calculations involve computing average marginal means at each level of \code{var}. The average marginal mean is the average predicted outcome value after setting all units' value of \code{var} to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When \code{var} only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to \code{contrast}. Contrasts can be manually computed using \code{\link[=transform]{transform()}} afterward as well.
 
@@ -74,4 +74,12 @@ est <- transform(est,
 
 summary(est)
 
+}
+\seealso{
+\code{\link[=sim_apply]{sim_apply()}}, which provides a general interface to computing any
+quantities for simulation-based inference; \code{\link[=plot.simbased_est]{plot.simbased_est()}} for plotting the
+output of a call to \code{sim_ame()}; \code{\link[=summary.simbased_est]{summary.simbased_est()}} for computing
+p-values and confidence intervals for the estimated quantities.
+
+\code{marginaleffects::marginaleffects()}, \code{marginaleffects::comparisons()}, and \code{margins::margins()} for delta method-based implementations of computing average marginal effects.
 }

@@ -7,7 +7,7 @@
 \method{summary}{simbased_est}(object, est, alpha = 0.05, normal = FALSE, null = NA, ...)
 }
 \arguments{
-\item{object}{a \code{simbased_est} object; the output of a call to \code{\link[=sim_apply]{sim_apply()}}.}
+\item{object}{a \code{simbased_est} object; the output of a call to \code{\link[=sim_apply]{sim_apply()}} or its wrappers.}
 
 \item{est}{a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be plotted.}
 
@@ -20,8 +20,7 @@
 \item{...}{ignored.}
 }
 \value{
-A \code{summary.simbased_est} object, which contains the following components:
-\item{coefficients}{a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to \code{summary()}.}
+A \code{summary.simbased_est} object, which is a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to \code{summary()}.
 }
 \description{
 \code{summary()} tabulates the estimates and simulation-based confidence intervals and (optionally) p-values from a \code{simbased_est} object.
@@ -54,4 +53,7 @@ summary(est, null = c(NA, NA, 0, 1))
 summary(est, null = c(NA, NA, 0, 1),
         normal = TRUE)
 
+}
+\seealso{
+\code{\link[=plot.simbased_est]{plot.simbased_est()}} for plotting the simulation distribution of the estimates.
 }

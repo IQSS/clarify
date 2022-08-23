@@ -1,26 +1,26 @@
 #' Plot marginal predictions from `sim_setx()`
 #'
-#' `setx_plot()` plots the output of [sim_setx()], providing graphics similar to those of [sim_plot()] but with features specifically for plot marginal predictions. For continues predictors, this is a plot of the marginal predictions and their confidence bands across levels of the predictor. Otherwise, this is is a plot of simulated sampling distribution of the marginal predictions.
+#' `plot.simbased_sext()` plots the output of [sim_setx()], providing graphics similar to those of [plot.simbased_est()] but with features specifically for plot marginal predictions. For continues predictors, this is a plot of the marginal predictions and their confidence bands across levels of the predictor. Otherwise, this is is a plot of simulated sampling distribution of the marginal predictions.
 #'
-#' @inheritParams sim_plot
+#' @inheritParams plot.simbased_est
 #' @param x a `simbased_est` object resulting from a call to [sim_setx()].
 #' @param var the name of the focal varying predictor, i.e., the variable to be on the x-axis of the plot. All other variables with varying set values will be used to color the resulting plot. See Details. Ignored if no predictors vary or if only predictor varies in the reference grid or if `x1` was specified in `sim_setx()`. If not set, will use the predictor with the greatest number of unique values specified in the reference grid.
 #'
-#' @return a `ggplot` object
+#' @return A `ggplot` object.
 #'
-#' @details `setx_plot()` creates one of two kinds of plots depending on how the reference grid was specified in the call to `sim_setx()` and what `var` is set to. When the focal varying predictor (i.e., the one set in `var`) is numeric and takes on three more unique values in the reference grid, the produced plot is a line graph displaying the value of the marginal prediction (denoted as `E[Y|X]`) across values of the focal varying predictor, with confidence bands displayed when `ci = TRUE`. If other predictors also vary, lines for different values will be displayed in different colors. These plots are produced using [ggplot2::geom_line()] and [ggplot2::geom_ribbon()]
+#' @details `plot()` creates one of two kinds of plots depending on how the reference grid was specified in the call to `sim_setx()` and what `var` is set to. When the focal varying predictor (i.e., the one set in `var`) is numeric and takes on three more unique values in the reference grid, the produced plot is a line graph displaying the value of the marginal prediction (denoted as `E[Y|X]`) across values of the focal varying predictor, with confidence bands displayed when `ci = TRUE`. If other predictors also vary, lines for different values will be displayed in different colors. These plots are produced using [ggplot2::geom_line()] and [ggplot2::geom_ribbon()]
 #'
-#' When the focal varying predictor is a factor or character or only takes on two or fewer values in the reference grid, the produced plot is a density plot of the simulated predictions, similar to the plot resulting from [sim_plot()]. When other variables vary, densities for different values will be displayed in different colors. When a first difference is requested (i.e., `x1` was specified in the call to `sim_setx()`), the resulting plot will be identical to had `sim_plot()` been called on the output. The differences between `setx_plot()` and `sim_plot()` are that `sim_plot()` will produce a separate plot for each marginal prediction (i.e., using faceting), whereas `setx_plot()` colors densities in the same plot when predictor values vary. These plots are produced using [ggplot2::geom_density()].
+#' When the focal varying predictor is a factor or character or only takes on two or fewer values in the reference grid, the produced plot is a density plot of the simulated predictions, similar to the plot resulting from [plot.simbased_est()]. When other variables vary, densities for different values will be displayed in different colors. These plots are produced using [ggplot2::geom_density()].
 #'
 #' Marginal predictions are identified by the corresponding levels of the predictors that vary. The user should keep track of whether the non-varying predictors are set at specified or automatically set "typical" levels.
 #'
-#' @seealso [sim_plot()] for a another way to plot estimates; [summary.simbased_est()] for computing p-values and confidence intervals for the estimated quantities.
+#' @seealso [summary.simbased_est()] for computing p-values and confidence intervals for the estimated quantities.
 #'
 #' @examples
 #' ## See help("sim_sext") for examples
 #'
 #' @export
-setx_plot <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = FALSE) {
+plot.simbased_setx <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = FALSE) {
   if (is.null(attr(x, "setx"))) {
     chk::err("`x` must be the output of a call to `sim_setx()`")
   }

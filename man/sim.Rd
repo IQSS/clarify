@@ -53,5 +53,7 @@ s
 \seealso{
 \itemize{
 \item \code{\link[=sim_apply]{sim_apply()}} for applying a function to each set of simulated coefficients.
+\item \code{\link[=sim_ame]{sim_ame()}} for computing average marginal effects in each simulation draw
+\item \code{\link[=sim_setx]{sim_setx()}} for computing marginal predictions and first differences at typical values in each simulation draw
 }
 }

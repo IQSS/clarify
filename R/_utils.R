@@ -135,23 +135,10 @@ Mode <- function(v, na.rm = TRUE) {
   mode
 }
 
-#Shortcut for predicting from models to avoid slow insight::get_predicted()
-#for simple models (GLMs)
-simbased_predict <- function(x, newdata = NULL) {
-  if (inherits(x, "lm") || inherits(x, "glm")) {
-    predict(x, newdata = newdata, type = "response")
-  }
-  else {
-    setNames(as.numeric(insight::get_predicted(x, data = newdata, predict = "expectation",
-                           verbose = FALSE)),
-             rownames(newdata))
-  }
-}
-
 #Recursively search a list for a value (key) and return location of value
 list.search <- function(x, key) {
   for (i in seq_along(x)) {
-    if (typeof(x[[i]]) == typeof(key) && all(x[[i]] == key)) {
+    if (identical(x[[i]], key)) {
       return(i)
     }
     else if (is.list(x[[i]])) {

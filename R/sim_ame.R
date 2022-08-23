@@ -9,7 +9,7 @@
 #' @param contrast a string containing the name of a contrast between the average marginal means when the variable named in `var` is categorical and takes on two values. Allowed options include `"diff"` for the difference in means (also `"rd"`), `"rr"` for the risk ratio (also `"irr"`), `"log(rr):` for the log risk ratio (also `"log(irr)"`), `"or"` for the odds ratio, `"log(or)"` for the log odds ratio, and `"nnt"` for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.
 #'
 #' @details
-#' `sim_ame()` operates differently depending on whether continuous or categorical calculations are trigger. To trigger categorical calculations, `var` should be a string naming a factor, character, or binary variable or a named list with specific values given (e.g., `var = list(x1 = c(1, 2 ,3))`). Otherwise, continuous calculations are triggered.
+#' `sim_ame()` operates differently depending on whether continuous or categorical calculations are triggered. To trigger categorical calculations, `var` should be a string naming a factor, character, or binary variable or a named list with specific values given (e.g., `var = list(x1 = c(1, 2 ,3))`). Otherwise, continuous calculations are triggered.
 #'
 #' Categorical calculations involve computing average marginal means at each level of `var`. The average marginal mean is the average predicted outcome value after setting all units' value of `var` to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When `var` only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to `contrast`. Contrasts can be manually computed using [transform()] afterward as well.
 #'
@@ -28,7 +28,14 @@
 #' The `log(.)` versions are defined by taking the [log()] (natural log) of the corresponding effect measure.
 #'
 #' @return
-#' A a `simbased_est` object, similar to the output of `sim_apply()`, with the additional attribute `"var"` containing the variable named in `var`. The average marginal means will be named `E[Y({v})]`, where `{v}` is replaced with the values the focal variable (`var`) takes on. The average marginal effect for a continuous `var` will be named `dY/d({x})` where `{x}` is replaced with `var`.
+#' A `simbased_ame` object, which inherits from `simbased_est` and is similar to the output of `sim_apply()`, with the additional attribute `"var"` containing the variable named in `var`. The average marginal means will be named `E[Y({v})]`, where `{v}` is replaced with the values the focal variable (`var`) takes on. The average marginal effect for a continuous `var` will be named `dY/d({x})` where `{x}` is replaced with `var`.
+#'
+#' @seealso [sim_apply()], which provides a general interface to computing any
+#'   quantities for simulation-based inference; [plot.simbased_est()] for plotting the
+#'   output of a call to `sim_ame()`; [summary.simbased_est()] for computing
+#'   p-values and confidence intervals for the estimated quantities.
+#'
+#' `marginaleffects::marginaleffects()`, `marginaleffects::comparisons()`, and `margins::margins()` for delta method-based implementations of computing average marginal effects.
 #'
 #' @examples
 #' data("lalonde", package = "MatchIt")
@@ -181,7 +188,21 @@ sim_ame <- function(sim,
 
   attr(out, type) <- type
   attr(out, "var") <- var
+  class(out) <- c("simbased_ame", class(out))
   out
+}
+
+#' @export
+print.simbased_ame <- function(x, digits = NULL, ...) {
+  cat("A simbased_est object (from `sim_ame()`)\n")
+
+  cat(sprintf(" - Average marginal effect of `%s`\n", attr(x, "var")))
+
+  cat(sprintf(" - %s %s estimated:\n", length(attr(x, "original")),
+              ngettext(length(attr(x, "original")), "quantity", "quantities")))
+  print(attr(x, "original"))
+  cat(sprintf(" - %s simulated values\n", nrow(x)))
+
 }
 
 rename_contrast <- function(x) {
