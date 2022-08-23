@@ -23,7 +23,7 @@ Suggests:
     MatchIt (>= 4.0.0),
     parallel
 Config/testthat/edition: 3
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/ngreifer/simbased,
     https://ngreifer.github.io/simbased/
