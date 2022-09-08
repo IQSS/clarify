@@ -57,7 +57,7 @@
 #'                             re74 = c(0, 10000)),
 #'                 verbose = FALSE)
 #' summary(est)
-#' setx_plot(est)
+#' plot(est)
 #'
 #' # Predicted values at specified grid of values, typical
 #' # values for other predictors
@@ -65,7 +65,7 @@
 #'                             married = 0:1),
 #'                 verbose = FALSE)
 #' summary(est)
-#' setx_plot(est)
+#' plot(est)
 #'
 #' # First differences of treat at specified value of
 #' # race, typical values for other predictors
@@ -73,11 +73,14 @@
 #'                 x1 = list(treat = 1, race = "hispan"),
 #'                 verbose = FALSE)
 #' summary(est)
-#' setx_plot(est)
+#' plot(est)
 #'
 #' @export
 sim_setx <- function(sim, x = list(), x1 = list(), verbose = TRUE, cl = NULL) {
   chk::chk_is(sim, "simbased_sim")
+  if (!isTRUE(attr(sim, "use_fit"))) {
+    chk::err("`sim_setx()` can only be used when a model fit was supplied to the original call to `sim()`")
+  }
   chk::chk_flag(verbose)
 
   dat <- insight::get_predictors(sim$fit)
@@ -147,18 +150,18 @@ sim_setx <- function(sim, x = list(), x1 = list(), verbose = TRUE, cl = NULL) {
 }
 
 #' @export
-print.simbased_est <- function(x, digits = NULL, ...) {
-  cat("A simbased_est object (from `sim_setx()`)\n")
+print.simbased_setx <- function(x, digits = NULL, ...) {
+  cat("A `simbased_est` object (from `sim_setx()`)\n")
   if (isTRUE(attr(x, "fd"))) {
     cat(" - First difference\n")
   }
   else {
     cat(" - Predicted outcomes at specified values\n")
   }
+  cat(sprintf(" - %s simulated values\n", nrow(x)))
   cat(sprintf(" - %s %s estimated:\n", length(attr(x, "original")),
               ngettext(length(attr(x, "original")), "quantity", "quantities")))
   print(attr(x, "original"))
-  cat(sprintf(" - %s simulated values\n", nrow(x)))
 
 }
 
