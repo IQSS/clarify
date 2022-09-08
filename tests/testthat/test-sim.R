@@ -1,0 +1,780 @@
+
+test_that("sim() works with coefs and vcov", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- lm(re78 ~ treat + age + educ + race + re74, data = mdata,
+            weights = weights)
+
+  s <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
+           n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "normal")
+  expect_false(attr(s, "use.fit"))
+
+  s <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
+           n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
+                   n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
+            n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
+            n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
+            n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  expect_error(sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit)[-2,-2],
+               n = 5))
+  expect_error(sim(coefs = coef(fit)[-1], vcov = sandwich::vcovHC(fit),
+                   n = 5))
+  expect_error(sim(coefs = c(NA, coef(fit)[-1]), vcov = sandwich::vcovHC(fit),
+                   n = 5))
+})
+
+test_that("sim() works with lm()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- lm(re78 ~ treat + age + educ + race + re74, data = mdata,
+            weights = weights)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "t_363")
+
+  s <- sim(fit, n = 5, dist = "norm")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_error(sim(fit, n = 5, coefs = runif(8)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with glm()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- glm(binY ~ treat + age + educ + race + re74, data = mdata,
+             weights = weights, family = quasibinomial)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_error(sim(fit, n = 5, coefs = runif(8)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with MASS::glm.nb()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- MASS::glm.nb(countY ~ treat + age + educ + race + re74, data = mdata,
+                      weights = weights)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_error(sim(fit, n = 5, coefs = runif(8)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with betareg::betareg()", {
+
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- betareg::betareg(propY ~ treat + age + educ + race + re74 | treat + age,
+                          data = mdata, weights = weights)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 10L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite",
+                 "re74", "(phi)_(Intercept)", "(phi)_treat", "(phi)_age"))
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL))
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(10)))
+  expect_error(sim(fit, n = 5, coefs = runif(11)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(9))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with survey::svyglm()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- survey::svyglm(binY ~ treat + age + educ + race + re74, family = quasibinomial,
+                        design = survey::svydesign(ids = ~subclass, weights = ~weights, data = mdata))
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata$subclass)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_error(sim(fit, n = 5, coefs = runif(8)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with estimatr::lm_robust()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- estimatr::lm_robust(re78 ~ treat + age + educ + race + re74, data = mdata,
+                             weights = weights)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "t_363")
+
+  s <- sim(fit, n = 5, dist = "norm")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov(fit)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_error(sim(fit, n = 5, coefs = runif(8)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with estimatr::iv_robust()", {
+  skip("iv_robust() has errors; not yet fully supported")
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- estimatr::iv_robust(re78 ~ treat + age + race | educ + age + race, data = mdata,
+                             weights = weights)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 5L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "racehispan", "racewhite"))
+  expect_equal(attr(s, "dist"), "t_365")
+
+  s <- sim(fit, n = 5, dist = "norm")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  p <- length(coef(fit))
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(p)))
+  expect_error(sim(fit, n = 5, coefs = runif(p + 1)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(p - 1))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with fixest::feols()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- fixest::feols(re78 ~ treat + age + educ + race + re74, data = mdata,
+                       weights = ~weights)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "t_363")
+
+  s <- sim(fit, n = 5, dist = "norm")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata["subclass"])))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_error(sim(fit, n = 5, coefs = runif(8)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with fixest::feglm()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- fixest::feglm(binY ~ treat + age + educ + race + re74, data = mdata,
+                       weights = ~weights, family = quasibinomial)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata["subclass"])))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_error(sim(fit, n = 5, coefs = runif(8)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() uses normal dist for fixest::feglm(, family = gaussian)", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- fixest::feglm(re78 ~ treat + age + educ + race + re74, data = mdata,
+                       weights = ~weights, family = gaussian)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "normal")
+})
+
+test_that("sim() works with logistf::logistf()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- logistf::logistf(binY ~ treat + age + educ + race + re74, data = mdata,
+                           weights = weights)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov(fit)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_error(sim(fit, n = 5, coefs = runif(8)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with geepack::geeglm()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  fit <- geepack::geeglm(binY ~ treat + age + educ + race + re74,
+                         data = mdata[order(mdata$subclass),],
+                         weights = weights, family = binomial,
+                         id = subclass)
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, 7L))
+  expect_equal(colnames(s$sim.coefs),
+               c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov(fit)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_error(sim(fit, n = 5, coefs = runif(8)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
+
+test_that("sim() works with rms::ols()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  suppressMessages(library(rms))
+
+  dd <<- suppressWarnings(datadist(mdata))
+  op <- options(datadist = "dd")
+
+  fit <- ols(re78 ~ treat + pol(age, 3) +
+               educ + catg(race) + rcs(re74, 3), data = mdata,
+             penalty = 3)
+  k <- 10L #length(coef(fit))
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, k))
+  expect_equal(colnames(s$sim.coefs),
+               c("Intercept", "treat", "age", "age^2", "age^3", "educ", "race=hispan",
+                 "race=white", "re74", "re74'"))
+  expect_equal(attr(s, "dist"), "t_361.386359992672")
+
+  s <- sim(fit, n = 5, dist = "norm")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov))
+  # expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(k)))
+  expect_error(sim(fit, n = 5, coefs = runif(k + 1)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(k - 1))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+
+  options(op); rm(dd, envir = globalenv())
+  unloadNamespace("rms")
+})
+
+test_that("sim() works with rms::lrm()", {
+  mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+
+  suppressMessages(library(rms))
+
+  dd <<- suppressWarnings(datadist(mdata))
+  op <- options(datadist = "dd")
+
+  fit <- lrm(binY ~ treat + pol(age, 3) +
+               educ + catg(race) + rcs(re74, 3), data = mdata,
+             penalty = 3)
+
+  k <- 10L #length(coef(fit))
+
+  s <- sim(fit, n = 5)
+
+  expect_good_simbased_sim(s)
+
+  expect_equal(dim(s$sim.coefs), c(5L, k))
+  expect_equal(colnames(s$sim.coefs),
+               c("Intercept", "treat", "age", "age^2", "age^3", "educ", "race=hispan",
+                 "race=white", "re74", "re74'"))
+  expect_equal(attr(s, "dist"), "normal")
+
+  s <- sim(fit, n = 5, dist = "t_100")
+  expect_good_simbased_sim(s)
+  expect_equal(attr(s, "dist"), "t_100")
+
+  expect_error(sim(fit, n = 5, dist = "t"))
+
+  set.seed(987)
+  s1 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s1)
+  set.seed(987)
+  s2 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s2)
+
+  expect_identical(s1$sim.coefs, s2$sim.coefs)
+
+  #Different seed
+  set.seed(123)
+  s3 <- sim(fit, n = 5)
+  expect_good_simbased_sim(s3)
+  expect_false(identical(s1$sim.coefs, s3$sim.coefs))
+
+  #Using custom variances
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov))
+  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov(fit)))
+  expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
+
+  #Custom coefs
+  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(k)))
+  expect_error(sim(fit, n = 5, coefs = runif(k + 1)))
+  expect_error(sim(n = 5, coefs = stats::coef))
+  expect_error(sim(fit, n = 5, coefs = c(NA, runif(k - 1))))
+
+  s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
+  expect_good_simbased_sim(s)
+  expect_false(attr(s, "use.fit"))
+})
