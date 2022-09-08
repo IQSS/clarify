@@ -48,13 +48,21 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sim_ame</span><span class="op">(</span><span class="va">sim</span>, <span class="va">var</span>, subset <span class="op">=</span> <span class="cn">NULL</span>, contrast <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, cl <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sim_ame</span><span class="op">(</span></span>
+<span>  <span class="va">sim</span>,</span>
+<span>  <span class="va">var</span>,</span>
+<span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  contrast <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  eps <span class="op">=</span> <span class="fl">1e-05</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cl <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>sim</dt>
-<dd><p>a <code>simbased_sim</code> object; the output of a call to <code><a href="sim.html">sim()</a></code>.</p></dd>
+<dd><p>a <code>simbased_sim</code> object; the output of a call to <code><a href="sim.html">sim()</a></code> or <code><a href="simmi.html">simmi()</a></code>.</p></dd>
 
 
 <dt>var</dt>
@@ -69,6 +77,10 @@
 <dd><p>a string containing the name of a contrast between the average marginal means when the variable named in <code>var</code> is categorical and takes on two values. Allowed options include <code>"diff"</code> for the difference in means (also <code>"rd"</code>), <code>"rr"</code> for the risk ratio (also <code>"irr"</code>), <code>"log(rr):</code> for the log risk ratio (also <code>"log(irr)"</code>), <code>"or"</code> for the odds ratio, <code>"log(or)"</code> for the log odds ratio, and <code>"nnt"</code> for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.</p></dd>
 
 
+<dt>eps</dt>
+<dd><p>when the variable named in <code>var</code> is continuous, the value by which to change the variable values to approximate the derivative. See Details.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p><code>logical</code>; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is <code>TRUE</code>.</p></dd>
 
@@ -81,19 +93,32 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A a <code>simbased_est</code> object, similar to the output of <code><a href="sim_apply.html">sim_apply()</a></code>, with the additional attribute <code>"var"</code> containing the variable named in <code>var</code>. The average marginal means will be named <code>E[Y({v})]</code>, where <code>{v}</code> is replaced with the values the focal variable (<code>var</code>) takes on. The average marginal effect for a continuous <code>var</code> will be named <code>dY/d({x})</code> where <code>{x}</code> is replaced with <code>var</code>.</p>
+<p>A <code>simbased_ame</code> object, which inherits from <code>simbased_est</code> and is similar to
+the output of <code><a href="sim_apply.html">sim_apply()</a></code>, with the additional attribute <code>"var"</code> containing
+the variable named in <code>var</code>. The average marginal means will be named
+<code>E[Y({v})]</code>, where <code>{v}</code> is replaced with the values the focal variable
+(<code>var</code>) takes on. The average marginal effect for a continuous <code>var</code> will be
+named <code>dY/d({x})</code> where <code>{x}</code> is replaced with <code>var</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>sim_ame()</code> operates differently depending on whether continuous or categorical calculations are trigger. To trigger categorical calculations, <code>var</code> should be a string naming a factor, character, or binary variable or a named list with specific values given (e.g., <code>var = list(x1 = c(1, 2 ,3))</code>). Otherwise, continuous calculations are triggered.</p>
+    <p><code>sim_ame()</code> operates differently depending on whether continuous or categorical calculations are triggered. To trigger categorical calculations, <code>var</code> should be a string naming a factor, character, or binary variable or a named list with specific values given (e.g., <code>var = list(x1 = c(1, 2 ,3))</code>). Otherwise, continuous calculations are triggered.</p>
 <p>Categorical calculations involve computing average marginal means at each level of <code>var</code>. The average marginal mean is the average predicted outcome value after setting all units' value of <code>var</code> to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When <code>var</code> only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to <code>contrast</code>. Contrasts can be manually computed using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> afterward as well.</p>
-<p>Continuous calculations involve computing the average of marginal effects of <code>var</code> across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of <code>var</code> by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of <code>var</code> is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is .0001 times the range of the focal variable.</p><div class="section">
+<p>Continuous calculations involve computing the average of marginal effects of <code>var</code> across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of <code>var</code> by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of <code>var</code> is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is <code>eps</code> times the standard deviation of the focal variable.</p><div class="section">
 <h3 id="effect-measures">Effect measures<a class="anchor" aria-label="anchor" href="#effect-measures"></a></h3>
 
 
 <p>The effect measures specified in <code>contrast</code> are defined below. Typically only <code>"diff"</code> is appropriate for continuous outcomes and <code>"diff"</code> or <code>"irr"</code> are appropriate for count outcomes; the rest are appropriate for binary outcomes. For a focal variable with two levels, <code>0</code> and <code>1</code>, and an outcome <code>Y</code>, the average marginal means will be denoted in the below formulas as <code>E[Y(0)]</code> and <code>E[Y(1)]</code>, respectively.</p><table class="table table"><tr><td><code>contrast</code></td><td>Formula</td></tr><tr><td><code>"diff"</code></td><td><code>E[Y(1)] - E[Y(0)]</code></td></tr><tr><td><code>"rr"</code></td><td><code>E[Y(1)] / E[Y(0)]</code></td></tr><tr><td><code>"or"</code></td><td><code>O[Y(1)] / O[Y(0)]</code>, where <code>O[Y(.)]</code> = <code>E[Y(.)] / (1 - E[Y(.)])</code></td></tr><tr><td><code>"nnt"</code></td><td><code>1 / (E[Y(1)] - E[Y(0)])</code></td></tr></table><p>The <code>log(.)</code> versions are defined by taking the <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">log()</a></code> (natural log) of the corresponding effect measure.</p>
 </div>
 
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="sim_apply.html">sim_apply()</a></code>, which provides a general interface to computing any
+quantities for simulation-based inference; <code><a href="plot.simbased_est.html">plot.simbased_est()</a></code> for plotting the
+output of a call to <code>sim_ame()</code>; <code><a href="summary.simbased_est.html">summary.simbased_est()</a></code> for computing
+p-values and confidence intervals for the estimated quantities.</p>
+<p><code>marginaleffects::marginaleffects()</code>, <code>marginaleffects::comparisons()</code>, and <code>margins::margins()</code> for delta method-based implementations of computing average marginal effects.</p></div>
     </div>
 
     <div class="section level2">

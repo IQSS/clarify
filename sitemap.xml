@@ -16,7 +16,10 @@
     <loc>https://ngreifer.github.io/simbased/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/reference/setx_plot.html</loc>
+    <loc>https://ngreifer.github.io/simbased/reference/plot.simbased_est.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/simbased/reference/plot.simbased_setx.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/simbased/reference/sim.html</loc>
@@ -28,13 +31,13 @@
     <loc>https://ngreifer.github.io/simbased/reference/sim_apply.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/reference/sim_plot.html</loc>
-  </url>
-  <url>
     <loc>https://ngreifer.github.io/simbased/reference/sim_setx.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/simbased/reference/simbased-package.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/simbased/reference/simmi.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/simbased/reference/summary.simbased_est.html</loc>

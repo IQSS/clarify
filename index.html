@@ -76,7 +76,7 @@
 </h2>
 <p>Simulation-based inference is an alternative to the delta method and bootstrapping for performing inference on quantities that are functions of model parameters. The delta method involves multiple assumptions: 1) the regression coefficients are normally distributed, 2) the resulting quantity of interest is normally distributed, and 3) the first-order approximation to the variance of the desired estimator is equal to the true variance. When these assumptions are incorrect, which is especially likely when the quantity of interest is a complicated nonlinear function of the model coefficients, the resulting inferences can be inaccurate. Bootstrapping is one solution to this problem that does not require any of the above assumptions for valid nonparametric inference; however, it is computationally intensive since the original model needs to be fit many times, and any problems with the model that are only apparent in some bootstrap samples (e.g., failure to converge, perfect prediction) can make using bootstrapping challenging.</p>
 <p>Simulation-based inference provides a compromise to these two methods: it is more accurate than the delta method because it does not require assumptions 2) and 3), and it is faster and more stable than bootstrapping because the model only needs to be fit once. Simulation-based inference involves simulating model coefficients from their multivariate distribution using their estimated values and covariance from a single model fit to the original data, computing the quantities of interest from each set of model coefficients, and then performing inference using the resulting distribution of the estimates as their sampling distribution. Confidence intervals can be computed using the percentiles of the resulting sampling distribution, and p-values can be computed by inverting the confidence intervals. Alternatively, if the resulting sampling distribution is normally distributed, its standard error can be estimated as the standard deviation of the estimates and normal-theory confidence intervals and p-values can be computed.</p>
-<p>The <code>simbased</code> package was designed to provide a simple, general interface to simulation-based inference, along with a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of <code>simbased</code> are <code><a href="reference/sim.html">sim()</a></code>, <code><a href="reference/sim_apply.html">sim_apply()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="reference/sim_plot.html">sim_plot()</a></code>. These work together to create a simple workflow for simulation-based inference.</p>
+<p>The <code>simbased</code> package was designed to provide a simple, general interface to simulation-based inference, along with a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of <code>simbased</code> are <code><a href="reference/sim.html">sim()</a></code>, <code><a href="reference/sim_apply.html">sim_apply()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. These work together to create a simple workflow for simulation-based inference.</p>
 <ul>
 <li>
 <code><a href="reference/sim.html">sim()</a></code> simulates model parameters from a fitted model</li>
@@ -85,7 +85,7 @@
 <li>
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> produces confidence intervals and p-values for the resulting estimates</li>
 <li>
-<code><a href="reference/sim_plot.html">sim_plot()</a></code> produces plots of the simulated sampling distribution of the resulting estimates</li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> produces plots of the simulated sampling distribution of the resulting estimates</li>
 </ul>
 <p>There are also some wrappers for <code><a href="reference/sim_apply.html">sim_apply()</a></code> for performing some common operations: <code><a href="reference/sim_ame.html">sim_ame()</a></code> computes the average marginal effect of a variable, mirroring <code>marginaleffects::comparisons()</code> and <code>marginaleffects::marginaleffects()</code>; and <code><a href="reference/sim_setx.html">sim_setx()</a></code> computes predicted values at typical values of the covariates and differences between them, mirroring <code>Zelig::setx()</code> and <code>Zelig::setx1()</code>.</p>
 </div>
@@ -118,11 +118,11 @@
 <span><span class="op">}</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sim_est</span></span>
-<span><span class="co">#&gt; A simbased_est object (from `sim_apply()`)</span></span>
+<span><span class="co">#&gt; A `simbased_est` object (from `sim_apply()`)</span></span>
+<span><span class="co">#&gt;  - 1000 simulated values</span></span>
 <span><span class="co">#&gt;  - 3 quantities estimated:</span></span>
 <span><span class="co">#&gt;    E[Y(0)]    E[Y(1)]    log(RR) </span></span>
-<span><span class="co">#&gt;  0.2944381  0.2432432 -0.1910068 </span></span>
-<span><span class="co">#&gt;  - 1000 simulated values</span></span>
+<span><span class="co">#&gt;  0.2944381  0.2432432 -0.1910068</span></span>
 <span></span>
 <span><span class="co">#View the estimates, confidence intervals, and p-values</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim_est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
@@ -132,7 +132,7 @@
 <span><span class="co">#&gt; log(RR)   -0.191   -0.437     0.344    0.79</span></span>
 <span></span>
 <span><span class="co">#Plot the resulting sampling distributions</span></span>
-<span><span class="fu"><a href="reference/sim_plot.html">sim_plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-example-1.png" width="80%"></p>
 <p><code>simbased</code> provides a shortcut for computing average marginal effects and comparisons between average adjusted predictions, <code><a href="reference/sim_ame.html">sim_ame()</a></code>, which is essentially a wrapper for <code><a href="reference/sim_apply.html">sim_apply()</a></code> with extra processing. We can compute the log marginal risk ratio below:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -141,12 +141,12 @@
 <span>                   contrast <span class="op">=</span> <span class="st">"log(RR)"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sim_est</span></span>
-<span><span class="co">#&gt; A simbased_est object (from `sim_ame()`)</span></span>
+<span><span class="co">#&gt; A `simbased_est` object (from `sim_ame()`)</span></span>
 <span><span class="co">#&gt;  - Average marginal effect of `treat`</span></span>
+<span><span class="co">#&gt;  - 1000 simulated values</span></span>
 <span><span class="co">#&gt;  - 3 quantities estimated:</span></span>
 <span><span class="co">#&gt;    E[Y(0)]    E[Y(1)]    log(RR) </span></span>
-<span><span class="co">#&gt;  0.2944381  0.2432432 -0.1910068 </span></span>
-<span><span class="co">#&gt;  - 1000 simulated values</span></span>
+<span><span class="co">#&gt;  0.2944381  0.2432432 -0.1910068</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim_est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate CI 2.5 % CI 97.5 % P-value</span></span>
@@ -160,8 +160,8 @@
 <span>                             newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                             transform_pre <span class="op">=</span> <span class="st">"lnratioavg"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                   treat Effect Std. Error z value Pr(&gt;|z|)   2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; 1 ln(mean(1) / mean(0)) -0.191     0.1925  -0.992  0.32119 -0.5684 0.1864</span></span>
+<span><span class="co">#&gt;    Term              Contrast Effect Std. Error z value Pr(&gt;|z|)   2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt; 1 treat ln(mean(1) / mean(0)) -0.191     0.1925  -0.992  0.32119 -0.5684 0.1864</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model type:  glm </span></span>
 <span><span class="co">#&gt; Prediction type:  response</span></span></code></pre></div>
@@ -184,7 +184,7 @@
 <span>                    verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Plot of predicted values across age for each value of treat</span></span>
-<span><span class="fu"><a href="reference/setx_plot.html">setx_plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="80%"></p>
 <p><code>simbased</code> offers parallel processing for all estimation functions to speed up computation.</p>
 <p>The methodology of simulation-based inference is described in King, Tomz, and Wittenberg (2000).</p>
@@ -218,7 +218,7 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Noah Greifer <br><small class="roles"> Contributor, maintainer </small> <a href="https://orcid.org/0000-0003-3067-7154" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Noah Greifer <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3067-7154" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
 
