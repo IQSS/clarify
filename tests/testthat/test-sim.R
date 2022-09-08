@@ -14,7 +14,7 @@ test_that("sim() works with coefs and vcov", {
   expect_equal(colnames(s$sim.coefs),
                c("(Intercept)", "treat", "age", "educ", "racehispan", "racewhite", "re74"))
   expect_equal(attr(s, "dist"), "normal")
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 
   s <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
            n = 5, dist = "t_100")
@@ -103,7 +103,7 @@ test_that("sim() works with lm()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with glm()", {
@@ -155,7 +155,7 @@ test_that("sim() works with glm()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with MASS::glm.nb()", {
@@ -207,7 +207,7 @@ test_that("sim() works with MASS::glm.nb()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with betareg::betareg()", {
@@ -261,7 +261,7 @@ test_that("sim() works with betareg::betareg()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with survey::svyglm()", {
@@ -313,7 +313,7 @@ test_that("sim() works with survey::svyglm()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with estimatr::lm_robust()", {
@@ -368,7 +368,7 @@ test_that("sim() works with estimatr::lm_robust()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with estimatr::iv_robust()", {
@@ -424,7 +424,7 @@ test_that("sim() works with estimatr::iv_robust()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with fixest::feols()", {
@@ -480,7 +480,7 @@ test_that("sim() works with fixest::feols()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with fixest::feglm()", {
@@ -532,7 +532,7 @@ test_that("sim() works with fixest::feglm()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() uses normal dist for fixest::feglm(, family = gaussian)", {
@@ -595,7 +595,7 @@ test_that("sim() works with logistf::logistf()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with geepack::geeglm()", {
@@ -648,7 +648,7 @@ test_that("sim() works with geepack::geeglm()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
 
 test_that("sim() works with rms::ols()", {
@@ -712,7 +712,7 @@ test_that("sim() works with rms::ols()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 
   options(op); rm(dd, envir = globalenv())
   unloadNamespace("rms")
@@ -776,5 +776,5 @@ test_that("sim() works with rms::lrm()", {
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
   expect_good_simbased_sim(s)
-  expect_false(attr(s, "use.fit"))
+  expect_false(attr(s, "use_fit"))
 })
