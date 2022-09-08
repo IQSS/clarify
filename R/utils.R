@@ -149,3 +149,19 @@ list.search <- function(x, key) {
 
   NULL
 }
+
+#Checks if object inherits from any of the supplied classes
+inherits_any <- function(x, what) {
+  chk::chk_character(what)
+
+  for (i in what) {
+    if (inherits(x, i)) return(TRUE)
+  }
+
+  FALSE
+}
+
+#Checks if input is "try-error", i.e., failure of try()
+is_error <- function(x) {
+  inherits(x, "try-error")
+}
