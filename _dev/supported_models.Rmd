@@ -1,0 +1,81 @@
+---
+title: "Model Support"
+author: "Noah Greifer"
+date: "2022-08-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Supported models
+
+* `stats::lm()`
+
+For `mlm` models (multiple outcomes), coefficients are named `y1:x1` and `y2:x1` as they are in the covariance matrix when supplied through `coefs` argument of `FUN` in `sim_apply()`; when extracted from `fit`, they are in a matrix as usual.
+
+* `stats::glm()`
+
+* `MASS::glm.nb()`
+
+* `survey::svyglm()`
+
+* `estimatr::lm_robust()`
+
+See `lm()` about multiple outcomes.
+
+* `fixest::feols()`, `fixest::feglm()`, `fixest::femlm()`, etc.
+
+Cannot accept `fixest.multi` models, i.e., resulting from multiple models being fit in the same `feols()` call. In IV, only second stage coefficients and covariance are extracted.
+
+* `betareg::betareg()`
+
+* `logistf` models (`logistf::logistf()`, `logistf::flic()`, `logistf::flac()`)
+
+* `geepack::geeglm()`
+
+* `rms::ols()`, `rms::lrm()`
+
+* Multiply imputed data (fit list or `mids`)
+
+Need to add tests and examples
+
+## Models to add
+
+* `survival` models (incl. `rms::cph()`)
+
+* `ivreg` models
+
+* `gam` models
+
+* `estimatr::iv_robust()`
+
+Only operates on second stage model. NOTE: bug in `estimatr` preventing full use.
+
+### Way down the road
+
+* Mixed effects models (`nlme`, `lme4`, `glmmTMB`)
+
+* Multinomial regression (`nnet::multinom()`, `mlogit::mlogit()`, `mclogit::mblogit()`)
+
+* Ordinal regression (`MASS::polr()`, `rms::olr()`, `geepack::ordgee()`)
+
+* `brms::brms()`
+
+Probably want an `as.sim()` method to use posterior as simulated values. May also want to trigger a Bayesian pipeline.
+
+* `ordbetareg::ordbetareg()`
+
+Returns a `brms` object.
+
+## Adding new models
+
+* Add `transform_coefs()` (probably okay unless `coef()` doesn't return a vector)
+* Add `get_vcov()` (probably okay)
+* Add `get_df()` (probably set to `Inf` unless model is a linear model fit with OLS)
+* Add `get_coef_template()` (probably okay unless coefficients stored in unusual way)
+* Add `untransform_coefs()` (probably okay unless coefficients stored in unusual way)
+* Add `get_coef_location()` (probably `"coefficients"`)
+* Add `simbased_predict()` (probably okay unless multivariate)
+* Add test to `test-sim.R` and `test-sim_ame.R`

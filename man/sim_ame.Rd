@@ -4,10 +4,18 @@
 \alias{sim_ame}
 \title{Compute average marginal effects}
 \usage{
-sim_ame(sim, var, subset = NULL, contrast = NULL, verbose = TRUE, cl = NULL)
+sim_ame(
+  sim,
+  var,
+  subset = NULL,
+  contrast = NULL,
+  eps = 1e-05,
+  verbose = TRUE,
+  cl = NULL
+)
 }
 \arguments{
-\item{sim}{a \code{simbased_sim} object; the output of a call to \code{\link[=sim]{sim()}}.}
+\item{sim}{a \code{simbased_sim} object; the output of a call to \code{\link[=sim]{sim()}} or \code{\link[=simmi]{simmi()}}.}
 
 \item{var}{either the name of a variable for which marginal effects are to be computed or a named list of length one containing the values the variable should take. If a list is supplied or the named variables is categorical (factor, character, or having two values), categorical calculations will be triggered. Otherwise, continuous calculations will be triggered. See Details.}
 
@@ -15,12 +23,19 @@ sim_ame(sim, var, subset = NULL, contrast = NULL, verbose = TRUE, cl = NULL)
 
 \item{contrast}{a string containing the name of a contrast between the average marginal means when the variable named in \code{var} is categorical and takes on two values. Allowed options include \code{"diff"} for the difference in means (also \code{"rd"}), \code{"rr"} for the risk ratio (also \code{"irr"}), \verb{"log(rr):} for the log risk ratio (also \code{"log(irr)"}), \code{"or"} for the odds ratio, \code{"log(or)"} for the log odds ratio, and \code{"nnt"} for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.}
 
+\item{eps}{when the variable named in \code{var} is continuous, the value by which to change the variable values to approximate the derivative. See Details.}
+
 \item{verbose}{\code{logical}; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
 
 \item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
 }
 \value{
-A \code{simbased_ame} object, which inherits from \code{simbased_est} and is similar to the output of \code{sim_apply()}, with the additional attribute \code{"var"} containing the variable named in \code{var}. The average marginal means will be named \code{E[Y({v})]}, where \code{{v}} is replaced with the values the focal variable (\code{var}) takes on. The average marginal effect for a continuous \code{var} will be named \code{dY/d({x})} where \code{{x}} is replaced with \code{var}.
+A \code{simbased_ame} object, which inherits from \code{simbased_est} and is similar to
+the output of \code{sim_apply()}, with the additional attribute \code{"var"} containing
+the variable named in \code{var}. The average marginal means will be named
+\code{E[Y({v})]}, where \code{{v}} is replaced with the values the focal variable
+(\code{var}) takes on. The average marginal effect for a continuous \code{var} will be
+named \code{dY/d({x})} where \code{{x}} is replaced with \code{var}.
 }
 \description{
 \code{sim_ame()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes average marginal effects, the average effect of changing a single variable from one value to another (i.e., from one category to another for categorical variables or a tiny change for continuous variables).
@@ -30,7 +45,7 @@ A \code{simbased_ame} object, which inherits from \code{simbased_est} and is sim
 
 Categorical calculations involve computing average marginal means at each level of \code{var}. The average marginal mean is the average predicted outcome value after setting all units' value of \code{var} to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When \code{var} only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to \code{contrast}. Contrasts can be manually computed using \code{\link[=transform]{transform()}} afterward as well.
 
-Continuous calculations involve computing the average of marginal effects of \code{var} across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of \code{var} by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of \code{var} is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is .0001 times the range of the focal variable.
+Continuous calculations involve computing the average of marginal effects of \code{var} across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of \code{var} by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of \code{var} is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is \code{eps} times the standard deviation of the focal variable.
 \subsection{Effect measures}{
 
 The effect measures specified in \code{contrast} are defined below. Typically only \code{"diff"} is appropriate for continuous outcomes and \code{"diff"} or \code{"irr"} are appropriate for count outcomes; the rest are appropriate for binary outcomes. For a focal variable with two levels, \code{0} and \code{1}, and an outcome \code{Y}, the average marginal means will be denoted in the below formulas as \code{E[Y(0)]} and \code{E[Y(1)]}, respectively.\tabular{ll}{

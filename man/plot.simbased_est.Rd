@@ -4,7 +4,7 @@
 \alias{plot.simbased_est}
 \title{Plot distribution of simulated estimates}
 \usage{
-\method{plot}{simbased_est}(x, est, ci = TRUE, alpha = 0.05, normal = FALSE)
+\method{plot}{simbased_est}(x, est, ci = TRUE, alpha = 0.05, normal = FALSE, ...)
 }
 \arguments{
 \item{x}{a \code{simbased_est} object; the output of a call to \code{sim_apply()}.}
@@ -16,6 +16,8 @@
 \item{alpha}{the \eqn{\alpha} used to compute the confidence interval. Default is .05 for 95\% confidence intervals.}
 
 \item{normal}{\code{logical}; whether to compute confidence intervals using a normal approximation (\code{TRUE}) or the simulated sampling distribution (\code{FALSE}; default). See \code{\link[=summary.simbased_est]{summary.simbased_est()}} for details.}
+
+\item{...}{ignored.}
 }
 \value{
 A \code{ggplot} object.
