@@ -12,7 +12,7 @@
 #' @return A `ggplot` object.
 # @examples
 #' @export
-plot.simbased_est <- function(x, est, ci = TRUE, alpha = .05, normal = FALSE) {
+plot.simbased_est <- function(x, est, ci = TRUE, alpha = .05, normal = FALSE, ...) {
 
   #' @import ggplot2
 

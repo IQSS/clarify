@@ -20,7 +20,7 @@
 #' ## See help("sim_sext") for examples
 #'
 #' @export
-plot.simbased_setx <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = FALSE) {
+plot.simbased_setx <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = FALSE, ...) {
   if (is.null(attr(x, "setx"))) {
     chk::err("`x` must be the output of a call to `sim_setx()`")
   }
@@ -36,13 +36,13 @@ plot.simbased_setx <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = F
     if (!is.null(var)) {
       chk::wrn("ignoring `var` because no variables vary over predictions")
     }
-    return(sim_plot(x, est = 1, ci = ci, alpha = alpha))
+    return(plot.simbased_est(x, est = 1, ci = ci, alpha = alpha, normal = normal, ...))
   }
   else if (isTRUE(attr(x, "fd"))) {
     if (!is.null(var)) {
       chk::wrn("ignoring `var`")
     }
-    return(sim_plot(x, est = 1:3, ci = ci, alpha = alpha))
+    return(plot.simbased_est(x, est = 1:3, ci = ci, alpha = alpha, normal = normal, ...))
   }
 
   len_unique_newdata <- vapply(newdata, function(v) length(unique(v)), integer(1L))
