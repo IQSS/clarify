@@ -62,7 +62,7 @@ The `simbased` package was designed to provide a simple, general
 interface to simulation-based inference, along with a few convenience
 functions to perform common tasks like computing average marginal
 effects. The primary functions of `simbased` are `sim()`, `sim_apply()`,
-`summary()`, and `sim_plot()`. These work together to create a simple
+`summary()`, and `plot()`. These work together to create a simple
 workflow for simulation-based inference.
 
 -   `sim()` simulates model parameters from a fitted model
@@ -70,8 +70,8 @@ workflow for simulation-based inference.
     to the original object but with the new coefficients inserted
 -   `summary()` produces confidence intervals and p-values for the
     resulting estimates
--   `sim_plot()` produces plots of the simulated sampling distribution
-    of the resulting estimates
+-   `plot()` produces plots of the simulated sampling distribution of
+    the resulting estimates
 
 There are also some wrappers for `sim_apply()` for performing some
 common operations: `sim_ame()` computes the average marginal effect of a
@@ -111,11 +111,11 @@ sim_est <- sim_apply(sim_coefs, function(fit) {
 }, verbose = FALSE)
 
 sim_est
-#> A simbased_est object (from `sim_apply()`)
+#> A `simbased_est` object (from `sim_apply()`)
+#>  - 1000 simulated values
 #>  - 3 quantities estimated:
 #>    E[Y(0)]    E[Y(1)]    log(RR) 
-#>  0.2944381  0.2432432 -0.1910068 
-#>  - 1000 simulated values
+#>  0.2944381  0.2432432 -0.1910068
 
 #View the estimates, confidence intervals, and p-values
 summary(sim_est, null = c(NA, NA, 0))
@@ -125,7 +125,7 @@ summary(sim_est, null = c(NA, NA, 0))
 #> log(RR)   -0.191   -0.437     0.344    0.79
 
 #Plot the resulting sampling distributions
-sim_plot(sim_est)
+plot(sim_est)
 ```
 
 <img src="man/figures/README-example-1.png" width="80%" />
@@ -141,12 +141,12 @@ sim_est <- sim_ame(sim_coefs, var = "treat", subset = treat == 1,
                    contrast = "log(RR)", verbose = FALSE)
 
 sim_est
-#> A simbased_est object (from `sim_ame()`)
+#> A `simbased_est` object (from `sim_ame()`)
 #>  - Average marginal effect of `treat`
+#>  - 1000 simulated values
 #>  - 3 quantities estimated:
 #>    E[Y(0)]    E[Y(1)]    log(RR) 
-#>  0.2944381  0.2432432 -0.1910068 
-#>  - 1000 simulated values
+#>  0.2944381  0.2432432 -0.1910068
 
 summary(sim_est, null = c(NA, NA, 0))
 #>         Estimate CI 2.5 % CI 97.5 % P-value
@@ -164,8 +164,8 @@ marginaleffects::comparisons(fit, variables = list(treat = 0:1),
                              newdata = subset(lalonde, treat == 1),
                              transform_pre = "lnratioavg") |>
   summary()
-#>                   treat Effect Std. Error z value Pr(>|z|)   2.5 % 97.5 %
-#> 1 ln(mean(1) / mean(0)) -0.191     0.1925  -0.992  0.32119 -0.5684 0.1864
+#>    Term              Contrast Effect Std. Error z value Pr(>|z|)   2.5 % 97.5 %
+#> 1 treat ln(mean(1) / mean(0)) -0.191     0.1925  -0.992  0.32119 -0.5684 0.1864
 #> 
 #> Model type:  glm 
 #> Prediction type:  response
@@ -202,7 +202,7 @@ sim_est <- sim_setx(sim_coefs, x = list(age = 20:50, treat = 0:1),
                     verbose = FALSE)
 
 #Plot of predicted values across age for each value of treat
-setx_plot(sim_est)
+plot(sim_est)
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" />
