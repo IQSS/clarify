@@ -2,7 +2,7 @@
 #'
 #' @description `sim_apply()` applies a function that produces quantities of interest to each set of simulated coefficients produced by [sim()]; these calculated quantities form the posterior sampling distribution for the quantities of interest. Capabilities are available for parallelization.
 #'
-#' @param sim a `simbased_sim` object; the output of a call to [sim()].
+#' @param sim a `simbased_sim` object; the output of a call to [sim()] or [simmi()].
 #' @param FUN a function to be applied to each set of simulated coefficients. See Details.
 #' @param verbose `logical`; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is `TRUE`.
 #' @param cl a cluster object created by [parallel::makeCluster()], or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See [pbapply::pblapply()] for details. If `NULL`, no parallelization will take place.
@@ -14,12 +14,18 @@
 #'
 #' When custom coefficients are supplied to `sim()`, i.e., when the `coefs` argument to `sim()` is not left at its default value, `FUN` must accept a `coefs` argument and a warning will be thrown if it accepts a `fit` argument. This is because `sim_apply()` does not know how to reconstruct the original fit object with the new coefficients inserted. The quantities computed by `sim_apply()` must therefore be computed directly from the coefficients.
 #'
+#' ## `sim_apply()` with multiply imputed data
+#'
+#' When using [simmi()] and `sim_apply()` with multiply imputed data, the coefficients are supplied to the model fit corresponding to the imputation identifier associated with each set of coefficients, which means if `FUN` uses a dataset extracted from a model, it will do so from the model fit in the corresponding imputation.
+#'
+#' The original estimates (see Value below) are computed as the average of the estimates across the imputed datasets using the original coefficients (i.e., the same value computed using Rubin's pooling rules). Although the simulation distribution and confidence intervals will be valid regardless of the normality of the estimator, the original estimate will only be valid if the estimates can be averaged across imputations. For example, for an odds ratio, which is non-normally distributed, the original estimate will be invalid; however, the log odds ratio, which is more likely to be normally distributed, would be a valid statistic to pool across imputations, and [transform()] can be used after to compute the odds ratio.
+#'
 #' @return A `simbased_est` object, which is a matrix with a column for each estimated quantity and a row for each simulation. The original estimates (`FUN` applied to the original coefficients or model fit object) are stored in the attribute `"original"`. The `"sim_hash"` attributes contained the simulation hash produced by `sim()`.
 #'
 #' @seealso
 #' * [sim()] for generating the simulated coefficients
 #' * [summary.simbased_est()] for computing p-values and confidence intervals for the estimated quantities
-#' * [sim_plot()] for plotting estimated quantities and their simulated posterior sampling distribution.
+#' * [plot.simbased_est()] for plotting estimated quantities and their simulated posterior sampling distribution.
 #'
 #' @examples
 #'
@@ -71,11 +77,16 @@ sim_apply <- function(sim,
 
   if (missing(FUN)) {
     if (verbose) {
-      chk::wrn("`FUN` should be supplied; returning simulated coefficients")
+      chk::wrn("`FUN` not supplied; returning simulated coefficients")
     }
 
     ests <- sim$sim.coefs
-    attr(ests, "original") <- sim$coefs
+    if (inherits(sim, "simbased_simmi")) {
+      attr(ests, "original") <- colMeans(sim$coefs)
+    }
+    else {
+      attr(ests, "original") <- sim$coefs
+    }
     attr(ests, "sim_hash") <- attr(sim, "sim_hash")
     class(ests) <- c("simbased_est", class(ests))
 
@@ -84,27 +95,56 @@ sim_apply <- function(sim,
 
   FUN <- process_FUN(FUN)
 
-  coef_location <- get_coef_location(sim$fit, sim$coefs)
-
-  apply_FUN <- make_apply_FUN(FUN, coef_location)
-
-  test <- try(apply_FUN(fit = sim$fit, coefs = sim$coefs, ...), silent = TRUE)
-  if (inherits(test, "try-error")) {
-    chk::err("`FUN` failed to run on an initial check with the following error:\n",
-             conditionMessage(attr(test, "condition")))
-  }
-
-  if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
-
-  ests <- matrix(NA_real_, nrow = nrow(sim$sim.coefs), ncol = length(test),
-                 dimnames = list(NULL, names(test)))
-
   opb <- pbapply::pboptions(type = if (verbose) "timer" else "none")
   on.exit(pbapply::pboptions(opb))
 
-  ests.list <- pbapply::pblapply(seq_len(nrow(ests)), function(i) {
-    apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i,], ...)
-  }, cl = cl)
+  if (inherits(sim, "simbased_simmi")) {
+    coef_templates <- lapply(seq_along(sim$fit), function(i) {
+      get_coef_template(sim$fit[[i]], sim$coefs[i,])
+    })
+    coef_locations <- lapply(seq_along(sim$fit), function(i) {
+      get_coef_location(sim$fit[[i]], sim$coefs[i,], coef_templates[[i]])
+    })
+
+    apply_FUN <- make_apply_FUN_mi(FUN, coef_locations, coef_templates)
+
+    # Test apply_FUN() on coefficients, which will be final coefs
+    test <- try(lapply(seq_along(sim$fit), function(i) {
+      apply_FUN(fit = sim$fit, coefs = sim$coefs[i,], imp = i, ...)
+    }), silent = TRUE)
+
+    if (is_error(test)) {
+      chk::err("`FUN` failed to run on an initial check with the following error:\n",
+               conditionMessage(attr(test, "condition")))
+    }
+
+    test <- colMeans(do.call("rbind", test))
+
+    if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
+
+    ests.list <- pbapply::pblapply(seq_len(nrow(sim$sim.coefs)), function(i) {
+      apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i,], imp = sim$imp[i], ...)
+    }, cl = cl)
+  }
+  else {
+    coef_template <- get_coef_template(sim$fit, sim$coefs)
+    coef_location <- get_coef_location(sim$fit, sim$coefs, coef_template)
+
+    apply_FUN <- make_apply_FUN(FUN, coef_location, coef_template)
+
+    # Test apply_FUN() on original model coefficients
+    test <- try(apply_FUN(fit = sim$fit, coefs = sim$coefs, ...), silent = TRUE)
+    if (is_error(test)) {
+      chk::err("`FUN` failed to run on an initial check with the following error:\n",
+               conditionMessage(attr(test, "condition")))
+    }
+
+    if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
+
+    ests.list <- pbapply::pblapply(seq_len(nrow(sim$sim.coefs)), function(i) {
+      apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i,], ...)
+    }, cl = cl)
+  }
 
   check_ests.list(ests.list, test)
 
@@ -121,32 +161,74 @@ sim_apply <- function(sim,
 
 #' @export
 print.simbased_est <- function(x, digits = NULL, ...) {
-  cat(sprintf("A simbased_est object (from %s)\n",
+  cat(sprintf("A `simbased_est` object (from %s)\n",
               if (inherits(x, "simbased_ame")) "`sim_ame()`"
               else if (inherits(x, "simbased_setx")) "`sim_setx()`"
               else "`sim_apply()`"))
-  if (!is.null(attr(x, "var"))) {
-    cat(sprintf(" - Average marginal effect of `%s`\n", attr(x, "var")))
-  }
-  else if (isTRUE(attr(x, "fd"))) {
-    cat(" - First difference\n")
-  }
-  else if (!is.null(attr(x, "setx"))) {
-    cat(" - Predicted outcomes at specified values\n")
-  }
+
+  cat(sprintf(" - %s simulated values\n", nrow(x)))
   cat(sprintf(" - %s %s estimated:\n", length(attr(x, "original")),
               ngettext(length(attr(x, "original")), "quantity", "quantities")))
   print(attr(x, "original"))
-  cat(sprintf(" - %s simulated values\n", nrow(x)))
 
 }
 
-make_apply_FUN <- function(FUN, coef_location = NULL) {
-  warn_location <- FALSE
+# Helper functions --------
+
+# Reverse-engineering `insight::get_parameters()` to find location of
+# coefficients so they can be inserted into model fit. Returns a vector
+# that when supplied to `[[` gets the location of the coefficients.
+# `coefs` is a vector from sim(); for multivariate models, it is transformed back
+# into a matrix
+get_coef_location <- function(fit, coefs, template = NULL) {
+  loc <- NULL
+  if (inherits_any(fit, c("glm", "lm", "svyglm",
+                          "fixest",
+                          "lm_robust", "iv_robust",
+                          "betareg",
+                          "logistf", "flic", "flac"))) {
+    loc <- "coefficients"
+  }
+  #Add more for known models
+
+  if (is.null(loc)) {
+    loc <- list.search(fit, untransform_coefs(coefs, template))
+  }
+
+  loc
+}
+
+# Create template of structure of coefficients in original model fit to make
+# transformation from simulated coefficients to coefficients the model expects
+get_coef_template <- function(fit, coefs) {
+
+  template <- NULL
+
+  if (inherits(fit, "betareg")) {
+    template <- list(mean = which(!startsWith(names(coefs), "(phi)")),
+                     precision = which(startsWith(names(coefs), "(phi)")))
+  }
+  else if (inherits_any(fit, c("mlm")) ||
+           (inherits(fit, "lm_robust") && length(dim(coef(fit))) == 2)) {
+    template <- array(seq_len(coefs), dim = 2, dimnames = dimnames(coefs))
+  }
+  return(template)
+}
+
+
+make_apply_FUN <- function(FUN, coef_location = NULL, template = NULL) {
+  if (is.null(coef_location) && isTRUE(attr(FUN, "use_fit"))) {
+    if (isTRUE(attr(FUN, "use_coefs"))) {
+      chk::err("the location of the coefficients in the model object cannot found, so `FUN` cannot have a `fit` argument")
+    }
+    else {
+      chk::err("the location of the coefficients in the model object cannot found, so `FUN` must have a `coefs` argument")
+    }
+  }
+
   if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
-    if (is.null(coef_location)) warn_location <- TRUE
     apply_FUN <- function(fit, coefs, ...) {
-      fit <- coef_assign(fit, coefs, coef_location)
+      fit <- coef_assign(fit, coefs, coef_location, template)
       FUN(fit = fit, coefs = coefs, ...)
     }
   }
@@ -156,18 +238,15 @@ make_apply_FUN <- function(FUN, coef_location = NULL) {
     }
   }
   else if (isTRUE(attr(FUN, "use_fit"))) {
-    if (is.null(coef_location)) warn_location <- TRUE
     apply_FUN <- function(fit, coefs, ...) {
-      fit <- coef_assign(fit, coefs, coef_location)
+      fit <- coef_assign(fit, coefs, coef_location, template)
       FUN(fit = fit, ...)
     }
   }
   else {
-    if (is.null(coef_location)) {
-      chk::err("the location of the coefficients in the model object cannot found, so `FUN` must have a `coefs` argument")
-    }
+
     apply_FUN <- function(fit, coefs, ...) {
-      fit <- coef_assign(fit, coefs, coef_location)
+      fit <- coef_assign(fit, coefs, coef_location, template)
       FUN(fit, ...)
     }
   }
@@ -175,7 +254,97 @@ make_apply_FUN <- function(FUN, coef_location = NULL) {
   return(apply_FUN)
 }
 
-coef_assign <- function(fit, coefs, coef_location) {
-  fit[[coef_location]] <- coefs
+make_apply_FUN_mi <- function(FUN, coef_locations = NULL, templates = NULL) {
+  if (is.null(coef_locations) && isTRUE(attr(FUN, "use_fit"))) {
+    if (isTRUE(attr(FUN, "use_coefs"))) {
+      chk::err("the location of the coefficients in the model object cannot found, so `FUN` cannot have a `fit` argument")
+    }
+    else {
+      chk::err("the location of the coefficients in the model object cannot found, so `FUN` must have a `coefs` argument")
+    }
+  }
+
+  if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
+    apply_FUN <- function(fit, coefs, imp, ...) {
+      fit <- coef_assign(fit[[imp]], coefs, coef_locations[[imp]], templates[[imp]])
+      FUN(fit = fit, coefs = coefs, ...)
+    }
+  }
+  else if (isTRUE(attr(FUN, "use_coefs"))) {
+    apply_FUN <- function(fit, coefs, imp, ...) {
+      FUN(coefs = coefs, ...)
+    }
+  }
+  else if (isTRUE(attr(FUN, "use_fit"))) {
+    apply_FUN <- function(fit, coefs, imp, ...) {
+      fit <- coef_assign(fit[[imp]], coefs, coef_locations[[imp]], templates[[imp]])
+      FUN(fit = fit, ...)
+    }
+  }
+  else {
+    apply_FUN <- function(fit, coefs, imp, ...) {
+      fit <- coef_assign(fit[[imp]], coefs, coef_locations[[imp]], templates[[imp]])
+      FUN(fit, ...)
+    }
+  }
+
+  return(apply_FUN)
+}
+
+coef_assign <- function(fit, coefs, coef_location, template) {
+
+  fit[[coef_location]] <- untransform_coefs(coefs, template)
+
   return(fit)
+}
+
+# Convert coefs from vector to original for insertion in fit and for finding
+# coef location
+untransform_coefs <- function(b, template = NULL) {
+
+  if (is.null(template)) return(b)
+
+  if (is.matrix(template)) {
+    coefs <- array(unname(b), dim = dim(template),
+                   dimnames = dimnames(template))
+  }
+  else if (is.list(template)) {
+    coefs <- template
+    for (i in seq_along(coefs)) {
+      coefs[[i]][] <- unname(b[template[[i]]])
+    }
+  }
+
+  return(coefs)
+}
+
+attach_pred_data_to_fit <- function(fit, index.sub = NULL, is_fitlist = FALSE) {
+  if (is_fitlist) {
+    fit <- lapply(fit, attach_pred_data_to_fit, index.sub)
+  }
+  else {
+    data <- insight::get_data(fit)
+    vars <- insight::find_predictors(fit, effects = "fixed", component = "all",
+                                     flatten = TRUE)
+    if (!is.null(index.sub)) {
+      subset <- eval(index.sub, data, parent.frame(2))
+
+      if (!chk::vld_atomic(subset)) {
+        chk::err("`subset` must evaluate to an atomic vector")
+      }
+      if (is.logical(subset) && length(subset) != nrow(data)) {
+        chk::err("when `subset` is logical, it must have the same length as the original dataset")
+      }
+      if (length(subset) > 0) {
+        data <- data[subset,]
+      }
+    }
+
+    attr(fit, "simbased_data") <- data[,intersect(vars, colnames(data)), drop = FALSE]
+  }
+  return(fit)
+}
+
+get_pred_data_from_fit <- function(fit) {
+  attr(fit, "simbased_data")
 }
