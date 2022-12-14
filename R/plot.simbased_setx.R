@@ -4,11 +4,13 @@
 #'
 #' @inheritParams plot.simbased_est
 #' @param x a `simbased_est` object resulting from a call to [sim_setx()].
-#' @param var the name of the focal varying predictor, i.e., the variable to be on the x-axis of the plot. All other variables with varying set values will be used to color the resulting plot. See Details. Ignored if no predictors vary or if only predictor varies in the reference grid or if `x1` was specified in `sim_setx()`. If not set, will use the predictor with the greatest number of unique values specified in the reference grid.
+#' @param var the name of the focal varying predictor, i.e., the variable to be on the x-axis of the plot. All other variables with varying set values will be used to color the resulting plot. See Details. Ignored if no predictors vary or if only one predictor varies in the reference grid or if `x1` was specified in `sim_setx()`. If not set, will use the predictor with the greatest number of unique values specified in the reference grid.
+#' @param ci `logical`; whether to display confidence intervals or bands for the estimates. Default is `TRUE`.
+#' @param method the method used to compute confidence intervals or bands. Can be `"wald"` to use a Normal approximation or `"quantile"` to use the simulated sampling distribution (default). See [summary.simbased_est()] for details. Abbreviations allowed.
 #'
 #' @return A `ggplot` object.
 #'
-#' @details `plot()` creates one of two kinds of plots depending on how the reference grid was specified in the call to `sim_setx()` and what `var` is set to. When the focal varying predictor (i.e., the one set in `var`) is numeric and takes on three more unique values in the reference grid, the produced plot is a line graph displaying the value of the marginal prediction (denoted as `E[Y|X]`) across values of the focal varying predictor, with confidence bands displayed when `ci = TRUE`. If other predictors also vary, lines for different values will be displayed in different colors. These plots are produced using [ggplot2::geom_line()] and [ggplot2::geom_ribbon()]
+#' @details `plot()` creates one of two kinds of plots depending on how the reference grid was specified in the call to `sim_setx()` and what `var` is set to. When the focal varying predictor (i.e., the one set in `var`) is numeric and takes on three or more unique values in the reference grid, the produced plot is a line graph displaying the value of the marginal prediction (denoted as `E[Y|X]`) across values of the focal varying predictor, with confidence bands displayed when `ci = TRUE`. If other predictors also vary, lines for different values will be displayed in different colors. These plots are produced using [ggplot2::geom_line()] and [ggplot2::geom_ribbon()]
 #'
 #' When the focal varying predictor is a factor or character or only takes on two or fewer values in the reference grid, the produced plot is a density plot of the simulated predictions, similar to the plot resulting from [plot.simbased_est()]. When other variables vary, densities for different values will be displayed in different colors. These plots are produced using [ggplot2::geom_density()].
 #'
@@ -17,18 +19,15 @@
 #' @seealso [summary.simbased_est()] for computing p-values and confidence intervals for the estimated quantities.
 #'
 #' @examples
-#' ## See help("sim_sext") for examples
+#' ## See help("sim_setx") for examples
 #'
 #' @export
-plot.simbased_setx <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = FALSE, ...) {
-  if (is.null(attr(x, "setx"))) {
-    chk::err("`x` must be the output of a call to `sim_setx()`")
-  }
-
-  chk::chk_number(alpha)
-  if (alpha >= 1 || alpha <= 0) {
-    chk::err("`alpha` must be between 0 and 1.")
-  }
+plot.simbased_setx <- function(x,
+                               var = NULL,
+                               ci = TRUE,
+                               level = .95,
+                               method = "quantile",
+                               ...) {
 
   newdata <- attr(x, "setx")
 
@@ -36,13 +35,13 @@ plot.simbased_setx <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = F
     if (!is.null(var)) {
       chk::wrn("ignoring `var` because no variables vary over predictions")
     }
-    return(plot.simbased_est(x, est = 1, ci = ci, alpha = alpha, normal = normal, ...))
+    return(plot.simbased_est(x, parm = 1, ci = ci, level = level, method = method, ...))
   }
   else if (isTRUE(attr(x, "fd"))) {
     if (!is.null(var)) {
       chk::wrn("ignoring `var`")
     }
-    return(plot.simbased_est(x, est = 1:3, ci = ci, alpha = alpha, normal = normal, ...))
+    return(plot.simbased_est(x, parm = 1:3, ci = ci, level = level, method = method, ...))
   }
 
   len_unique_newdata <- vapply(newdata, function(v) length(unique(v)), integer(1L))
@@ -65,7 +64,7 @@ plot.simbased_setx <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = F
   else {
     chk::chk_string(var)
     if (!var %in% varying) {
-      chk::err("`var` must be the name of a predictor set to be varying. Allowable options include ", word_list(varying, quotes = TRUE))
+      .err("`var` must be the name of a predictor set to be varying. Allowable options include ", word_list(varying, quotes = TRUE))
     }
   }
 
@@ -73,24 +72,24 @@ plot.simbased_setx <- function(x, var = NULL, ci = TRUE, alpha = .05, normal = F
 
   if (len_unique_newdata[var] == 2 || chk::vld_character_or_factor(newdata[[var]])) {
     p <- setx_sim_plot(x, var, non_var_varying, ci = ci,
-                       alpha = alpha, normal = normal)
+                       level = level, method = method, ...)
   }
   else {
     p <- setx_reg_plot(x, var, non_var_varying, ci = ci,
-                       alpha = alpha, normal = normal)
+                       level = level, method = method)
   }
 
-  p
+  p + theme_bw() + scale_fill_brewer(palette = "Set1")
 }
 
 #sim_plot, but with grouping by non_var_varying if present
-setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05, normal = FALSE) {
+setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95, method = "quantile", ...) {
 
   newdata <- attr(x, "setx")
   original_est <- coef(x)
   est_names <- rownames(newdata)
 
-  est_long <- setNames(utils::stack(as.data.frame(x[,est_names, drop = FALSE])),
+  est_long <- setNames(utils::stack(as.data.frame(x)[est_names]),
                        c("val", "est"))
   est_long <- merge(est_long,
                     newdata[c(var, non_var_varying)],
@@ -122,32 +121,16 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05
   p <- ggplot() +
     geom_density(data = est_long, mapping = aes(x = .data$val, color = non_var_varying_f,
                                                 fill = non_var_varying_f),
-                 alpha = .3) +
+                 alpha = .3, ...) +
     geom_hline(yintercept = 0) +
     geom_vline(data = original_est_long, mapping = aes(xintercept = .data$val,
                                                        color = non_var_varying_f_o))
 
   chk::chk_flag(ci)
   if (ci) {
-    chk::chk_number(alpha)
-    if (alpha <= 0 || alpha >= .5) {
-      chk::err("`alpha` must be between 0 and .5")
-    }
-    chk::chk_flag(normal)
+    ci <- confint(x, level = level, method = method)
+    ci_long <- setNames(utils::stack(as.data.frame(t(ci))), c("val", "est"))
 
-    if (normal) {
-      zcrit <- qnorm(c(alpha/2, 1-alpha/2))
-      ci <- setNames(as.data.frame(lapply(est_names, function(e) {
-        original_est[e] + sd(x[,e])*zcrit
-      })), est_names)
-    }
-    else {
-      ci <- setNames(as.data.frame(lapply(est_names, function(e) {
-        quantile(x[,e], probs = c(alpha/2, 1-alpha/2))
-      })), est_names)
-    }
-
-    ci_long <- setNames(utils::stack(ci), c("val", "est"))
     ci_long <- merge(ci_long,
                      newdata[c(var, non_var_varying)],
                      by.x = "est", by.y = 0)
@@ -169,6 +152,7 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05
   }
 
   p <- p + facet_wrap(vars(.data[[var]]), scales = "free") +
+    scale_color_brewer(palette = "Set1") +
     labs(x = "Estimate", y = "Density", color = NULL, fill = NULL) +
     theme(panel.background = element_rect(fill = "white", color = "black"),
           panel.border = element_rect(color = "black", fill = NA))
@@ -178,7 +162,7 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05
 }
 
 #Line plot with confidence bands
-setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05, normal = FALSE) {
+setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95, method = "quantile") {
 
   newdata <- attr(x, "setx")
 
@@ -193,7 +177,7 @@ setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05
   }
 
   if (ci) {
-    s <- summary.simbased_est(x, alpha = alpha, normal = normal)[rownames(newdata),, drop = FALSE]
+    s <- summary.simbased_est(x, level = level, method = method)[rownames(newdata),, drop = FALSE]
   }
   else {
     s <- matrix(coef(x)[rownames(newdata)], ncol = 1,
@@ -205,7 +189,8 @@ setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, alpha = .05
   p <- ggplot(s, aes(x = .data[[var]], color = non_var_varying_f,
                      fill = non_var_varying_f)) +
     geom_line(aes(y = .data$Estimate)) +
-    labs(x = var, y = "E[Y|X]", color = NULL, fill = NULL)
+    scale_color_brewer(palette = "Set1") +
+    labs(x = var, y = sprintf("E[Y|%s]", var), color = NULL, fill = NULL)
 
   if (ci) {
     p <- p +
