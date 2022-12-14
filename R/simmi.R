@@ -44,15 +44,31 @@ simmi <- function(fitlist,
     fitlist <- fitlist$analyses
   }
 
-  check_fitlist(fitlist)
+  if (is.null(fitlist)) {
+    if (is.null(coefs) || is.null(vcov)) {
+      .err("when `fitlist` is not supplied, arguments must be supplied to both `coefs` and `vcov`")
+    }
+    if (!is.list(coefs) && !is.list(vcov)) {
+      .err("when `fitlist` is not supplied, at least one of `coefs` or `vcov` must be a list")
+    }
+    nimp <- if (!is.list(coefs)) length(vcov) else length(coefs)
+  } else {
+    check_fitlist(fitlist)
+    nimp <- length(fitlist)
+  }
 
   chk::chk_count(n)
 
   if (!is.list(coefs)) {
-    coefs <- lapply(seq_along(fitlist), function(i) coefs)
+    coefs <- lapply(seq_len(nimp), function(i) coefs)
   }
-  else if (length(coefs) != length(fitlist)) {
-      chk::err("when supplied as a list, `coefs` must have as many entries as there are models in `fitlist`")
+  else if (length(coefs) != nimp) {
+    if (is.null(fitlist)) {
+      .err("when `fitlist` is not supplied and `coefs` is supplied as a list, `coefs` must have as many entries as there are entries in `vcov`")
+    }
+    else {
+      .err("when supplied as a list, `coefs` must have as many entries as there are models in `fitlist`")
+    }
   }
 
   coef_supplied <- {
@@ -60,65 +76,64 @@ simmi <- function(fitlist,
     else if (all(vapply(coefs, is.function, logical(1L)))) "fun"
     else if (all(vapply(coefs, check_valid_coef, logical(1L)))) "num"
     else {
-      chk::err("`coefs` must be a vector of coefficients, a function that extracts one from each model in `fitlist`, or a list thereof")
+      .err("`coefs` must be a vector of coefficients, a function that extracts one from each model in `fitlist`, or a list thereof")
     }
   }
 
   if (!is.list(vcov)) {
-    vcov <- lapply(seq_along(fitlist), function(i) vcov)
+    vcov <- lapply(seq_len(nimp), function(i) vcov)
   }
-  else {
-    if (length(vcov) != length(fitlist)) {
-      chk::err("when supplied as a list, `vcov` must have as many entries as there are models in `fitlist`")
+  else if (length(vcov) != nimp) {
+    if (is.null(fitlist)) {
+      .err("when `fitlist` is not supplied and `vcov` is supplied as a list, `vcov` must have as many entries as there are entries in `coefs`")
+    }
+    else {
+      .err("when supplied as a list, `vcov` must have as many entries as there are models in `fitlist`")
     }
   }
 
   vcov_supplied <- {
     if (all(vapply(vcov, is.null, logical(1L)))) "null"
-    else if (all(vapply(vcov, is.function, logical(1L)))) "fun"
     else if (all(vapply(vcov, is.matrix, logical(1L)))) "num"
-    else {
-      chk::err("`vcov` must be a covariance matrix, a function that extracts one from each model in `fitlist`, or a list thereof")
-    }
+    else "marginaleffects_code"
   }
 
-  #Check vcov; can be a function or a list of vcovs
-  #Check coefs; can be a function of a list of coefs
+  for (i in seq_len(nimp)) {
+    coefs[[i]] <- process_coefs(coefs[[i]], fitlist[[i]], coef_supplied)
+  }
 
-  coefs <- lapply(seq_along(fitlist), function(i) {
-    process_coefs(coefs[[i]], fitlist[[i]], coef_supplied)
-  })
+  for (i in seq_len(nimp)) {
+    vcov[[i]] <- process_vcov(vcov[[i]], fitlist[[i]], vcov_supplied)
+  }
 
-  vcov <- lapply(seq_along(fitlist), function(i) {
-    process_vcov(vcov[[i]], fitlist[[i]], vcov_supplied)
-  })
+  check_coefs_vcov_length_mi(vcov, coefs, vcov_supplied, coef_supplied)
 
   chk::chk_count(n)
 
   if (!is.null(dist)) {
     if (length(dist) == 1) {
-      dist <- lapply(seq_along(fitlist), function(i) dist)
+      dist <- lapply(seq_len(nimp), function(i) dist)
     }
-    else if (length(dist) != length(fitlist)) {
-      chk::err("when supplied as a vector, `dist` must have as many values as there are models in `fitlist`")
+    else if (length(dist) != nimp) {
+      .err("when supplied as a vector, `dist` must have as many values as there are imputations")
     }
     else {
       dist <- as.list(dist)
     }
   }
 
-  samplers <- lapply(seq_along(fitlist), function(i) {
+  samplers <- lapply(seq_len(nimp), function(i) {
     get_sampling_dist(fitlist[[i]], dist[[i]])
   })
 
-  sim.coefs <- do.call("rbind", lapply(seq_along(samplers), function(i) {
+  sim.coefs <- do.call("rbind", lapply(seq_len(nimp), function(i) {
     samplers[[i]](n, coefs[[i]], vcov[[i]])
   }))
 
   out <- list(sim.coefs = sim.coefs,
               coefs = do.call("rbind", coefs),
               fit = fitlist,
-              imp = rep(seq_along(fitlist), each = n))
+              imp = rep(seq_len(nimp), each = n))
 
   dists <- unlist(lapply(samplers, attr, "dist"))
   if (all_the_same(dists)) dists <- dists[1]
@@ -136,7 +151,7 @@ print.simbased_simmi <- function(x, ...) {
   obj <- deparse1(substitute(x))
   cat("A `simbased_simmi` object\n")
   cat(sprintf(" - %s coefficients, %s imputations with %s simulated values each\n",
-              ncol(x$sim.coefs), length(x$fit), nrow(x$sim.coefs)/length(x$fit)))
+              ncol(x$sim.coefs), nrow(x$coefs), nrow(x$sim.coefs)/nrow(x$coefs)))
   cat(" - sampled distributions: ")
   if (length(attr(x, "dist")) == 1) {
     cat(sprintf("multivariate %s\n", attr(x, "dist")))

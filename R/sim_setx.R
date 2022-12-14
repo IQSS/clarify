@@ -10,12 +10,16 @@
 #'
 #' @inheritParams sim_apply
 #' @param x a named list of values each predictor should take defining a
-#'   reference grid of predictor values, e.g., `list(v1 = 1:4, v2 = c("A",
-#'   "B"))`. Any omitted predictors are fixed at a "typical" value. See Details.
+#'   reference grid of predictor values, e.g., `list(v1 = 1:4, v2 = c("A", "B"))`.
+#'   Any omitted predictors are fixed at a "typical" value. See Details.
 #'   When `x1` is specified, `x` should identify a single reference unit.
+#'
+#'   For `print()`, a `simbased_setx` object.
 #' @param x1 a named list of the value each predictor should take to compute the
 #'   first difference from the predictor combination specified in `x`. `x1` can
 #'   only identify a single unit. See Details.
+#' @param outcome a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.
+#' @param type a string containing the type of predicted values (e.g., the link or the response). Passed to [marginaleffects::get_predict()] and eventually to `predict()` in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).
 #'
 #' @return a `simbased_setx` object, which inherits from `simbased_est` and is similar to the output of `sim_apply()`, with the following additional attributes:
 #' * `"setx"` - a data frame containing the values at which predictions are to be made
@@ -76,40 +80,85 @@
 #' plot(est)
 #'
 #' @export
-sim_setx <- function(sim, x = list(), x1 = list(), verbose = TRUE, cl = NULL) {
-  chk::chk_is(sim, "simbased_sim")
-  if (!isTRUE(attr(sim, "use_fit"))) {
-    chk::err("`sim_setx()` can only be used when a model fit was supplied to the original call to `sim()`")
-  }
-  chk::chk_flag(verbose)
+sim_setx <- function(sim,
+                     x = list(),
+                     x1 = list(),
+                     outcome = NULL,
+                     type = NULL,
+                     verbose = TRUE,
+                     cl = NULL) {
 
-  dat <- insight::get_predictors(sim$fit)
+  check_sim_apply_wrapper_ready(sim)
+
+  chk::chk_flag(verbose)
+  is_simmi <- inherits(sim, "simbased_simmi")
+
+  if (is_simmi) {
+    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors))
+  }
+  else {
+    dat <- insight::get_predictors(sim$fit)
+  }
+
+  sim$fit <- attach_pred_data_to_fit(sim$fit, is_fitlist = is_simmi)
 
   x <- process_x(x, dat, "x")
 
+  #Test to make sure compatible
+  if (is_simmi) {
+    test_dat <- get_pred_data_from_fit(sim$fit[[1]])[1,, drop = FALSE]
+    test_predict <- simbased_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
+  }
+  else {
+    test_dat <- get_pred_data_from_fit(sim$fit)[1,, drop = FALSE]
+    test_predict <- simbased_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
+  }
+
+  if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1) {
+    if (is.null(outcome)) {
+      .err("`outcome` must be supplied with multivariate models and models with multi-category outcomes")
+    }
+    chk::chk_string(outcome)
+    if (!outcome %in% unique_group) {
+      .err("only the following values of `outcome` are allowed: ", paste(add_quotes(unique_group), collapse = ", "))
+    }
+  }
+  else {
+    if (!is.null(outcome)) {
+      chk::wrn("`outcome` is ignored for univariate models")
+    }
+    outcome <- NULL
+  }
+
   #Create list of manually set predictors
-  newdata <- do.call("expand.grid", c(x, list(KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)))
+  newdata <- do.call("expand.grid", c(x, list(KEEP.OUT.ATTRS = FALSE,
+                                              stringsAsFactors = FALSE)))
 
   fd <- length(x1) > 0
   if (fd) {
     if (length(attr(x, "set_preds")) == 0) {
-      chk::err("when `x1` is specified, `x` must be specified")
+      .err("when `x1` is specified, `x` must be specified")
     }
     if (!all(lengths(x) == 1)) {
-      chk::err("when `x1` is specified, `x` must identify a single reference unit")
+      .err("when `x1` is specified, `x` must identify a single reference unit")
     }
 
     x1 <- process_x(x1, dat, "x1")
 
     if (!all(lengths(x1) == 1)) {
-      chk::err("`x1` must identify a single unit")
+      .err("`x1` must identify a single unit")
     }
 
     if (!setequal(attr(x, "set_preds"), attr(x1, "set_preds"))) {
-      chk::err("when `x1` is specified, the same variables must be specified in `x` and `x1`")
+      .err("when `x1` is specified, the same variables must be specified in `x` and `x1`")
     }
 
-    newdata_x1 <- do.call("expand.grid", c(x1, list(KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)))
+    if (all(vapply(names(x), function(i) identical(x[[i]], x1[[i]]), logical(1L)))) {
+      .err("`x` and `x1` must be different")
+    }
+
+    newdata_x1 <- do.call("expand.grid", c(x1, list(KEEP.OUT.ATTRS = FALSE,
+                                                    stringsAsFactors = FALSE)))
 
     newdata <- rbind(newdata, newdata_x1)
   }
@@ -132,25 +181,34 @@ sim_setx <- function(sim, x = list(), x1 = list(), verbose = TRUE, cl = NULL) {
   #make FUN for sim_apply()
   if (fd) {
     FUN <- function(fit) {
-      p <- simbased_predict(fit, newdata = newdata)
+      pred <- simbased_predict(fit, newdata = newdata, group = outcome, type = type)
+      p <- setNames(pred$predicted, rownames(newdata))
       c(p, "FD" = unname(diff(p)))
     }
   }
   else {
     FUN <- function(fit) {
-      simbased_predict(fit, newdata = newdata)
+      pred <- simbased_predict(fit, newdata = newdata, group = outcome, type = type)
+      setNames(pred$predicted, rownames(newdata))
     }
   }
 
   out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
+
   attr(out, "setx") <- newdata
   attr(out, "fd") <- fd
-  class(out) <- c("simbsed_setx", class(out))
+  class(out) <- c("simbased_setx", class(out))
   out
 }
 
-#' @export
-print.simbased_setx <- function(x, digits = NULL, ...) {
+#' @exportS3Method print simbased_setx
+#' @rdname sim_setx
+#' @param digits the minimum number of significant digits to be used; passed to [print.data.frame()].
+#' @param max.ests the maximum number of estimates to display.
+print.simbased_setx <- function(x, digits = NULL, max.ests = 6, ...) {
+  chk::chk_count(max.ests)
+  max.ests <- min(max.ests, length(attr(x, "original")))
+
   cat("A `simbased_est` object (from `sim_setx()`)\n")
   if (isTRUE(attr(x, "fd"))) {
     cat(" - First difference\n")
@@ -158,11 +216,29 @@ print.simbased_setx <- function(x, digits = NULL, ...) {
   else {
     cat(" - Predicted outcomes at specified values\n")
   }
-  cat(sprintf(" - %s simulated values\n", nrow(x)))
-  cat(sprintf(" - %s %s estimated:\n", length(attr(x, "original")),
-              ngettext(length(attr(x, "original")), "quantity", "quantities")))
-  print(attr(x, "original"))
 
+  set_preds <- attr(attr(x, "setx"), "set_preds")
+  if (length(set_preds) > 0) {
+    cat(sprintf("   + Predictors set: %s\n", paste(set_preds, collapse = ", ")))
+    if (length(set_preds) != nrow(attr(x, "setx"))) {
+      cat("   + All others set at typical values (see `help(\"sim_setx\")` for definition)\n")
+    }
+  }
+  else {
+    cat("   + All predictors set at typical values (see `help(\"sim_setx\")` for definition)")
+  }
+
+  cat(sprintf(" - %s simulated values\n", nrow(x)))
+  cat(sprintf(" - %s %s estimated:", length(attr(x, "original")),
+              ngettext(length(attr(x, "original")), "quantity", "quantities")))
+  print.data.frame(data.frame(names(attr(x, "original"))[seq_len(max.ests)],
+                              attr(x, "original")[seq_len(max.ests)],
+                              fix.empty.names	= FALSE),
+                   row.names = FALSE, right = FALSE)
+  if (max.ests != length(attr(x, "original"))) {
+    cat(sprintf("# ... and %s more\n", length(attr(x, "original")) - max.ests))
+  }
+  invisible(x)
 }
 
 process_x <- function(x, dat, arg_name) {
@@ -175,7 +251,7 @@ process_x <- function(x, dat, arg_name) {
     if (is.null(names(x)) || any(names(x) == "")) x_okay <- FALSE
     else if (any(!names(x) %in% names(dat))) {
       vars_not_in_model <- setdiff(names(x), names(dat))
-      chk::err(sprintf("the %s %s named in `%s` %s not present in the original model",
+      .err(sprintf("the %s %s named in `%s` %s not present in the original model",
                        ngettext(length(vars_not_in_model), "variable", "variables"),
                        word_list(vars_not_in_model, quotes = TRUE),
                        arg_name,
@@ -194,7 +270,7 @@ process_x <- function(x, dat, arg_name) {
   }
 
   if (!x_okay) {
-    chk::err(sprintf("the argument to `%s` must be a named list of values for variables to be set to",
+    .err(sprintf("the argument to `%s` must be a named list of values for variables to be set to",
                      arg_name))
   }
 

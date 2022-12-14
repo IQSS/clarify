@@ -7,6 +7,8 @@
 #' @param var either the name of a variable for which marginal effects are to be computed or a named list of length one containing the values the variable should take. If a list is supplied or the named variables is categorical (factor, character, or having two values), categorical calculations will be triggered. Otherwise, continuous calculations will be triggered. See Details.
 #' @param subset optional; a vector used to subset the data used to compute the marginal effects. This will be evaluated within the original dataset used to fit the model using [subset()], so nonstandard evaluation is allowed.
 #' @param contrast a string containing the name of a contrast between the average marginal means when the variable named in `var` is categorical and takes on two values. Allowed options include `"diff"` for the difference in means (also `"rd"`), `"rr"` for the risk ratio (also `"irr"`), `"log(rr):` for the log risk ratio (also `"log(irr)"`), `"or"` for the odds ratio, `"log(or)"` for the log odds ratio, and `"nnt"` for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.
+#' @param outcome a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.
+#' @param type a string containing the type of predicted values (e.g., the link or the response). Passed to [marginaleffects::get_predict()] and eventually to `predict()` in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).
 #' @param eps when the variable named in `var` is continuous, the value by which to change the variable values to approximate the derivative. See Details.
 #'
 #' @details
@@ -15,6 +17,8 @@
 #' Categorical calculations involve computing average marginal means at each level of `var`. The average marginal mean is the average predicted outcome value after setting all units' value of `var` to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When `var` only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to `contrast`. Contrasts can be manually computed using [transform()] afterward as well.
 #'
 #' Continuous calculations involve computing the average of marginal effects of `var` across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of `var` by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of `var` is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is `eps` times the standard deviation of the focal variable.
+#'
+#' If unit-level weights are included in the model fit (and discoverable using [insight::get_weights()]), all means will be computed as weighted means.
 #'
 #' ## Effect measures
 #'
@@ -77,28 +81,28 @@ sim_ame <- function(sim,
                     var,
                     subset = NULL,
                     contrast = NULL,
+                    outcome = NULL,
+                    type = NULL,
                     eps = 1e-5,
                     verbose = TRUE,
                     cl = NULL) {
-  chk::chk_is(sim, "simbased_sim")
 
-  if (!isTRUE(attr(sim, "use_fit"))) {
-    chk::err("`sim_ame()` can only be used when a model fit was supplied to the original call to `sim()`")
-  }
+  check_sim_apply_wrapper_ready(sim)
+
   chk::chk_flag(verbose)
   is_simmi <- inherits(sim, "simbased_simmi")
 
   vals <- NULL
 
   if (missing(var)) {
-    chk::err("`var` must be supplied, identifying the focal variable")
+    .err("`var` must be supplied, identifying the focal variable")
   }
   if (is.list(var) && chk::vld_named(var) && length(var) == 1) {
     vals <- var[[1]]
     var <- names(var)
   }
   else if (!chk::vld_string(var)) {
-    chk::err("`var` must be the name of the desired focal variable or a named list of length 1 with its values")
+    .err("`var` must be the name of the desired focal variable or a named list of length 1 with its values")
   }
 
   if (is_simmi) {
@@ -109,7 +113,7 @@ sim_ame <- function(sim,
   }
 
   if (!var %in% names(dat)) {
-    chk::err(sprintf("the variable \"%s\" named in `var` is not present in the original model",
+    .err(sprintf("the variable \"%s\" named in `var` is not present in the original model",
                      var))
   }
 
@@ -117,10 +121,10 @@ sim_ame <- function(sim,
   rm(dat)
 
   if (!is.null(vals) && !all(vals %in% var_val)) {
-    chk::err(sprintf("the values mentioned in `var` must be values %s takes on", var))
+    .err(sprintf("the values mentioned in `var` must be values %s takes on", var))
   }
 
-  type <- {
+  ame_type <- {
     if (!is.null(vals) || chk::vld_character_or_factor(var_val) ||
         is.logical(var_val) || length(unique(var_val)) <= 2)
       "contrast"
@@ -132,7 +136,38 @@ sim_ame <- function(sim,
   sim$fit <- attach_pred_data_to_fit(sim$fit, index.sub = index.sub,
                                      is_fitlist = is_simmi)
 
-  if (type == "contrast") {
+  #Test to make sure compatible
+  if (is_simmi) {
+    test_dat <- get_pred_data_from_fit(sim$fit[[1]])
+    test_predict <- simbased_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
+  }
+  else {
+    test_dat <- get_pred_data_from_fit(sim$fit)
+    test_predict <- simbased_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
+  }
+
+  if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1) {
+    if (is.null(outcome)) {
+      .err("`outcome` must be supplied with multivariate models and models with multi-category outcomes")
+    }
+    chk::chk_string(outcome)
+    if (!outcome %in% unique_group) {
+      .err("only the following values of `outcome` are allowed: ", paste(add_quotes(unique_group), collapse = ", "))
+    }
+    test_predict <- subset_group(test_predict, outcome)
+  }
+  else {
+    if (!is.null(outcome)) {
+      chk::wrn("`outcome` is ignored for univariate models")
+    }
+    outcome <- NULL
+  }
+
+  if (nrow(test_predict) != nrow(test_dat)) {
+    .err("not all units received a predicted value, suggesting a bug.")
+  }
+
+  if (ame_type == "contrast") {
     if (is.null(vals)) {
       vals <- if (is.factor(var_val)) levels(var_val) else sort(unique(var_val))
     }
@@ -157,9 +192,12 @@ sim_ame <- function(sim,
 
     FUN <- function(fit) {
       dat <- get_pred_data_from_fit(fit)
-      vapply(vals, function(x) {
-        dat[[var]][] <- x
-        mean(simbased_predict(fit, newdata = dat))
+      m <- nrow(dat)
+      dat2 <- do.call("rbind", lapply(vals, function(v) {dat[[var]][] <- v; dat}))
+      pred <- simbased_predict(fit, newdata = dat2, group = outcome, type = type)
+      p <- pred$predicted
+      vapply(seq_along(vals), function(i) {
+        weighted.mean(p[seq_len(m) + (i-1)*m], attr(fit, "weights"))
       }, numeric(1L))
     }
 
@@ -195,10 +233,17 @@ sim_ame <- function(sim,
 
     FUN <- function(fit) {
       dat <- get_pred_data_from_fit(fit)
-      dat[[var]] <- dat[[var]] - eps/2
-      m0 <- mean(simbased_predict(fit, newdata = dat))
-      dat[[var]] <- dat[[var]] + eps
-      m1 <- mean(simbased_predict(fit, newdata = dat))
+      ind <- seq_len(nrow(dat))
+      dat2 <- rbind(dat, dat)
+
+      dat2[[var]][ind] <- dat2[[var]][ind] - eps/2
+      dat2[[var]][-ind] <- dat2[[var]][-ind] + eps/2
+
+      pred <- simbased_predict(fit, newdata = dat2, group = outcome, type = type)
+      p <- pred$predicted
+
+      m0 <- weighted.mean(p[ind], attr(fit, "weights"))
+      m1 <- weighted.mean(p[-ind], attr(fit, "weights"))
 
       (m1 - m0)/eps
     }
@@ -208,22 +253,35 @@ sim_ame <- function(sim,
     names(out) <- sprintf("dY/d(%s)", var)
   }
 
-  attr(out, type) <- type
   attr(out, "var") <- var
   class(out) <- c("simbased_ame", class(out))
   out
 }
 
-#' @export
-print.simbased_ame <- function(x, digits = NULL, ...) {
+#' @exportS3Method print simbased_ame
+#' @rdname sim_ame
+#' @param x a `simbased_ame` object.
+#' @param digits the minimum number of significant digits to be used; passed to [print.data.frame()].
+#' @param max.ests the maximum number of estimates to display.
+print.simbased_ame <- function(x, digits = NULL, max.ests = 6, ...) {
+  chk::chk_count(max.ests)
+  max.ests <- min(max.ests, length(attr(x, "original")))
+
   cat("A `simbased_est` object (from `sim_ame()`)\n")
 
   cat(sprintf(" - Average marginal effect of `%s`\n", attr(x, "var")))
   cat(sprintf(" - %s simulated values\n", nrow(x)))
-  cat(sprintf(" - %s %s estimated:\n", length(attr(x, "original")),
+  cat(sprintf(" - %s %s estimated:", length(attr(x, "original")),
               ngettext(length(attr(x, "original")), "quantity", "quantities")))
-  print(attr(x, "original"))
 
+  print.data.frame(data.frame(names(attr(x, "original"))[seq_len(max.ests)],
+                              attr(x, "original")[seq_len(max.ests)],
+                              fix.empty.names	= FALSE),
+                   row.names = FALSE, right = FALSE, digits = digits)
+  if (max.ests != length(attr(x, "original"))) {
+    cat(sprintf("# ... and %s more\n", length(attr(x, "original")) - max.ests))
+  }
+  invisible(x)
 }
 
 rename_contrast <- function(x) {
@@ -242,23 +300,26 @@ attach_pred_data_to_fit <- function(fit, index.sub = NULL, is_fitlist = FALSE) {
   }
   else {
     data <- insight::get_data(fit)
+    weights <- insight::get_weights(fit, null_as_ones = TRUE)
     vars <- insight::find_predictors(fit, effects = "fixed", component = "all",
                                      flatten = TRUE)
     if (!is.null(index.sub)) {
       subset <- eval(index.sub, data, parent.frame(2))
 
       if (!chk::vld_atomic(subset)) {
-        chk::err("`subset` must evaluate to an atomic vector")
+        .err("`subset` must evaluate to an atomic vector")
       }
       if (is.logical(subset) && length(subset) != nrow(data)) {
-        chk::err("when `subset` is logical, it must have the same length as the original dataset")
+        .err("when `subset` is logical, it must have the same length as the original dataset")
       }
       if (length(subset) > 0) {
         data <- data[subset,]
+        weights <- weights[subset]
       }
     }
 
     attr(fit, "simbased_data") <- data[,intersect(vars, colnames(data)), drop = FALSE]
+    attr(fit, "weights") <- weights
   }
   return(fit)
 }

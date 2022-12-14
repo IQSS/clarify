@@ -98,15 +98,18 @@ fmt.prc <- function(probs, digits = 3) {
 
 #Check if all values are the same
 all_the_same <- function(x) {
-  if (is.numeric(x)) return(abs(max(x) - min(x)) < 1e-9)
+  if (is.list(x)) {
+    for (i in x) if (!identical(i, x[[1]])) return(FALSE)
+    return(TRUE)
+  }
+  else if (is.numeric(x)) return(abs(max(x) - min(x)) < 1e-9)
   return(length(unique(x)) == 1)
 }
 
 #Tidy tryCatching
 try_chk <- function(expr) {
   tryCatch(expr,
-           error = function(e) chk::err(conditionMessage(e)),
-           warning = function(w) chk::err(conditionMessage(w)))
+           error = function(e) .err(conditionMessage(e)))
 }
 
 #mode
@@ -164,4 +167,26 @@ inherits_any <- function(x, what) {
 #Checks if input is "try-error", i.e., failure of try()
 is_error <- function(x) {
   inherits(x, "try-error")
+}
+
+pkg_caller_call <- function(start = 1) {
+  package.funs <- c(getNamespaceExports(utils::packageName()),
+                    .getNamespaceInfo(asNamespace(utils::packageName()), "S3methods")[,3])
+  k <- start #skip checking pkg_caller_call()
+  e_max <- NULL
+  while(!is.null(e <- rlang::caller_call(k))) {
+    if (!is.null(n <- rlang::call_name(e)) &&
+        n %in% package.funs) e_max <- k
+    k <- k + 1
+  }
+  rlang::caller_call(e_max)
+}
+
+.err <- function(...) {
+  chk::err(..., call = pkg_caller_call(start = 2))
+}
+
+drop_sim_class <- function(x) {
+  class(x) <- class(x)[!startsWith(class(x), "simbased_")]
+  x
 }
