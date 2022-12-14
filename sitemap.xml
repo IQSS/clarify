@@ -7,6 +7,15 @@
     <loc>https://ngreifer.github.io/simbased/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://ngreifer.github.io/simbased/articles/Zelig.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/simbased/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/simbased/articles/simbased.html</loc>
+  </url>
+  <url>
     <loc>https://ngreifer.github.io/simbased/authors.html</loc>
   </url>
   <url>
@@ -16,13 +25,16 @@
     <loc>https://ngreifer.github.io/simbased/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/reference/plot.simbased_est.html</loc>
+    <loc>https://ngreifer.github.io/simbased/reference/plot.simbased_adrf.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/simbased/reference/plot.simbased_setx.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/simbased/reference/sim.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/simbased/reference/sim_adrf.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/simbased/reference/sim_ame.html</loc>

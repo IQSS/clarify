@@ -18,8 +18,17 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="nav-item">
+  <a class="nav-link" href="../articles/simbased.html">Get started</a>
+</li>
+<li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/Zelig.html">Translating `{Zelig}` to `{simbased}`</a>
+  </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -53,16 +62,22 @@
 <span>  <span class="va">var</span>,</span>
 <span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  contrast <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  eps <span class="op">=</span> <span class="fl">1e-05</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  cl <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for simbased_ame</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, digits <span class="op">=</span> <span class="cn">NULL</span>, max.ests <span class="op">=</span> <span class="fl">6</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>sim</dt>
-<dd><p>a <code>simbased_sim</code> object; the output of a call to <code><a href="sim.html">sim()</a></code> or <code><a href="simmi.html">simmi()</a></code>.</p></dd>
+<dd><p>a <code>simbased_sim</code> object; the output of a call to <code><a href="sim.html">sim()</a></code> or
+<code><a href="simmi.html">simmi()</a></code>.</p></dd>
 
 
 <dt>var</dt>
@@ -77,16 +92,44 @@
 <dd><p>a string containing the name of a contrast between the average marginal means when the variable named in <code>var</code> is categorical and takes on two values. Allowed options include <code>"diff"</code> for the difference in means (also <code>"rd"</code>), <code>"rr"</code> for the risk ratio (also <code>"irr"</code>), <code>"log(rr):</code> for the log risk ratio (also <code>"log(irr)"</code>), <code>"or"</code> for the odds ratio, <code>"log(or)"</code> for the log odds ratio, and <code>"nnt"</code> for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.</p></dd>
 
 
+<dt>outcome</dt>
+<dd><p>a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.</p></dd>
+
+
+<dt>type</dt>
+<dd><p>a string containing the type of predicted values (e.g., the link or the response). Passed to <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/get_predict.html" class="external-link">marginaleffects::get_predict()</a></code> and eventually to <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).</p></dd>
+
+
 <dt>eps</dt>
 <dd><p>when the variable named in <code>var</code> is continuous, the value by which to change the variable values to approximate the derivative. See Details.</p></dd>
 
 
 <dt>verbose</dt>
-<dd><p><code>logical</code>; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is <code>TRUE</code>.</p></dd>
+<dd><p><code>logical</code>; whether to display a text progress bar indicating
+progress and estimated time remaining for the procedure. Default is <code>TRUE</code>.</p></dd>
 
 
 <dt>cl</dt>
-<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See <code><a href="https://rdrr.io/pkg/pbapply/man/pbapply.html" class="external-link">pbapply::pblapply()</a></code> for details. If <code>NULL</code>, no parallelization will take place.</p></dd>
+<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>, or an
+integer to indicate the number of child-processes (integer values are
+ignored on Windows) for parallel evaluations. See <code><a href="https://rdrr.io/pkg/pbapply/man/pbapply.html" class="external-link">pbapply::pblapply()</a></code> for
+details. If <code>NULL</code>, no parallelization will take place.</p></dd>
+
+
+<dt>x</dt>
+<dd><p>a <code>simbased_ame</code> object.</p></dd>
+
+
+<dt>digits</dt>
+<dd><p>the minimum number of significant digits to be used; passed to <code><a href="https://rdrr.io/r/base/print.dataframe.html" class="external-link">print.data.frame()</a></code>.</p></dd>
+
+
+<dt>max.ests</dt>
+<dd><p>the maximum number of estimates to display.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>optional arguments passed to <code>FUN</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -104,7 +147,8 @@ named <code>dY/d({x})</code> where <code>{x}</code> is replaced with <code>var</
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>sim_ame()</code> operates differently depending on whether continuous or categorical calculations are triggered. To trigger categorical calculations, <code>var</code> should be a string naming a factor, character, or binary variable or a named list with specific values given (e.g., <code>var = list(x1 = c(1, 2 ,3))</code>). Otherwise, continuous calculations are triggered.</p>
 <p>Categorical calculations involve computing average marginal means at each level of <code>var</code>. The average marginal mean is the average predicted outcome value after setting all units' value of <code>var</code> to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When <code>var</code> only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to <code>contrast</code>. Contrasts can be manually computed using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> afterward as well.</p>
-<p>Continuous calculations involve computing the average of marginal effects of <code>var</code> across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of <code>var</code> by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of <code>var</code> is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is <code>eps</code> times the standard deviation of the focal variable.</p><div class="section">
+<p>Continuous calculations involve computing the average of marginal effects of <code>var</code> across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of <code>var</code> by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of <code>var</code> is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is <code>eps</code> times the standard deviation of the focal variable.</p>
+<p>If unit-level weights are included in the model fit (and discoverable using <code><a href="https://easystats.github.io/insight/reference/get_weights.html" class="external-link">insight::get_weights()</a></code>), all means will be computed as weighted means.</p><div class="section">
 <h3 id="effect-measures">Effect measures<a class="anchor" aria-label="anchor" href="#effect-measures"></a></h3>
 
 
@@ -115,10 +159,10 @@ named <code>dY/d({x})</code> where <code>{x}</code> is replaced with <code>var</
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="sim_apply.html">sim_apply()</a></code>, which provides a general interface to computing any
-quantities for simulation-based inference; <code><a href="plot.simbased_est.html">plot.simbased_est()</a></code> for plotting the
+quantities for simulation-based inference; <code><a href="summary.simbased_est.html">plot.simbased_est()</a></code> for plotting the
 output of a call to <code>sim_ame()</code>; <code><a href="summary.simbased_est.html">summary.simbased_est()</a></code> for computing
 p-values and confidence intervals for the estimated quantities.</p>
-<p><code>marginaleffects::marginaleffects()</code>, <code>marginaleffects::comparisons()</code>, and <code>margins::margins()</code> for delta method-based implementations of computing average marginal effects.</p></div>
+<p><code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>, <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons()</a></code>, and <code>margins::margins()</code> for delta method-based implementations of computing average marginal effects.</p></div>
     </div>
 
     <div class="section level2">
@@ -136,17 +180,17 @@ p-values and confidence intervals for the estimated quantities.</p>
 <span class="r-in"><span><span class="co"># Average marginal effect of `age`</span></span></span>
 <span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Estimate CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age) -0.00678 -0.00991  -0.00367</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Estimate    2.5 %   97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age) -0.00678 -0.00981 -0.00403</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Contrast between average marginal means for `treat`</span></span></span>
 <span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, contrast <span class="op">=</span> <span class="st">"rr"</span>,</span></span>
 <span class="r-in"><span>               verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         Estimate CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(0)]    0.744    0.703     0.782</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(1)]    0.809    0.756     0.869</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RR         1.088    0.989     1.199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         Estimate 2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(0)]    0.744 0.698  0.784</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(1)]    0.809 0.758  0.851</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RR         1.088 0.987  1.198</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Average marginal means for `race`; need to follow up</span></span></span>
 <span class="r-in"><span><span class="co"># with contrasts for specific levels</span></span></span>
@@ -156,11 +200,11 @@ p-values and confidence intervals for the estimated quantities.</p>
 <span class="r-in"><span>                 `RR(h,b)` <span class="op">=</span> <span class="va">`E[Y(hispan)]`</span> <span class="op">/</span> <span class="va">`E[Y(black)]`</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Estimate CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(black)]     0.704    0.637     0.765</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(hispan)]    0.832    0.749     0.900</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(white)]     0.800    0.754     0.840</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RR(h,b)         1.181    1.051     1.341</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Estimate 2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(black)]     0.704 0.637  0.764</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(hispan)]    0.832 0.734  0.899</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(white)]     0.800 0.753  0.843</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RR(h,b)         1.181 1.026  1.360</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

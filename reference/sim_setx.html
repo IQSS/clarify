@@ -30,8 +30,17 @@ predictions.'><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="nav-item">
+  <a class="nav-link" href="../articles/simbased.html">Get started</a>
+</li>
+<li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/Zelig.html">Translating `{Zelig}` to `{simbased}`</a>
+  </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -66,19 +75,33 @@ predictions.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sim_setx</span><span class="op">(</span><span class="va">sim</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, cl <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sim_setx</span><span class="op">(</span></span>
+<span>  <span class="va">sim</span>,</span>
+<span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cl <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for simbased_setx</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, digits <span class="op">=</span> <span class="cn">NULL</span>, max.ests <span class="op">=</span> <span class="fl">6</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>sim</dt>
-<dd><p>a <code>simbased_sim</code> object; the output of a call to <code><a href="sim.html">sim()</a></code> or <code><a href="simmi.html">simmi()</a></code>.</p></dd>
+<dd><p>a <code>simbased_sim</code> object; the output of a call to <code><a href="sim.html">sim()</a></code> or
+<code><a href="simmi.html">simmi()</a></code>.</p></dd>
 
 
 <dt>x</dt>
 <dd><p>a named list of values each predictor should take defining a
-reference grid of predictor values, e.g., <code>list(v1 = 1:4, v2 = c("A", "B"))</code>. Any omitted predictors are fixed at a "typical" value. See Details.
-When <code>x1</code> is specified, <code>x</code> should identify a single reference unit.</p></dd>
+reference grid of predictor values, e.g., <code>list(v1 = 1:4, v2 = c("A", "B"))</code>.
+Any omitted predictors are fixed at a "typical" value. See Details.
+When <code>x1</code> is specified, <code>x</code> should identify a single reference unit.</p>
+<p>For <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, a <code>simbased_setx</code> object.</p></dd>
 
 
 <dt>x1</dt>
@@ -87,12 +110,36 @@ first difference from the predictor combination specified in <code>x</code>. <co
 only identify a single unit. See Details.</p></dd>
 
 
+<dt>outcome</dt>
+<dd><p>a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.</p></dd>
+
+
+<dt>type</dt>
+<dd><p>a string containing the type of predicted values (e.g., the link or the response). Passed to <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/get_predict.html" class="external-link">marginaleffects::get_predict()</a></code> and eventually to <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).</p></dd>
+
+
 <dt>verbose</dt>
-<dd><p><code>logical</code>; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is <code>TRUE</code>.</p></dd>
+<dd><p><code>logical</code>; whether to display a text progress bar indicating
+progress and estimated time remaining for the procedure. Default is <code>TRUE</code>.</p></dd>
 
 
 <dt>cl</dt>
-<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See <code><a href="https://rdrr.io/pkg/pbapply/man/pbapply.html" class="external-link">pbapply::pblapply()</a></code> for details. If <code>NULL</code>, no parallelization will take place.</p></dd>
+<dd><p>a cluster object created by <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>, or an
+integer to indicate the number of child-processes (integer values are
+ignored on Windows) for parallel evaluations. See <code><a href="https://rdrr.io/pkg/pbapply/man/pbapply.html" class="external-link">pbapply::pblapply()</a></code> for
+details. If <code>NULL</code>, no parallelization will take place.</p></dd>
+
+
+<dt>digits</dt>
+<dd><p>the minimum number of significant digits to be used; passed to <code><a href="https://rdrr.io/r/base/print.dataframe.html" class="external-link">print.data.frame()</a></code>.</p></dd>
+
+
+<dt>max.ests</dt>
+<dd><p>the maximum number of estimates to display.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>optional arguments passed to <code>FUN</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -143,11 +190,11 @@ p-values and confidence intervals for the estimated quantities.</p></div>
 <span class="r-in"><span>                            re74 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10000</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 0, re74 = 0         4771     3600      5758</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 1, re74 = 0         6389     4706      8098</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 0, re74 = 10000     8353     6945      9464</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 1, re74 = 10000     9971     8031     11762</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                         Estimate 2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 0, re74 = 0         4771  3645   5841</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 1, re74 = 0         6389  4653   8147</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 0, re74 = 10000     8353  7106   9539</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 1, re74 = 10000     9971  8083  12092</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sim_setx-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -157,15 +204,15 @@ p-values and confidence intervals for the estimated quantities.</p></div>
 <span class="r-in"><span>                            married <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                       Estimate CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age = 20, married = 0     6377     5340      7445</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age = 25, married = 0     6395     5313      7496</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age = 30, married = 0     6413     5263      7507</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age = 35, married = 0     6431     5014      7570</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age = 20, married = 1     7066     6029      8228</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age = 25, married = 1     7084     6146      8149</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age = 30, married = 1     7102     6222      8078</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age = 35, married = 1     7120     6253      8237</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       Estimate 2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age = 20, married = 0     6377  5314   7439</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age = 25, married = 0     6395  5273   7424</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age = 30, married = 0     6413  5216   7555</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age = 35, married = 0     6431  5136   7700</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age = 20, married = 1     7066  6000   8512</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age = 25, married = 1     7084  6164   8266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age = 30, married = 1     7102  6249   8077</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age = 35, married = 1     7120  6122   8226</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sim_setx-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -175,10 +222,10 @@ p-values and confidence intervals for the estimated quantities.</p></div>
 <span class="r-in"><span>                x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">1</span>, race <span class="op">=</span> <span class="st">"hispan"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Estimate CI 2.5 % CI 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 0     7054     5235      8738</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 1     8672     6437     10854</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> FD            1618      215      2930</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Estimate 2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 0     7054  5731   8592</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> treat = 1     8672  6403  11112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> FD            1618   268   3078</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sim_setx-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

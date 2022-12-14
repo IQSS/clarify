@@ -18,8 +18,17 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="nav-item">
+  <a class="nav-link" href="../articles/simbased.html">Get started</a>
+</li>
+<li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
+</li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/Zelig.html">Translating `{Zelig}` to `{simbased}`</a>
+  </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
@@ -53,9 +62,9 @@
 
       <dl><dt>
           
-          <code><a href="plot.simbased_est.html">plot(<i>&lt;simbased_est&gt;</i>)</a></code> 
+          <code><a href="plot.simbased_adrf.html">plot(<i>&lt;simbased_adrf&gt;</i>)</a></code> 
         </dt>
-        <dd>Plot distribution of simulated estimates</dd>
+        <dd>Plot marginal predictions from <code><a href="../reference/sim_adrf.html">sim_adrf()</a></code></dd>
       </dl><dl><dt>
           
           <code><a href="plot.simbased_setx.html">plot(<i>&lt;simbased_setx&gt;</i>)</a></code> 
@@ -68,7 +77,12 @@
         <dd>Simulate model coefficients</dd>
       </dl><dl><dt>
           
-          <code><a href="sim_ame.html">sim_ame()</a></code> 
+          <code><a href="sim_adrf.html">sim_adrf()</a></code> <code><a href="sim_adrf.html">print(<i>&lt;simbased_adrf&gt;</i>)</a></code> 
+        </dt>
+        <dd>Compute an average dose-response function</dd>
+      </dl><dl><dt>
+          
+          <code><a href="sim_ame.html">sim_ame()</a></code> <code><a href="sim_ame.html">print(<i>&lt;simbased_ame&gt;</i>)</a></code> 
         </dt>
         <dd>Compute average marginal effects</dd>
       </dl><dl><dt>
@@ -78,7 +92,7 @@
         <dd>Apply a function to simulated parameter values</dd>
       </dl><dl><dt>
           
-          <code><a href="sim_setx.html">sim_setx()</a></code> 
+          <code><a href="sim_setx.html">sim_setx()</a></code> <code><a href="sim_setx.html">print(<i>&lt;simbased_setx&gt;</i>)</a></code> 
         </dt>
         <dd>Compute predictions and first differences at set values</dd>
       </dl><dl><dt>
@@ -88,7 +102,7 @@
         <dd>Simulate model coefficients after multiple imputation</dd>
       </dl><dl><dt>
           
-          <code><a href="summary.simbased_est.html">summary(<i>&lt;simbased_est&gt;</i>)</a></code> 
+          <code><a href="summary.simbased_est.html">plot(<i>&lt;simbased_est&gt;</i>)</a></code> <code><a href="summary.simbased_est.html">summary(<i>&lt;simbased_est&gt;</i>)</a></code> <code><a href="summary.simbased_est.html">confint(<i>&lt;simbased_est&gt;</i>)</a></code> 
         </dt>
         <dd>Inference for <code>simbased_est</code> objects</dd>
       </dl></div>
