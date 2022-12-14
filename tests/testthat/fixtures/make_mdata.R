@@ -1,6 +1,7 @@
 #Make matched data
 m <- MatchIt::matchit(treat ~ age + educ + race + married + re74,
-                      data = MatchIt::lalonde)
+                      data = MatchIt::lalonde, method = "full", estimand = "ATE",
+                      caliper = .05)
 md <- MatchIt::match.data(m, data = MatchIt::lalonde)
 md$binY <- as.numeric(md$re78 > 0)
 
