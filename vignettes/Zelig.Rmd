@@ -1,0 +1,327 @@
+---
+title: "Translating `{Zelig}` to `{simbased}`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{"Translating `{Zelig}` to `{simbased}`"}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  fig.width = 6.5,
+  fig.height = 2.75
+)
+```
+
+## Introduction
+
+In this document, we demonstrate some common uses of `{Zelig}` [@imaiCommonFrameworkStatistical2008a] and how the same tasks can be performed using `{simbased}`. We'll include examples for computing predictions at representative values (i.e., `setx()` and `sim()` in `{Zelig}`), the rare-events logit model, estimating the average treatment effect (ATT) after matching, and combining estimates after multiple imputation.
+
+The usual workflow in `{Zelig}` is to fit a model using `zelig()`, specify quantities of interest to simulate using `setx()` on the `zelig()` output, and then simulate those quantities using `sim()`. `{simbased}` uses a similar approach, except that the model is fit outside `{simbased}` using functions in a different R package. In addition, `{simbased}`'s `sim_apply()` allows for the computation of any arbitrary quantity of interest. We'll demonstrate how to replicate a standard `{Zelig}` analysis using `{simbased}` step-by-step. Because simulation-based inference involves randomness and some of the algorithms may not perfectly align, one shouldn't expect results to be identical, though in most cases, they should be similar.
+
+```{r}
+library("Zelig")
+library("simbased")
+set.seed(100)
+```
+
+Note that both `{Zelig}` and `{simbased}` have a function called "`sim()`", so we will always make it clear which package's `sim()` is being used.
+
+## Predictions at representative values
+
+Here we'll use the `lalonde` dataset and fit a linear model for `re78` as a function of the treatment `treat` and covariates.
+
+```{r}
+data("lalonde", package = "MatchIt")
+```
+
+We'll be interested in the predicted values of the outcome for a typical unit at each level of treatment and their first difference.
+
+### `{Zelig}` workflow
+
+In `{Zelig}`, we fit the model using `zelig()`:
+
+```{r}
+fit <- zelig(re78 ~ treat + age + educ + married + race +
+               nodegree + re74 + re75, data = lalonde,
+             model = "ls", cite = FALSE)
+```
+
+Next, we use `setx()` and `setx1()` to set our values of `treat`:
+
+```{r}
+fit <- setx(fit, treat = 0)
+fit <- setx1(fit, treat = 1)
+```
+
+Next we simulate the values using `sim()`:
+
+```{r}
+fit <- Zelig::sim(fit)
+```
+
+Finally, we can print and plot the predicted values and first differences:
+
+```{r}
+fit
+```
+
+```{r, eval = F}
+#Note: plotting is bugged
+plot(fit)
+```
+
+### `{simbased}` workflow
+
+In `{simbased}`, we fit the model using functions outside `{simbased}`, like `lm()` in the `{stats}` package or `feols` in the `{fixest}` package.
+
+```{r}
+fit <- lm(re78 ~ treat + age + educ + married + race +
+            nodegree + re74 + re75, data = lalonde)
+```
+
+Next, we simulate the model coefficients using `simbased::sim()`:
+
+```{r}
+s <- simbased::sim(fit)
+```
+
+Next, we use `sim_setx()` to set our values of the predictors:
+
+```{r}
+est <- sim_setx(s, x = list(treat = 0), x1 = list(treat = 1),
+                verbose = FALSE)
+```
+
+Finally, we can summarize and plot the predicted values:
+
+```{r}
+summary(est)
+
+plot(est)
+```
+
+## Rare-events logit
+
+`{Zelig}` uses a special method for logistic regression with rare events as described in @kingLogisticRegressionRare2001. This is the primary implementation of the method in R. However, newer methods have been developed that perform similarly to or better than the method of King and Zeng [@puhrFirthLogisticRegression2017] and are implemented in R packages that are compatible with `{simbased}`, such as `{logistf}` and `{brglm2}`.
+
+Here, we'll use the `lalonde` dataset with a constructed rare outcome variable to demonstrate how to perform a rare events logistic regression in `{Zelig}` and in `{simbased}`.
+
+```{r}
+data("lalonde", package = "MatchIt")
+
+#Rare outcome: 1978 earnings over $20k; ~6% prevalence
+lalonde$re78_20k <- lalonde$re78 >= 20000
+```
+
+### `{Zelig}` workflow
+
+In `{Zelig}`, we fit a rare events logistic model using `zelig()` with `model = "relogit"`.
+
+```{r}
+fit <- zelig(re78_20k ~ treat + age + educ + married + race +
+               nodegree + re74 + re75, data = lalonde,
+             model = "relogit", cite = FALSE)
+
+fit
+```
+
+We can compute predicted values at representative values using `setx()` and `Zelig::sim()` as above.
+
+```{r}
+fit <- setx(fit, treat = 0)
+fit <- setx1(fit, treat = 1)
+
+fit <- Zelig::sim(fit)
+
+fit
+```
+
+```{r, eval = FALSE}
+#Plotting is bugged
+plot(fit)
+```
+
+### `{simbased}` workflow
+
+Here, we'll use `logistf::logistif()` with `flic = TRUE`, which performs a variation on Firth's logistic regression with a correction for bias in the intercept [@puhrFirthLogisticRegression2017].
+
+```{r}
+fit <- logistf::logistf(re78_20k ~ treat + age + educ + married + race +
+                          nodegree + re74 + re75, data = lalonde,
+                        flic = TRUE)
+
+summary(fit)
+```
+
+We can compute predictions at representative values using `simbased::sim()` and `sim_setx()`.
+
+```{r}
+s <- simbased::sim(fit)
+
+est <- sim_setx(s, x = list(treat = 0), x1 = list(treat = 1),
+                verbose = FALSE)
+
+summary(est)
+```
+
+```{r}
+plot(est)
+```
+
+## Estimating the ATT after matching
+
+Here we'll use the `lalonde` dataset and perform propensity score matching and then fit a linear model for `re78` as a function of the treatment `treat`, the covariates, and their interaction. From this model, we'll compute the ATT of `treat` using `{Zelig}` and `{simbased}`.
+
+```{r}
+data("lalonde", package = "MatchIt")
+
+m.out <- MatchIt::matchit(treat ~ age + educ + married + race +
+                            nodegree + re74 + re75, data = lalonde,
+                          method = "nearest")
+```
+
+### `{Zelig}` workflow
+
+In `{Zelig}`, we fit the model using `zelig()` directly on the `matchit` object:
+
+```{r}
+fit <- zelig(re78 ~ treat * (age + educ + married + race +
+                               nodegree + re74 + re75),
+             data = m.out, model = "ls", cite = FALSE)
+```
+
+Next, we use `ATT()` to request the ATT of `treat` and simulate the values:
+
+```{r}
+fit <- ATT(fit, "treat")
+```
+
+```{r, eval = F}
+#Note: this is bugged and returns a matrix or nothing
+fit
+```
+
+```{r, eval = F}
+plot(fit)
+```
+
+### `{simbased}` workflow
+
+In `{simbased}`, we need to extract the matched dataset and fit a model outside `{simbased}` using another package.
+
+```{r}
+m.data <- MatchIt::match.data(m.out)
+
+fit <- lm(re78 ~ treat * (age + educ + married + race +
+                            nodegree + re74 + re75),
+          data = m.data)
+```
+
+Next, we simulate the model coefficients using `simbased::sim()`. Because we performed pair matching, we will request a cluster-robust standard error:
+
+```{r}
+s <- simbased::sim(fit, vcov = ~subclass)
+```
+
+Next, we use `sim_ame()` to request the average marginal effect of `treat` within the subset of treated units:
+
+```{r}
+est <- sim_ame(s, var = "treat", subset = treat == 1,
+               contrast = "diff", verbose = FALSE)
+```
+
+Finally, we can summarize and plot the ATT:
+
+```{r}
+summary(est)
+
+plot(est)
+```
+
+## Combining results after multiple imputation
+
+Here we'll use the `africa` dataset in `{Amelia}` to demonstrate combining estimates after multiple imputation. This analysis is also demonstrated using `{simbased}` at the end of `vignette("simbased")`.
+
+```{r, message=F}
+library(Amelia)
+data("africa", package = "Amelia")
+```
+
+First we multiply impute the data using `amelia()` using the specification in the `{Amelia}` documentation.
+
+```{r}
+# Multiple imputation
+a.out <- amelia(x = africa, m = 10, cs = "country",
+                ts = "year", logs = "gdp_pc", p2s = 0)
+```
+
+### `{Zelig}` workflow
+
+With `{Zelig}`, we can supply the `amelia` object directly to the `data` argument of `zelig()` to fit a model in each imputed dataset:
+
+```{r}
+fit <- zelig(gdp_pc ~ infl * trade, data = a.out,
+             model = "ls", cite = FALSE)
+```
+
+Summarizing the coefficient estimates after the simulation can be done using `summary()`:
+
+```{r}
+summary(fit)
+```
+
+We can use `Zelig::sim()` and `setx()` to compute predictions at specified values of the predictors:
+
+```{r}
+fit <- setx(fit, infl = 0, trade = 40)
+fit <- setx1(fit, infl = 0, trade = 60)
+
+fit <- Zelig::sim(fit)
+```
+
+`{Zelig}` does not allow you to combine predicted values across imputations.
+
+```{r, eval = F}
+#Not printed; results for each imputation
+fit
+```
+
+```{r, eval = F}
+#Plotting is bugged
+plot(fit)
+```
+
+### `{simbased}` workflow
+
+`{simbased}` does not combine coefficients, unlike `zelig()`; instead, the models should be fit using `Amelia::with()` and combined using `Amelia::mi.combine()`.
+
+```{r}
+#Use Amelia functions to model and combine coefficients
+fits <- with(a.out, lm(gdp_pc ~ infl * trade))
+
+mi.combine(fits)
+```
+
+Derived quantities can be computed using `simbased::simmi()` and `sim_apply()` or its wrappers:
+
+```{r}
+#Simulate coefficients, 100 in each of 10 imputations
+s <- simmi(fits, n = 100)
+
+#Compute predictions at specified values
+est <- sim_setx(s, x = list(infl = 0, trade = 40),
+                x1 = list(infl = 0, trade = 60),
+                verbose = FALSE)
+
+summary(est)
+
+plot(est)
+```
+
+## References
