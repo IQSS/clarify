@@ -13,17 +13,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-# `simbased`: Simulation-Based Inference for Regression Models
+# `{simbased}`: Simulation-Based Inference for Regression Models
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/simbased)](https://CRAN.R-project.org/package=simbased)
 <!-- badges: end -->
 
-`simbased` implements simulation-based inference as an alternative to the delta method for computing functions of model parameters, such as average marginal effects. 
+`{simbased}` implements simulation-based inference as an alternative to the delta method for computing functions of model parameters, such as average marginal effects. 
 
 ## Installation
 
-You can install the development version of `simbased` from [GitHub](https://github.com/) with:
+You can install the development version of `{simbased}` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -35,7 +35,7 @@ Simulation-based inference is an alternative to the delta method and bootstrappi
 
 Simulation-based inference provides a compromise to these two methods: it is more accurate than the delta method because it does not require assumptions 2) and 3), and it is faster and more stable than bootstrapping because the model only needs to be fit once. Simulation-based inference involves simulating model coefficients from their multivariate distribution using their estimated values and covariance from a single model fit to the original data, computing the quantities of interest from each set of model coefficients, and then performing inference using the resulting distribution of the estimates as their sampling distribution. Confidence intervals can be computed using the percentiles of the resulting sampling distribution, and p-values can be computed by inverting the confidence intervals. Alternatively, if the resulting sampling distribution is normally distributed, its standard error can be estimated as the standard deviation of the estimates and normal-theory confidence intervals and p-values can be computed.
 
-The `simbased` package was designed to provide a simple, general interface to simulation-based inference, along with a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of `simbased` are `sim()`, `sim_apply()`, `summary()`, and `plot()`. These work together to create a simple workflow for simulation-based inference.
+The `{simbased}` package was designed to provide a simple, general interface to simulation-based inference, along with a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of `{simbased}` are `sim()`, `sim_apply()`, `summary()`, and `plot()`. These work together to create a simple workflow for simulation-based inference.
 
 * `sim()` simulates model parameters from a fitted model
 * `sim_apply()` applies an estimator to the simulated coefficients, or to the original object but with the new coefficients inserted
@@ -81,7 +81,7 @@ summary(sim_est, null = c(NA, NA, 0))
 plot(sim_est)
 ```
 
-`simbased` provides a shortcut for computing average marginal effects and comparisons between average adjusted predictions, `sim_ame()`, which is essentially a wrapper for `sim_apply()` with extra processing. We can compute the log marginal risk ratio below:
+`{simbased}` provides a shortcut for computing average marginal effects and comparisons between average adjusted predictions, `sim_ame()`, which is essentially a wrapper for `sim_apply()` with extra processing. We can compute the log marginal risk ratio below:
 
 ```{r}
 # Marginal risk ratio ATT, simulation-based
@@ -113,7 +113,7 @@ sim_est <- transform(sim_est, `RR` = exp(`log(RR)`))
 summary(sim_est, null = c(NA, NA, 0, 1))
 ```
 
-We can also use `simbased` to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of `Zelig`'s `setx()` and `setx1()` functions, using `sim_setx()`:
+We can also use `{simbased}` to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of `Zelig`'s `setx()` and `setx1()` functions, using `sim_setx()`:
 
 ```{r, fig.width=7, fig.height=3}
 # Predictions across age and treat at typical values
@@ -125,7 +125,7 @@ sim_est <- sim_setx(sim_coefs, x = list(age = 20:50, treat = 0:1),
 plot(sim_est)
 ```
 
-`simbased` offers parallel processing for all estimation functions to speed up computation.
+`{simbased}` offers parallel processing for all estimation functions to speed up computation.
 
 The methodology of simulation-based inference is described in King, Tomz, and Wittenberg (2000).
 

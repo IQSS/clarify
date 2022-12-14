@@ -52,7 +52,7 @@ fit <- glm(I(re78 > 0) ~ treat + age + race + nodegree + re74,
 s <- sim(fit, n = 100)
 
 # Compute average marginal means for `treat`
-est <- sim_ame(s, var = "treat")
+est <- sim_ame(s, var = "treat", verbose = FALSE)
 coef(est)
 
 # Compute average marginal effects on risk difference

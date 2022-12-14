@@ -1,8 +1,8 @@
 ---
-title: "Translating `{Zelig}` to `{simbased}`"
+title: "Translating Zelig to simbased"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{"Translating `{Zelig}` to `{simbased}`"}
+  %\VignetteIndexEntry{"Translating Zelig to simbased"}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib

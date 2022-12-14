@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `simbased`: Simulation-Based Inference for Regression Models
+# `{simbased}`: Simulation-Based Inference for Regression Models
 
 <!-- badges: start -->
 
@@ -9,13 +9,13 @@
 status](https://www.r-pkg.org/badges/version/simbased)](https://CRAN.R-project.org/package=simbased)
 <!-- badges: end -->
 
-`simbased` implements simulation-based inference as an alternative to
+`{simbased}` implements simulation-based inference as an alternative to
 the delta method for computing functions of model parameters, such as
 average marginal effects.
 
 ## Installation
 
-You can install the development version of `simbased` from
+You can install the development version of `{simbased}` from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -58,20 +58,20 @@ distributed, its standard error can be estimated as the standard
 deviation of the estimates and normal-theory confidence intervals and
 p-values can be computed.
 
-The `simbased` package was designed to provide a simple, general
+The `{simbased}` package was designed to provide a simple, general
 interface to simulation-based inference, along with a few convenience
 functions to perform common tasks like computing average marginal
-effects. The primary functions of `simbased` are `sim()`, `sim_apply()`,
-`summary()`, and `plot()`. These work together to create a simple
-workflow for simulation-based inference.
+effects. The primary functions of `{simbased}` are `sim()`,
+`sim_apply()`, `summary()`, and `plot()`. These work together to create
+a simple workflow for simulation-based inference.
 
--   `sim()` simulates model parameters from a fitted model
--   `sim_apply()` applies an estimator to the simulated coefficients, or
-    to the original object but with the new coefficients inserted
--   `summary()` produces confidence intervals and p-values for the
-    resulting estimates
--   `plot()` produces plots of the simulated sampling distribution of
-    the resulting estimates
+- `sim()` simulates model parameters from a fitted model
+- `sim_apply()` applies an estimator to the simulated coefficients, or
+  to the original object but with the new coefficients inserted
+- `summary()` produces confidence intervals and p-values for the
+  resulting estimates
+- `plot()` produces plots of the simulated sampling distribution of the
+  resulting estimates
 
 There are also some wrappers for `sim_apply()` for performing some
 common operations: `sim_ame()` computes the average marginal effect of a
@@ -113,16 +113,17 @@ sim_est <- sim_apply(sim_coefs, function(fit) {
 sim_est
 #> A `simbased_est` object (from `sim_apply()`)
 #>  - 1000 simulated values
-#>  - 3 quantities estimated:
-#>    E[Y(0)]    E[Y(1)]    log(RR) 
-#>  0.2944381  0.2432432 -0.1910068
+#>  - 3 quantities estimated:                   
+#>  E[Y(0)]  0.2944381
+#>  E[Y(1)]  0.2432432
+#>  log(RR) -0.1910068
 
 #View the estimates, confidence intervals, and p-values
 summary(sim_est, null = c(NA, NA, 0))
-#>         Estimate CI 2.5 % CI 97.5 % P-value
-#> E[Y(0)]    0.294    0.220     0.388       .
-#> E[Y(1)]    0.243    0.209     0.364       .
-#> log(RR)   -0.191   -0.437     0.344    0.79
+#>         Estimate  2.5 % 97.5 % P-value
+#> E[Y(0)]    0.294  0.220  0.384       .
+#> E[Y(1)]    0.243  0.199  0.360       .
+#> log(RR)   -0.191 -0.479  0.330    0.79
 
 #Plot the resulting sampling distributions
 plot(sim_est)
@@ -130,7 +131,7 @@ plot(sim_est)
 
 <img src="man/figures/README-example-1.png" width="80%" />
 
-`simbased` provides a shortcut for computing average marginal effects
+`{simbased}` provides a shortcut for computing average marginal effects
 and comparisons between average adjusted predictions, `sim_ame()`, which
 is essentially a wrapper for `sim_apply()` with extra processing. We can
 compute the log marginal risk ratio below:
@@ -144,15 +145,16 @@ sim_est
 #> A `simbased_est` object (from `sim_ame()`)
 #>  - Average marginal effect of `treat`
 #>  - 1000 simulated values
-#>  - 3 quantities estimated:
-#>    E[Y(0)]    E[Y(1)]    log(RR) 
-#>  0.2944381  0.2432432 -0.1910068
+#>  - 3 quantities estimated:                   
+#>  E[Y(0)]  0.2944381
+#>  E[Y(1)]  0.2432432
+#>  log(RR) -0.1910068
 
 summary(sim_est, null = c(NA, NA, 0))
-#>         Estimate CI 2.5 % CI 97.5 % P-value
-#> E[Y(0)]    0.294    0.220     0.388       .
-#> E[Y(1)]    0.243    0.209     0.364       .
-#> log(RR)   -0.191   -0.437     0.344    0.79
+#>         Estimate  2.5 % 97.5 % P-value
+#> E[Y(0)]    0.294  0.220  0.384       .
+#> E[Y(1)]    0.243  0.199  0.360       .
+#> log(RR)   -0.191 -0.479  0.330    0.79
 ```
 
 We could have used `marginaleffects`, which uses the delta method
@@ -184,16 +186,17 @@ If we want to compute the marginal risk ratio, we can do that using
 #Transform estimates into new quantities of interest
 sim_est <- transform(sim_est, `RR` = exp(`log(RR)`))
 summary(sim_est, null = c(NA, NA, 0, 1))
-#>         Estimate CI 2.5 % CI 97.5 % P-value
-#> E[Y(0)]    0.294    0.220     0.388       .
-#> E[Y(1)]    0.243    0.209     0.364       .
-#> log(RR)   -0.191   -0.437     0.344    0.79
-#> RR         0.826    0.646     1.411    0.79
+#>         Estimate  2.5 % 97.5 % P-value
+#> E[Y(0)]    0.294  0.220  0.384       .
+#> E[Y(1)]    0.243  0.199  0.360       .
+#> log(RR)   -0.191 -0.479  0.330    0.79
+#> RR         0.826  0.619  1.391    0.79
 ```
 
-We can also use `simbased` to compute predictions and first differences
-at set and typical values of the predictors, mimicking the functionality
-of `Zelig`’s `setx()` and `setx1()` functions, using `sim_setx()`:
+We can also use `{simbased}` to compute predictions and first
+differences at set and typical values of the predictors, mimicking the
+functionality of `Zelig`’s `setx()` and `setx1()` functions, using
+`sim_setx()`:
 
 ``` r
 # Predictions across age and treat at typical values
@@ -207,7 +210,7 @@ plot(sim_est)
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" />
 
-`simbased` offers parallel processing for all estimation functions to
+`{simbased}` offers parallel processing for all estimation functions to
 speed up computation.
 
 The methodology of simulation-based inference is described in King,

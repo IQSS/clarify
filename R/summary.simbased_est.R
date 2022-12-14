@@ -32,7 +32,7 @@
 #' s <- sim(fit, n = 100)
 #'
 #' # Compute average marginal means for `treat`
-#' est <- sim_ame(s, var = "treat")
+#' est <- sim_ame(s, var = "treat", verbose = FALSE)
 #' coef(est)
 #'
 #' # Compute average marginal effects on risk difference
