@@ -18,7 +18,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Noah Greifer \email{ngreifer@iq.harvard.edu} (\href{https://orcid.org/0000-0003-3067-7154}{ORCID}) [contributor]
+\strong{Maintainer}: Noah Greifer \email{ngreifer@iq.harvard.edu} (\href{https://orcid.org/0000-0003-3067-7154}{ORCID})
 
 }
 \keyword{internal}

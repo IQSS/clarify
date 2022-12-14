@@ -4,20 +4,20 @@
 \alias{plot.simbased_setx}
 \title{Plot marginal predictions from \code{sim_setx()}}
 \usage{
-\method{plot}{simbased_setx}(x, var = NULL, ci = TRUE, alpha = 0.05, normal = FALSE, ...)
+\method{plot}{simbased_setx}(x, var = NULL, ci = TRUE, level = 0.95, method = "quantile", ...)
 }
 \arguments{
 \item{x}{a \code{simbased_est} object resulting from a call to \code{\link[=sim_setx]{sim_setx()}}.}
 
-\item{var}{the name of the focal varying predictor, i.e., the variable to be on the x-axis of the plot. All other variables with varying set values will be used to color the resulting plot. See Details. Ignored if no predictors vary or if only predictor varies in the reference grid or if \code{x1} was specified in \code{sim_setx()}. If not set, will use the predictor with the greatest number of unique values specified in the reference grid.}
+\item{var}{the name of the focal varying predictor, i.e., the variable to be on the x-axis of the plot. All other variables with varying set values will be used to color the resulting plot. See Details. Ignored if no predictors vary or if only one predictor varies in the reference grid or if \code{x1} was specified in \code{sim_setx()}. If not set, will use the predictor with the greatest number of unique values specified in the reference grid.}
 
-\item{ci}{\code{logical}; whether to display confidence interval limits for the estimates. Default is \code{TRUE}.}
+\item{ci}{\code{logical}; whether to display confidence intervals or bands for the estimates. Default is \code{TRUE}.}
 
-\item{alpha}{the \eqn{\alpha} used to compute the confidence interval. Default is .05 for 95\% confidence intervals.}
+\item{level}{the confidence level desired. Default is .95 for 95\% confidence intervals.}
 
-\item{normal}{\code{logical}; whether to compute confidence intervals using a normal approximation (\code{TRUE}) or the simulated sampling distribution (\code{FALSE}; default). See \code{\link[=summary.simbased_est]{summary.simbased_est()}} for details.}
+\item{method}{the method used to compute confidence intervals or bands. Can be \code{"wald"} to use a Normal approximation or \code{"quantile"} to use the simulated sampling distribution (default). See \code{\link[=summary.simbased_est]{summary.simbased_est()}} for details. Abbreviations allowed.}
 
-\item{...}{ignored.}
+\item{...}{for \code{plot()}, further arguments passed to \code{\link[ggplot2:geom_density]{ggplot2::geom_density()}}.}
 }
 \value{
 A \code{ggplot} object.
@@ -26,14 +26,14 @@ A \code{ggplot} object.
 \code{plot.simbased_sext()} plots the output of \code{\link[=sim_setx]{sim_setx()}}, providing graphics similar to those of \code{\link[=plot.simbased_est]{plot.simbased_est()}} but with features specifically for plot marginal predictions. For continues predictors, this is a plot of the marginal predictions and their confidence bands across levels of the predictor. Otherwise, this is is a plot of simulated sampling distribution of the marginal predictions.
 }
 \details{
-\code{plot()} creates one of two kinds of plots depending on how the reference grid was specified in the call to \code{sim_setx()} and what \code{var} is set to. When the focal varying predictor (i.e., the one set in \code{var}) is numeric and takes on three more unique values in the reference grid, the produced plot is a line graph displaying the value of the marginal prediction (denoted as \code{E[Y|X]}) across values of the focal varying predictor, with confidence bands displayed when \code{ci = TRUE}. If other predictors also vary, lines for different values will be displayed in different colors. These plots are produced using \code{\link[ggplot2:geom_path]{ggplot2::geom_line()}} and \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon()}}
+\code{plot()} creates one of two kinds of plots depending on how the reference grid was specified in the call to \code{sim_setx()} and what \code{var} is set to. When the focal varying predictor (i.e., the one set in \code{var}) is numeric and takes on three or more unique values in the reference grid, the produced plot is a line graph displaying the value of the marginal prediction (denoted as \code{E[Y|X]}) across values of the focal varying predictor, with confidence bands displayed when \code{ci = TRUE}. If other predictors also vary, lines for different values will be displayed in different colors. These plots are produced using \code{\link[ggplot2:geom_path]{ggplot2::geom_line()}} and \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon()}}
 
 When the focal varying predictor is a factor or character or only takes on two or fewer values in the reference grid, the produced plot is a density plot of the simulated predictions, similar to the plot resulting from \code{\link[=plot.simbased_est]{plot.simbased_est()}}. When other variables vary, densities for different values will be displayed in different colors. These plots are produced using \code{\link[ggplot2:geom_density]{ggplot2::geom_density()}}.
 
 Marginal predictions are identified by the corresponding levels of the predictors that vary. The user should keep track of whether the non-varying predictors are set at specified or automatically set "typical" levels.
 }
 \examples{
-## See help("sim_sext") for examples
+## See help("sim_setx") for examples
 
 }
 \seealso{

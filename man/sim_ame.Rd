@@ -2,6 +2,7 @@
 % Please edit documentation in R/sim_ame.R
 \name{sim_ame}
 \alias{sim_ame}
+\alias{print.simbased_ame}
 \title{Compute average marginal effects}
 \usage{
 sim_ame(
@@ -9,13 +10,18 @@ sim_ame(
   var,
   subset = NULL,
   contrast = NULL,
+  outcome = NULL,
+  type = NULL,
   eps = 1e-05,
   verbose = TRUE,
   cl = NULL
 )
+
+\method{print}{simbased_ame}(x, digits = NULL, max.ests = 6, ...)
 }
 \arguments{
-\item{sim}{a \code{simbased_sim} object; the output of a call to \code{\link[=sim]{sim()}} or \code{\link[=simmi]{simmi()}}.}
+\item{sim}{a \code{simbased_sim} object; the output of a call to \code{\link[=sim]{sim()}} or
+\code{\link[=simmi]{simmi()}}.}
 
 \item{var}{either the name of a variable for which marginal effects are to be computed or a named list of length one containing the values the variable should take. If a list is supplied or the named variables is categorical (factor, character, or having two values), categorical calculations will be triggered. Otherwise, continuous calculations will be triggered. See Details.}
 
@@ -23,11 +29,27 @@ sim_ame(
 
 \item{contrast}{a string containing the name of a contrast between the average marginal means when the variable named in \code{var} is categorical and takes on two values. Allowed options include \code{"diff"} for the difference in means (also \code{"rd"}), \code{"rr"} for the risk ratio (also \code{"irr"}), \verb{"log(rr):} for the log risk ratio (also \code{"log(irr)"}), \code{"or"} for the odds ratio, \code{"log(or)"} for the log odds ratio, and \code{"nnt"} for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.}
 
+\item{outcome}{a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.}
+
+\item{type}{a string containing the type of predicted values (e.g., the link or the response). Passed to \code{\link[marginaleffects:get_predict]{marginaleffects::get_predict()}} and eventually to \code{predict()} in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).}
+
 \item{eps}{when the variable named in \code{var} is continuous, the value by which to change the variable values to approximate the derivative. See Details.}
 
-\item{verbose}{\code{logical}; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
+\item{verbose}{\code{logical}; whether to display a text progress bar indicating
+progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
 
-\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
+\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an
+integer to indicate the number of child-processes (integer values are
+ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for
+details. If \code{NULL}, no parallelization will take place.}
+
+\item{x}{a \code{simbased_ame} object.}
+
+\item{digits}{the minimum number of significant digits to be used; passed to \code{\link[=print.data.frame]{print.data.frame()}}.}
+
+\item{max.ests}{the maximum number of estimates to display.}
+
+\item{...}{optional arguments passed to \code{FUN}.}
 }
 \value{
 A \code{simbased_ame} object, which inherits from \code{simbased_est} and is similar to
@@ -46,6 +68,8 @@ named \code{dY/d({x})} where \code{{x}} is replaced with \code{var}.
 Categorical calculations involve computing average marginal means at each level of \code{var}. The average marginal mean is the average predicted outcome value after setting all units' value of \code{var} to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When \code{var} only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to \code{contrast}. Contrasts can be manually computed using \code{\link[=transform]{transform()}} afterward as well.
 
 Continuous calculations involve computing the average of marginal effects of \code{var} across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of \code{var} by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of \code{var} is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is \code{eps} times the standard deviation of the focal variable.
+
+If unit-level weights are included in the model fit (and discoverable using \code{\link[insight:get_weights]{insight::get_weights()}}), all means will be computed as weighted means.
 \subsection{Effect measures}{
 
 The effect measures specified in \code{contrast} are defined below. Typically only \code{"diff"} is appropriate for continuous outcomes and \code{"diff"} or \code{"irr"} are appropriate for count outcomes; the rest are appropriate for binary outcomes. For a focal variable with two levels, \code{0} and \code{1}, and an outcome \code{Y}, the average marginal means will be denoted in the below formulas as \code{E[Y(0)]} and \code{E[Y(1)]}, respectively.\tabular{ll}{

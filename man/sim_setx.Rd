@@ -2,24 +2,53 @@
 % Please edit documentation in R/sim_setx.R
 \name{sim_setx}
 \alias{sim_setx}
+\alias{print.simbased_setx}
 \title{Compute predictions and first differences at set values}
 \usage{
-sim_setx(sim, x = list(), x1 = list(), verbose = TRUE, cl = NULL)
+sim_setx(
+  sim,
+  x = list(),
+  x1 = list(),
+  outcome = NULL,
+  type = NULL,
+  verbose = TRUE,
+  cl = NULL
+)
+
+\method{print}{simbased_setx}(x, digits = NULL, max.ests = 6, ...)
 }
 \arguments{
-\item{sim}{a \code{simbased_sim} object; the output of a call to \code{\link[=sim]{sim()}} or \code{\link[=simmi]{simmi()}}.}
+\item{sim}{a \code{simbased_sim} object; the output of a call to \code{\link[=sim]{sim()}} or
+\code{\link[=simmi]{simmi()}}.}
 
 \item{x}{a named list of values each predictor should take defining a
-reference grid of predictor values, e.g., \code{list(v1 = 1:4, v2 = c("A", "B"))}. Any omitted predictors are fixed at a "typical" value. See Details.
-When \code{x1} is specified, \code{x} should identify a single reference unit.}
+reference grid of predictor values, e.g., \code{list(v1 = 1:4, v2 = c("A", "B"))}.
+Any omitted predictors are fixed at a "typical" value. See Details.
+When \code{x1} is specified, \code{x} should identify a single reference unit.
+
+For \code{print()}, a \code{simbased_setx} object.}
 
 \item{x1}{a named list of the value each predictor should take to compute the
 first difference from the predictor combination specified in \code{x}. \code{x1} can
 only identify a single unit. See Details.}
 
-\item{verbose}{\code{logical}; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
+\item{outcome}{a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.}
 
-\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
+\item{type}{a string containing the type of predicted values (e.g., the link or the response). Passed to \code{\link[marginaleffects:get_predict]{marginaleffects::get_predict()}} and eventually to \code{predict()} in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).}
+
+\item{verbose}{\code{logical}; whether to display a text progress bar indicating
+progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
+
+\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an
+integer to indicate the number of child-processes (integer values are
+ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for
+details. If \code{NULL}, no parallelization will take place.}
+
+\item{digits}{the minimum number of significant digits to be used; passed to \code{\link[=print.data.frame]{print.data.frame()}}.}
+
+\item{max.ests}{the maximum number of estimates to display.}
+
+\item{...}{optional arguments passed to \code{FUN}.}
 }
 \value{
 a \code{simbased_setx} object, which inherits from \code{simbased_est} and is similar to the output of \code{sim_apply()}, with the following additional attributes:
