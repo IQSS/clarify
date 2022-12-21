@@ -1,57 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ngreifer.github.io/simbased/404.html</loc>
+    <loc>https://ngreifer.github.io/clarify/404.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/LICENSE.html</loc>
+    <loc>https://ngreifer.github.io/clarify/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/articles/Zelig.html</loc>
+    <loc>https://ngreifer.github.io/clarify/articles/Zelig.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/articles/index.html</loc>
+    <loc>https://ngreifer.github.io/clarify/articles/clarify.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/articles/simbased.html</loc>
+    <loc>https://ngreifer.github.io/clarify/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/authors.html</loc>
+    <loc>https://ngreifer.github.io/clarify/authors.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/index.html</loc>
+    <loc>https://ngreifer.github.io/clarify/index.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/reference/index.html</loc>
+    <loc>https://ngreifer.github.io/clarify/news/index.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/simbased/reference/plot.simbased_adrf.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/simbased/reference/plot.simbased_setx.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/simbased/reference/sim.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/simbased/reference/sim_adrf.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/simbased/reference/sim_ame.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/simbased/reference/sim_apply.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/simbased/reference/sim_setx.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/simbased/reference/simbased-package.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/simbased/reference/simmi.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/simbased/reference/summary.simbased_est.html</loc>
+    <loc>https://ngreifer.github.io/clarify/reference/index.html</loc>
   </url>
 </urlset>

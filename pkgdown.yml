@@ -1,11 +1,11 @@
 pandoc: 2.19.2
-pkgdown: 2.0.6
+pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   Zelig: Zelig.html
-  simbased: simbased.html
-last_built: 2022-12-14T17:53Z
+  clarify: clarify.html
+last_built: 2022-12-21T18:30Z
 urls:
-  reference: https://ngreifer.github.io/simbased/reference
-  article: https://ngreifer.github.io/simbased/articles
+  reference: https://ngreifer.github.io/clarify/reference
+  article: https://ngreifer.github.io/clarify/articles
 
