@@ -33,7 +33,7 @@
 #' The `log(.)` versions are defined by taking the [log()] (natural log) of the corresponding effect measure.
 #'
 #' @return
-#' A `simbased_ame` object, which inherits from `simbased_est` and is similar to
+#' A `clarify_ame` object, which inherits from `clarify_est` and is similar to
 #' the output of `sim_apply()`, with the additional attribute `"var"` containing
 #' the variable named in `var`. The average marginal means will be named
 #' `E[Y({v})]`, where `{v}` is replaced with the values the focal variable
@@ -41,8 +41,8 @@
 #' named `dY/d({x})` where `{x}` is replaced with `var`.
 #'
 #' @seealso [sim_apply()], which provides a general interface to computing any
-#'   quantities for simulation-based inference; [plot.simbased_est()] for plotting the
-#'   output of a call to `sim_ame()`; [summary.simbased_est()] for computing
+#'   quantities for simulation-based inference; [plot.clarify_est()] for plotting the
+#'   output of a call to `sim_ame()`; [summary.clarify_est()] for computing
 #'   p-values and confidence intervals for the estimated quantities.
 #'
 #' `marginaleffects::marginaleffects()`, `marginaleffects::comparisons()`, and `margins::margins()` for delta method-based implementations of computing average marginal effects.
@@ -90,7 +90,7 @@ sim_ame <- function(sim,
   check_sim_apply_wrapper_ready(sim)
 
   chk::chk_flag(verbose)
-  is_misim <- inherits(sim, "simbased_misim")
+  is_misim <- inherits(sim, "clarify_misim")
 
   vals <- NULL
 
@@ -139,11 +139,11 @@ sim_ame <- function(sim,
   #Test to make sure compatible
   if (is_misim) {
     test_dat <- get_pred_data_from_fit(sim$fit[[1]])
-    test_predict <- simbased_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
+    test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
   }
   else {
     test_dat <- get_pred_data_from_fit(sim$fit)
-    test_predict <- simbased_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
+    test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
   }
 
   if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1) {
@@ -194,7 +194,7 @@ sim_ame <- function(sim,
       dat <- get_pred_data_from_fit(fit)
       m <- nrow(dat)
       dat2 <- do.call("rbind", lapply(vals, function(v) {dat[[var]][] <- v; dat}))
-      pred <- simbased_predict(fit, newdata = dat2, group = outcome, type = type)
+      pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
       p <- pred$predicted
       vapply(seq_along(vals), function(i) {
         weighted.mean(p[seq_len(m) + (i-1)*m], attr(fit, "weights"))
@@ -239,7 +239,7 @@ sim_ame <- function(sim,
       dat2[[var]][ind] <- dat2[[var]][ind] - eps/2
       dat2[[var]][-ind] <- dat2[[var]][-ind] + eps/2
 
-      pred <- simbased_predict(fit, newdata = dat2, group = outcome, type = type)
+      pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
       p <- pred$predicted
 
       m0 <- weighted.mean(p[ind], attr(fit, "weights"))
@@ -254,20 +254,20 @@ sim_ame <- function(sim,
   }
 
   attr(out, "var") <- var
-  class(out) <- c("simbased_ame", class(out))
+  class(out) <- c("clarify_ame", class(out))
   out
 }
 
-#' @exportS3Method print simbased_ame
+#' @exportS3Method print clarify_ame
 #' @rdname sim_ame
-#' @param x a `simbased_ame` object.
+#' @param x a `clarify_ame` object.
 #' @param digits the minimum number of significant digits to be used; passed to [print.data.frame()].
 #' @param max.ests the maximum number of estimates to display.
-print.simbased_ame <- function(x, digits = NULL, max.ests = 6, ...) {
+print.clarify_ame <- function(x, digits = NULL, max.ests = 6, ...) {
   chk::chk_count(max.ests)
   max.ests <- min(max.ests, length(attr(x, "original")))
 
-  cat("A `simbased_est` object (from `sim_ame()`)\n")
+  cat("A `clarify_est` object (from `sim_ame()`)\n")
 
   cat(sprintf(" - Average marginal effect of `%s`\n", attr(x, "var")))
   cat(sprintf(" - %s simulated values\n", nrow(x)))
@@ -318,12 +318,12 @@ attach_pred_data_to_fit <- function(fit, index.sub = NULL, is_fitlist = FALSE) {
       }
     }
 
-    attr(fit, "simbased_data") <- data[,intersect(vars, colnames(data)), drop = FALSE]
+    attr(fit, "clarify_data") <- data[,intersect(vars, colnames(data)), drop = FALSE]
     attr(fit, "weights") <- weights
   }
   return(fit)
 }
 
 get_pred_data_from_fit <- function(fit) {
-  attr(fit, "simbased_data")
+  attr(fit, "clarify_data")
 }

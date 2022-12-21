@@ -7,7 +7,7 @@ test_that("sim() works with coefs and vcov", {
   s <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
            n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -17,7 +17,7 @@ test_that("sim() works with coefs and vcov", {
 
   s <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
            n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
@@ -26,11 +26,11 @@ test_that("sim() works with coefs and vcov", {
   set.seed(987)
   s1 <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
             n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
             n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
@@ -38,7 +38,7 @@ test_that("sim() works with coefs and vcov", {
   set.seed(123)
   s3 <- sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit),
             n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   expect_error(sim(coefs = coef(fit), vcov = sandwich::vcovHC(fit)[-2,-2],
@@ -59,7 +59,7 @@ test_that("sim() works with lm()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, p))
   expect_equal(colnames(s$sim.coefs),
@@ -67,43 +67,43 @@ test_that("sim() works with lm()", {
   expect_equal(attr(s, "dist"), "t(571)")
 
   s <- sim(fit, n = 5, dist = "norm")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(p)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(p)))
   expect_error(sim(fit, n = 5, coefs = runif(p+1)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(p-1))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -115,7 +115,7 @@ test_that("sim() works with glm()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -123,39 +123,39 @@ test_that("sim() works with glm()", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -167,7 +167,7 @@ test_that("sim() works with MASS::glm.nb()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -175,39 +175,39 @@ test_that("sim() works with MASS::glm.nb()", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -223,7 +223,7 @@ test_that("sim() works with betareg::betareg()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 10L))
   expect_equal(colnames(s$sim.coefs),
@@ -232,39 +232,39 @@ test_that("sim() works with betareg::betareg()", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(10)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(10)))
   expect_error(sim(fit, n = 5, coefs = runif(11)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(9))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -276,7 +276,7 @@ test_that("sim() works with survey::svyglm()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -284,39 +284,39 @@ test_that("sim() works with survey::svyglm()", {
   expect_equal(attr(s, "dist"), "t(92)")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata$subclass)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata$subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -328,7 +328,7 @@ test_that("sim() works with estimatr::lm_robust()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -336,42 +336,42 @@ test_that("sim() works with estimatr::lm_robust()", {
   expect_equal(attr(s, "dist"), "t(571)")
 
   s <- sim(fit, n = 5, dist = "norm")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov(fit)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov(fit)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -384,7 +384,7 @@ test_that("sim() works with estimatr::iv_robust()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 5L))
   expect_equal(colnames(s$sim.coefs),
@@ -392,28 +392,28 @@ test_that("sim() works with estimatr::iv_robust()", {
   expect_equal(attr(s, "dist"), "t(573)")
 
   s <- sim(fit, n = 5, dist = "norm")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
@@ -421,13 +421,13 @@ test_that("sim() works with estimatr::iv_robust()", {
 
   #Custom coefs
   p <- length(coef(fit))
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(p)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(p)))
   expect_error(sim(fit, n = 5, coefs = runif(p + 1)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(p - 1))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -439,7 +439,7 @@ test_that("sim() works with fixest::feols()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -447,43 +447,43 @@ test_that("sim() works with fixest::feols()", {
   expect_equal(attr(s, "dist"), "t(571)")
 
   s <- sim(fit, n = 5, dist = "norm")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata["subclass"])))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata["subclass"])))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -495,7 +495,7 @@ test_that("sim() works with fixest::feglm()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -503,39 +503,39 @@ test_that("sim() works with fixest::feglm()", {
   expect_equal(attr(s, "dist"), "t(571)")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata["subclass"])))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata["subclass"])))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -547,7 +547,7 @@ test_that("sim() works with logistf::logistf()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -555,38 +555,38 @@ test_that("sim() works with logistf::logistf()", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov(fit)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov(fit)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -601,7 +601,7 @@ test_that("sim() works with geepack::geeglm()", {
   })
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -609,38 +609,38 @@ test_that("sim() works with geepack::geeglm()", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov(fit)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov(fit)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -659,7 +659,7 @@ test_that("sim() works with rms::ols()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, k))
   expect_equal(colnames(s$sim.coefs),
@@ -668,43 +668,43 @@ test_that("sim() works with rms::ols()", {
   expect_equal(attr(s, "dist"), "t(569.230711076445)")
 
   s <- sim(fit, n = 5, dist = "norm")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov))
-  # expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
+  # expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(k)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(k)))
   expect_error(sim(fit, n = 5, coefs = runif(k + 1)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(k - 1))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 
   options(op); rm(dd, envir = globalenv())
@@ -727,7 +727,7 @@ test_that("sim() works with rms::lrm()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, k))
   expect_equal(colnames(s$sim.coefs),
@@ -736,39 +736,39 @@ test_that("sim() works with rms::lrm()", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov(fit)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov(fit)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(k)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(k)))
   expect_error(sim(fit, n = 5, coefs = runif(k + 1)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(k - 1))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -780,7 +780,7 @@ test_that("sim() works with robustbase::lmrob()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -788,43 +788,43 @@ test_that("sim() works with robustbase::lmrob()", {
   expect_equal(attr(s, "dist"), "t(571)")
 
   s <- sim(fit, n = 5, dist = "norm")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov))
-  # expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
+  # expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -837,7 +837,7 @@ test_that("sim() works with robustbase::glmrob()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -845,39 +845,39 @@ test_that("sim() works with robustbase::glmrob()", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = vcov(fit)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov(fit)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -889,7 +889,7 @@ test_that("sim() works with robust::lmRob()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -897,43 +897,43 @@ test_that("sim() works with robust::lmRob()", {
   expect_equal(attr(s, "dist"), "t(571)")
 
   s <- sim(fit, n = 5, dist = "norm")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = insight:::get_varcov))
-  # expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = insight:::get_varcov))
+  # expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = insight:::get_varcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = insight:::get_varcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -946,7 +946,7 @@ test_that("sim() works with robust::glmRob()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -954,39 +954,39 @@ test_that("sim() works with robust::glmRob()", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = insight:::get_varcov))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = insight:::get_varcov(fit)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = insight:::get_varcov))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = insight:::get_varcov(fit)))
   expect_error(sim(fit, n = 5, vcov = insight:::get_varcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = insight:::get_varcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -998,7 +998,7 @@ test_that("sim() works with AER::tobit()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -1006,39 +1006,39 @@ test_that("sim() works with AER::tobit()", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  # expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)[-7,-7]))
+  # expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)[-7,-7]))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-(2:3),-(2:3)]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(7)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(7)))
   expect_error(sim(fit, n = 5, coefs = runif(8)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(6))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit)[-7,-7])
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -1052,7 +1052,7 @@ test_that("sim() works with ivreg::ivreg()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, p))
   expect_equal(colnames(s$sim.coefs),
@@ -1060,44 +1060,44 @@ test_that("sim() works with ivreg::ivreg()", {
   expect_equal(attr(s, "dist"), "t(573)")
 
   s <- sim(fit, n = 5, dist = "norm")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "normal")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
 
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(p)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(p)))
   expect_error(sim(fit, n = 5, coefs = runif(p + 1)))
   expect_error(sim(n = 5, coefs = stats::coef))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(p - 1))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -1112,7 +1112,7 @@ test_that("sim() works with mgcv::gam()", {
 
   s <- sim(fit, n = 5)
 
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L, p))
   expect_equal(colnames(s$sim.coefs),
@@ -1120,36 +1120,36 @@ test_that("sim() works with mgcv::gam()", {
   expect_equal(attr(s, "dist"), "t(571)")
 
   s <- sim(fit, n = 5, dist = "t(100)")
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(sim(fit, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s1)
+  expect_good_clarify_sim(s1)
   set.seed(987)
   s2 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s2)
+  expect_good_clarify_sim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- sim(fit, n = 5)
-  expect_good_simbased_sim(s3)
+  expect_good_clarify_sim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_sim(sim(fit, n = 5, vcov = function(...) vcov(..., sandwich = TRUE)))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = function(...) vcov(..., sandwich = TRUE)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
-  expect_good_simbased_sim(sim(fit, n = 5, coefs = runif(p)))
+  expect_good_clarify_sim(sim(fit, n = 5, coefs = runif(p)))
   expect_error(sim(fit, n = 5, coefs = runif(p+1)))
   expect_error(sim(fit, n = 5, coefs = c(NA, runif(p-1))))
 
   s <- sim(n = 5, coefs = coef(fit), vcov = vcov(fit))
-  expect_good_simbased_sim(s)
+  expect_good_clarify_sim(s)
   expect_false(attr(s, "use_fit"))
 })

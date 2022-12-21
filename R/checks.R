@@ -262,13 +262,13 @@ check_classes <- function(olddata, newdata) {
 check_sim_apply_wrapper_ready <- function(sim) {
   fun <- deparse1(pkg_caller_call()[[1]])
 
-  chk::chk_is(sim, "simbased_sim")
+  chk::chk_is(sim, "clarify_sim")
 
   if (!isTRUE(attr(sim, "use_fit"))) {
     .err(sprintf("`%s()` can only be used when a model fit was supplied to the original call to `sim()`",
                  fun))
   }
-  if (inherits(sim, "simbased_misim")) {
+  if (inherits(sim, "clarify_misim")) {
     if (any(!vapply(sim$fit, insight::is_regression_model, logical(1L)))) {
       .err(sprintf("`%s()` can only be used with regression models",
                    fun))

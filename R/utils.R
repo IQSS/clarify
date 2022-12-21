@@ -187,6 +187,6 @@ pkg_caller_call <- function(start = 1) {
 }
 
 drop_sim_class <- function(x) {
-  class(x) <- class(x)[!startsWith(class(x), "simbased_")]
+  class(x) <- class(x)[!startsWith(class(x), "clarify_")]
   x
 }

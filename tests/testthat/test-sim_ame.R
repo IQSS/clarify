@@ -21,7 +21,7 @@ test_that("sim_ame() works with lm()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -30,7 +30,7 @@ test_that("sim_ame() works with lm()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -41,7 +41,7 @@ test_that("sim_ame() works with lm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -49,7 +49,7 @@ test_that("sim_ame() works with lm()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -58,7 +58,7 @@ test_that("sim_ame() works with lm()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -66,7 +66,7 @@ test_that("sim_ame() works with lm()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -99,7 +99,7 @@ test_that("sim_ame() works with glm()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -108,7 +108,7 @@ test_that("sim_ame() works with glm()", {
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -119,7 +119,7 @@ test_that("sim_ame() works with glm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -127,7 +127,7 @@ test_that("sim_ame() works with glm()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -136,7 +136,7 @@ test_that("sim_ame() works with glm()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -147,7 +147,7 @@ test_that("sim_ame() works with glm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),
@@ -177,7 +177,7 @@ test_that("sim_ame() works with MASS::glm.nb()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -186,7 +186,7 @@ test_that("sim_ame() works with MASS::glm.nb()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -197,7 +197,7 @@ test_that("sim_ame() works with MASS::glm.nb()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -205,7 +205,7 @@ test_that("sim_ame() works with MASS::glm.nb()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -214,7 +214,7 @@ test_that("sim_ame() works with MASS::glm.nb()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -222,7 +222,7 @@ test_that("sim_ame() works with MASS::glm.nb()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -255,7 +255,7 @@ test_that("sim_ame() works with betareg::betareg()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -264,7 +264,7 @@ test_that("sim_ame() works with betareg::betareg()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -275,7 +275,7 @@ test_that("sim_ame() works with betareg::betareg()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -283,7 +283,7 @@ test_that("sim_ame() works with betareg::betareg()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -292,7 +292,7 @@ test_that("sim_ame() works with betareg::betareg()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -300,7 +300,7 @@ test_that("sim_ame() works with betareg::betareg()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -333,7 +333,7 @@ test_that("sim_ame() works with survey::svyglm()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -342,7 +342,7 @@ test_that("sim_ame() works with survey::svyglm()", {
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -353,7 +353,7 @@ test_that("sim_ame() works with survey::svyglm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -361,7 +361,7 @@ test_that("sim_ame() works with survey::svyglm()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -370,7 +370,7 @@ test_that("sim_ame() works with survey::svyglm()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -381,7 +381,7 @@ test_that("sim_ame() works with survey::svyglm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),
@@ -411,7 +411,7 @@ test_that("sim_ame() works with estimatr::lm_robust()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -420,7 +420,7 @@ test_that("sim_ame() works with estimatr::lm_robust()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -431,7 +431,7 @@ test_that("sim_ame() works with estimatr::lm_robust()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -439,7 +439,7 @@ test_that("sim_ame() works with estimatr::lm_robust()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -448,7 +448,7 @@ test_that("sim_ame() works with estimatr::lm_robust()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -456,7 +456,7 @@ test_that("sim_ame() works with estimatr::lm_robust()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -490,7 +490,7 @@ test_that("sim_ame() works with estimatr::iv_robust()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -499,7 +499,7 @@ test_that("sim_ame() works with estimatr::iv_robust()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -510,7 +510,7 @@ test_that("sim_ame() works with estimatr::iv_robust()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -518,7 +518,7 @@ test_that("sim_ame() works with estimatr::iv_robust()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -527,7 +527,7 @@ test_that("sim_ame() works with estimatr::iv_robust()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -535,7 +535,7 @@ test_that("sim_ame() works with estimatr::iv_robust()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -568,7 +568,7 @@ test_that("sim_ame() works with fixest::feols()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -577,7 +577,7 @@ test_that("sim_ame() works with fixest::feols()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -588,7 +588,7 @@ test_that("sim_ame() works with fixest::feols()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -596,7 +596,7 @@ test_that("sim_ame() works with fixest::feols()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -605,7 +605,7 @@ test_that("sim_ame() works with fixest::feols()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -613,7 +613,7 @@ test_that("sim_ame() works with fixest::feols()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -647,7 +647,7 @@ test_that("sim_ame() works with fixest::feglm()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -656,7 +656,7 @@ test_that("sim_ame() works with fixest::feglm()", {
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -667,7 +667,7 @@ test_that("sim_ame() works with fixest::feglm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -675,7 +675,7 @@ test_that("sim_ame() works with fixest::feglm()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -684,7 +684,7 @@ test_that("sim_ame() works with fixest::feglm()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -695,7 +695,7 @@ test_that("sim_ame() works with fixest::feglm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),
@@ -725,7 +725,7 @@ test_that("sim_ame() works with logistf::logistf()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -734,7 +734,7 @@ test_that("sim_ame() works with logistf::logistf()", {
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -745,7 +745,7 @@ test_that("sim_ame() works with logistf::logistf()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -753,7 +753,7 @@ test_that("sim_ame() works with logistf::logistf()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -762,7 +762,7 @@ test_that("sim_ame() works with logistf::logistf()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -773,7 +773,7 @@ test_that("sim_ame() works with logistf::logistf()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),
@@ -807,7 +807,7 @@ test_that("sim_ame() works with geepack::geeglm()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -816,7 +816,7 @@ test_that("sim_ame() works with geepack::geeglm()", {
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -827,7 +827,7 @@ test_that("sim_ame() works with geepack::geeglm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -835,7 +835,7 @@ test_that("sim_ame() works with geepack::geeglm()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -844,7 +844,7 @@ test_that("sim_ame() works with geepack::geeglm()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -855,7 +855,7 @@ test_that("sim_ame() works with geepack::geeglm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),
@@ -891,7 +891,7 @@ test_that("sim_ame() works with rms::ols()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -900,7 +900,7 @@ test_that("sim_ame() works with rms::ols()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -911,7 +911,7 @@ test_that("sim_ame() works with rms::ols()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -919,7 +919,7 @@ test_that("sim_ame() works with rms::ols()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -928,7 +928,7 @@ test_that("sim_ame() works with rms::ols()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -936,7 +936,7 @@ test_that("sim_ame() works with rms::ols()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -977,7 +977,7 @@ test_that("sim_ame() works with rms::lrm()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -986,7 +986,7 @@ test_that("sim_ame() works with rms::lrm()", {
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -997,7 +997,7 @@ test_that("sim_ame() works with rms::lrm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1005,7 +1005,7 @@ test_that("sim_ame() works with rms::lrm()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1014,7 +1014,7 @@ test_that("sim_ame() works with rms::lrm()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -1025,7 +1025,7 @@ test_that("sim_ame() works with rms::lrm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),
@@ -1057,7 +1057,7 @@ test_that("sim_ame() works with robustbase::lmrob()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -1066,7 +1066,7 @@ test_that("sim_ame() works with robustbase::lmrob()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1077,7 +1077,7 @@ test_that("sim_ame() works with robustbase::lmrob()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1085,7 +1085,7 @@ test_that("sim_ame() works with robustbase::lmrob()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1094,7 +1094,7 @@ test_that("sim_ame() works with robustbase::lmrob()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -1102,7 +1102,7 @@ test_that("sim_ame() works with robustbase::lmrob()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -1136,7 +1136,7 @@ test_that("sim_ame() works with robustbase::glmrob()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -1145,7 +1145,7 @@ test_that("sim_ame() works with robustbase::glmrob()", {
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1156,7 +1156,7 @@ test_that("sim_ame() works with robustbase::glmrob()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1164,7 +1164,7 @@ test_that("sim_ame() works with robustbase::glmrob()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1173,7 +1173,7 @@ test_that("sim_ame() works with robustbase::glmrob()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -1184,7 +1184,7 @@ test_that("sim_ame() works with robustbase::glmrob()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),
@@ -1214,7 +1214,7 @@ test_that("sim_ame() works with robust::lmRob()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -1223,7 +1223,7 @@ test_that("sim_ame() works with robust::lmRob()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1234,7 +1234,7 @@ test_that("sim_ame() works with robust::lmRob()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1242,7 +1242,7 @@ test_that("sim_ame() works with robust::lmRob()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1251,7 +1251,7 @@ test_that("sim_ame() works with robust::lmRob()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -1259,7 +1259,7 @@ test_that("sim_ame() works with robust::lmRob()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -1295,7 +1295,7 @@ test_that("sim_ame() works with robust::glmRob()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -1304,7 +1304,7 @@ test_that("sim_ame() works with robust::glmRob()", {
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1315,7 +1315,7 @@ test_that("sim_ame() works with robust::glmRob()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1323,7 +1323,7 @@ test_that("sim_ame() works with robust::glmRob()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1332,7 +1332,7 @@ test_that("sim_ame() works with robust::glmRob()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -1343,7 +1343,7 @@ test_that("sim_ame() works with robust::glmRob()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),
@@ -1373,7 +1373,7 @@ test_that("sim_ame() works with AER::tobit()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -1382,7 +1382,7 @@ test_that("sim_ame() works with AER::tobit()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1393,7 +1393,7 @@ test_that("sim_ame() works with AER::tobit()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1401,7 +1401,7 @@ test_that("sim_ame() works with AER::tobit()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1410,7 +1410,7 @@ test_that("sim_ame() works with AER::tobit()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -1418,7 +1418,7 @@ test_that("sim_ame() works with AER::tobit()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -1451,7 +1451,7 @@ test_that("sim_ame() works with ivreg::ivreg()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -1460,7 +1460,7 @@ test_that("sim_ame() works with ivreg::ivreg()", {
 
   e <- sim_ame(s, "treat", contrast = "diff", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1471,7 +1471,7 @@ test_that("sim_ame() works with ivreg::ivreg()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1479,7 +1479,7 @@ test_that("sim_ame() works with ivreg::ivreg()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "diff", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -1488,7 +1488,7 @@ test_that("sim_ame() works with ivreg::ivreg()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -1496,7 +1496,7 @@ test_that("sim_ame() works with ivreg::ivreg()", {
   expect_identical(attr(e, "var"), "age")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")

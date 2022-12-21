@@ -1,6 +1,6 @@
-#' @exportS3Method plot simbased_est
-#' @rdname summary.simbased_est
-plot.simbased_est <- function(x, parm, ci = TRUE, level = .95, method = "quantile", ...) {
+#' @exportS3Method plot clarify_est
+#' @rdname summary.clarify_est
+plot.clarify_est <- function(x, parm, ci = TRUE, level = .95, method = "quantile", ...) {
 
   original_est <- coef(x)
   est_names <- names(x)

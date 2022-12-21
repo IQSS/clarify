@@ -5,7 +5,7 @@
 #'   calculated quantities form the posterior sampling distribution for the
 #'   quantities of interest. Capabilities are available for parallelization.
 #'
-#' @param sim a `simbased_sim` object; the output of a call to [sim()] or
+#' @param sim a `clarify_sim` object; the output of a call to [sim()] or
 #'   [misim()].
 #' @param FUN a function to be applied to each set of simulated coefficients.
 #'   See Details.
@@ -68,7 +68,7 @@
 #'   can be transformed from their log versions using
 #'   [transform()].
 #'
-#' @return A `simbased_est` object, which is a matrix with a column for each
+#' @return A `clarify_est` object, which is a matrix with a column for each
 #'   estimated quantity and a row for each simulation. The original estimates
 #'   (`FUN` applied to the original coefficients or model fit object) are stored
 #'   in the attribute `"original"`. The `"sim_hash"` attributes contained the
@@ -76,9 +76,9 @@
 #'
 #' @seealso
 #' * [sim()] for generating the simulated coefficients
-#' * [summary.simbased_est()] for computing p-values and confidence intervals for
+#' * [summary.clarify_est()] for computing p-values and confidence intervals for
 #' the estimated quantities
-#' * [plot.simbased_est()] for plotting estimated
+#' * [plot.clarify_est()] for plotting estimated
 #' quantities and their simulated posterior sampling distribution.
 #'
 #' @examples
@@ -126,7 +126,7 @@ sim_apply <- function(sim,
                       cl = NULL,
                       ...) {
 
-  chk::chk_is(sim, "simbased_sim")
+  chk::chk_is(sim, "clarify_sim")
   chk::chk_flag(verbose)
 
   if (missing(FUN)) {
@@ -135,14 +135,14 @@ sim_apply <- function(sim,
     }
 
     ests <- sim$sim.coefs
-    if (inherits(sim, "simbased_misim")) {
+    if (inherits(sim, "clarify_misim")) {
       attr(ests, "original") <- colMeans(sim$coefs)
     }
     else {
       attr(ests, "original") <- sim$coefs
     }
     attr(ests, "sim_hash") <- attr(sim, "sim_hash")
-    class(ests) <- c("simbased_est", class(ests))
+    class(ests) <- c("clarify_est", class(ests))
 
     return(ests)
   }
@@ -152,7 +152,7 @@ sim_apply <- function(sim,
   opb <- pbapply::pboptions(type = if (verbose) "timer" else "none")
   on.exit(pbapply::pboptions(opb))
 
-  if (inherits(sim, "simbased_misim")) {
+  if (inherits(sim, "clarify_misim")) {
     nimp <- nrow(sim$coefs)
 
     apply_FUN <- make_apply_FUN_mi(FUN)
@@ -202,19 +202,19 @@ sim_apply <- function(sim,
 
   attr(ests, "original") <- test
   attr(ests, "sim_hash") <- attr(sim, "sim_hash")
-  class(ests) <- c("simbased_est", class(ests))
+  class(ests) <- c("clarify_est", class(ests))
 
   return(ests)
 }
 
 #' @export
-print.simbased_est <- function(x, digits = NULL, max.ests = 6, ...) {
+print.clarify_est <- function(x, digits = NULL, max.ests = 6, ...) {
   chk::chk_count(max.ests)
   max.ests <- min(max.ests, length(attr(x, "original")))
 
-  cat(sprintf("A `simbased_est` object (from %s)\n",
-              if (inherits(x, "simbased_ame")) "`sim_ame()`"
-              else if (inherits(x, "simbased_setx")) "`sim_setx()`"
+  cat(sprintf("A `clarify_est` object (from %s)\n",
+              if (inherits(x, "clarify_ame")) "`sim_ame()`"
+              else if (inherits(x, "clarify_setx")) "`sim_setx()`"
               else "`sim_apply()`"))
 
   cat(sprintf(" - %s simulated values\n", nrow(x)))

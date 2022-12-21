@@ -1,4 +1,4 @@
-simbased_predict <- function(x, newdata = NULL, group = NULL, type = NULL) {
+clarify_predict <- function(x, newdata = NULL, group = NULL, type = NULL) {
   args <- list(x, newdata = newdata, vcov = FALSE, type = type)
   p <- try(do.call(marginaleffects::get_predict, args), silent = TRUE)
 

@@ -1,8 +1,8 @@
-#' Inference for `simbased_est` objects
+#' Inference for `clarify_est` objects
 #'
-#' `summary()` tabulates the estimates and confidence intervals and (optionally) p-values from a `simbased_est` object. `confint()` computes confidence intervals.
+#' `summary()` tabulates the estimates and confidence intervals and (optionally) p-values from a `clarify_est` object. `confint()` computes confidence intervals.
 #'
-#' @param object,x a `simbased_est` object; the output of a call to [sim_apply()] or its wrappers.
+#' @param object,x a `clarify_est` object; the output of a call to [sim_apply()] or its wrappers.
 #' @param parm a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be displayed.
 #' @param level the confidence level desired. Default is .95 for 95% confidence intervals.
 #' @param method the method used to compute p-values and confidence intervals. Can be `"wald"` to use a Normal approximation or `"quantile"` to use the simulated sampling distribution (default). See Details. Abbreviations allowed.
@@ -10,7 +10,7 @@
 #' @param ci `logical`; whether to display confidence interval limits for the estimates. Default is `TRUE`.
 #' @param ... for `plot()`, further arguments passed to [ggplot2::geom_density()].
 #'
-#' @return For `summary()`, a `summary.simbased_est` object, which is a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to `summary()`.
+#' @return For `summary()`, a `summary.clarify_est` object, which is a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to `summary()`.
 #'
 #' For `confint()`, a matrix containing the confidence intervals for the requested quantities.
 #'
@@ -53,7 +53,7 @@
 #' plot(est, parm = c("RD", "RR"))
 #'
 #' @export
-summary.simbased_est <- function(object,
+summary.clarify_est <- function(object,
                                  parm,
                                  level = .95,
                                  method = "quantile",
@@ -65,7 +65,7 @@ summary.simbased_est <- function(object,
       is.null(ncol(object)) ||
       !identical(ncol(object), length(attr(object, "original"))) ||
       !identical(names(object), names(attr(object, "original")))) {
-    .err("the `simbased_est` object is malformed, possibly due to tampering")
+    .err("the `clarify_est` object is malformed, possibly due to tampering")
   }
 
   original_est <- coef(object)
@@ -126,12 +126,12 @@ summary.simbased_est <- function(object,
                  `P-value` = p)
   }
 
-  class(ans) <- c("summary.simbased_est", class(ans))
+  class(ans) <- c("summary.clarify_est", class(ans))
   ans
 }
 
-#' @exportS3Method print summary.simbased_est
-print.summary.simbased_est <- function(x, digits = 3, ...) {
+#' @exportS3Method print summary.clarify_est
+print.summary.clarify_est <- function(x, digits = 3, ...) {
   chk::chk_whole_number(digits)
   stats::printCoefmat(x, digits = digits,
                       cs.ind = c(1:3, (4)["Std. Error" %in% colnames(x)]),
@@ -141,9 +141,9 @@ print.summary.simbased_est <- function(x, digits = 3, ...) {
   invisible(x)
 }
 
-#' @exportS3Method confint simbased_est
-#' @rdname summary.simbased_est
-confint.simbased_est <- function(object,
+#' @exportS3Method confint clarify_est
+#' @rdname summary.clarify_est
+confint.clarify_est <- function(object,
                                  parm,
                                  level = .95,
                                  method = "quantile",
@@ -189,12 +189,12 @@ confint.simbased_est <- function(object,
   ci
 }
 
-#' @exportS3Method coef simbased_est
-coef.simbased_est <- function(object, ...) {
+#' @exportS3Method coef clarify_est
+coef.clarify_est <- function(object, ...) {
   attr(object, "original")
 }
 
-#' @exportS3Method vcov simbased_est
-vcov.simbased_est <- function(object, ...) {
+#' @exportS3Method vcov clarify_est
+vcov.clarify_est <- function(object, ...) {
   cov(drop_sim_class(object))
 }

@@ -3,7 +3,7 @@ test_that("misim() works with lists of regressions", {
 
   s <- misim(m, n = 5)
 
-  expect_good_simbased_misim(s)
+  expect_good_clarify_misim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L * length(s$fit), 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -11,31 +11,31 @@ test_that("misim() works with lists of regressions", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- misim(m, n = 5, dist = "t(100)")
-  expect_good_simbased_misim(s)
+  expect_good_clarify_misim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(misim(m, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- misim(m, n = 5)
-  expect_good_simbased_misim(s1)
+  expect_good_clarify_misim(s1)
   set.seed(987)
   s2 <- misim(m, n = 5)
-  expect_good_simbased_misim(s2)
+  expect_good_clarify_misim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- misim(m, n = 5)
-  expect_good_simbased_misim(s3)
+  expect_good_clarify_misim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_misim(misim(m, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_misim(misim(m, n = 5, vcov = sandwich::vcovHC(m[[1]])))
-  expect_good_simbased_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC)))
-  expect_good_simbased_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m[[i]]))))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC(m[[1]])))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC)))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m[[i]]))))
 
   expect_error(misim(m, n = 5, vcov = coef))
   expect_error(misim(m, n = 5, vcov = sandwich::vcovHC(m[[1]])[-2,-2]))
@@ -44,8 +44,8 @@ test_that("misim() works with lists of regressions", {
   expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) sandwich::vcovHC(m[[i]]))))
 
   #Custom coefs
-  expect_good_simbased_misim(misim(m, n = 5, coefs = runif(7)))
-  expect_good_simbased_misim(misim(m, n = 5, coefs = lapply(1:10, function(i) runif(7))))
+  expect_good_clarify_misim(misim(m, n = 5, coefs = runif(7)))
+  expect_good_clarify_misim(misim(m, n = 5, coefs = lapply(1:10, function(i) runif(7))))
   expect_error(misim(m, n = 5, coefs = runif(8)))
   expect_error(misim(m, n = 5, coefs = lapply(1:10, function(i) runif(8))))
   expect_error(misim(m, n = 5, coefs = lapply(1:9, function(i) runif(7))))
@@ -53,7 +53,7 @@ test_that("misim() works with lists of regressions", {
   expect_error(misim(m, n = 5, coefs = c(NA, runif(6))))
 
   s <- misim(n = 5, coefs = lapply(m, coef), vcov = lapply(m, vcov))
-  expect_good_simbased_misim(s)
+  expect_good_clarify_misim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -62,7 +62,7 @@ test_that("misim() works with mira objects", {
 
   s <- misim(m, n = 5)
 
-  expect_good_simbased_misim(s)
+  expect_good_clarify_misim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L * length(s$fit), 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -70,31 +70,31 @@ test_that("misim() works with mira objects", {
   expect_equal(attr(s, "dist"), "normal")
 
   s <- misim(m, n = 5, dist = "t(100)")
-  expect_good_simbased_misim(s)
+  expect_good_clarify_misim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(misim(m, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- misim(m, n = 5)
-  expect_good_simbased_misim(s1)
+  expect_good_clarify_misim(s1)
   set.seed(987)
   s2 <- misim(m, n = 5)
-  expect_good_simbased_misim(s2)
+  expect_good_clarify_misim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- misim(m, n = 5)
-  expect_good_simbased_misim(s3)
+  expect_good_clarify_misim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_misim(misim(m, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_misim(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])))
-  expect_good_simbased_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC)))
-  expect_good_simbased_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m$analyses[[i]]))))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC)))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m$analyses[[i]]))))
 
   expect_error(misim(m, n = 5, vcov = coef))
   expect_error(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])[-2,-2]))
@@ -103,8 +103,8 @@ test_that("misim() works with mira objects", {
   expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) sandwich::vcovHC(m$analyses[[i]]))))
 
   #Custom coefs
-  expect_good_simbased_misim(misim(m, n = 5, coefs = runif(7)))
-  expect_good_simbased_misim(misim(m, n = 5, coefs = lapply(1:10, function(i) runif(7))))
+  expect_good_clarify_misim(misim(m, n = 5, coefs = runif(7)))
+  expect_good_clarify_misim(misim(m, n = 5, coefs = lapply(1:10, function(i) runif(7))))
   expect_error(misim(m, n = 5, coefs = runif(8)))
   expect_error(misim(m, n = 5, coefs = lapply(1:10, function(i) runif(8))))
   expect_error(misim(m, n = 5, coefs = lapply(1:9, function(i) runif(7))))
@@ -112,7 +112,7 @@ test_that("misim() works with mira objects", {
   expect_error(misim(m, n = 5, coefs = c(NA, runif(6))))
 
   s <- misim(n = 5, coefs = lapply(m$analyses, coef), vcov = lapply(m$analyses, vcov))
-  expect_good_simbased_misim(s)
+  expect_good_clarify_misim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -121,7 +121,7 @@ test_that("misim() works with mimira objects", {
 
   s <- misim(m, n = 5)
 
-  expect_good_simbased_misim(s)
+  expect_good_clarify_misim(s)
 
   expect_equal(dim(s$sim.coefs), c(5L * length(s$fit), 7L))
   expect_equal(colnames(s$sim.coefs),
@@ -129,31 +129,31 @@ test_that("misim() works with mimira objects", {
   expect_equal(attr(s, "dist"), "t(607)")
 
   s <- misim(m, n = 5, dist = "t(100)")
-  expect_good_simbased_misim(s)
+  expect_good_clarify_misim(s)
   expect_equal(attr(s, "dist"), "t(100)")
 
   expect_error(misim(m, n = 5, dist = "t"))
 
   set.seed(987)
   s1 <- misim(m, n = 5)
-  expect_good_simbased_misim(s1)
+  expect_good_clarify_misim(s1)
   set.seed(987)
   s2 <- misim(m, n = 5)
-  expect_good_simbased_misim(s2)
+  expect_good_clarify_misim(s2)
 
   expect_identical(s1$sim.coefs, s2$sim.coefs)
 
   #Different seed
   set.seed(123)
   s3 <- misim(m, n = 5)
-  expect_good_simbased_misim(s3)
+  expect_good_clarify_misim(s3)
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_simbased_misim(misim(m, n = 5, vcov = sandwich::vcovHC))
-  expect_good_simbased_misim(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])))
-  expect_good_simbased_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC)))
-  expect_good_simbased_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m$analyses[[i]]))))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC)))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m$analyses[[i]]))))
 
   expect_error(misim(m, n = 5, vcov = coef))
   expect_error(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])[-2,-2]))
@@ -162,8 +162,8 @@ test_that("misim() works with mimira objects", {
   expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) sandwich::vcovHC(m$analyses[[i]]))))
 
   #Custom coefs
-  expect_good_simbased_misim(misim(m, n = 5, coefs = runif(7)))
-  expect_good_simbased_misim(misim(m, n = 5, coefs = lapply(1:10, function(i) runif(7))))
+  expect_good_clarify_misim(misim(m, n = 5, coefs = runif(7)))
+  expect_good_clarify_misim(misim(m, n = 5, coefs = lapply(1:10, function(i) runif(7))))
   expect_error(misim(m, n = 5, coefs = runif(8)))
   expect_error(misim(m, n = 5, coefs = lapply(1:10, function(i) runif(8))))
   expect_error(misim(m, n = 5, coefs = lapply(1:9, function(i) runif(7))))
@@ -172,7 +172,7 @@ test_that("misim() works with mimira objects", {
 
   s <- misim(n = 5, coefs = lapply(m$analyses, coef),
              vcov = lapply(m$analyses, sandwich::vcovHC))
-  expect_good_simbased_misim(s)
+  expect_good_clarify_misim(s)
   expect_false(attr(s, "use_fit"))
 })
 
@@ -183,7 +183,7 @@ test_that("sim_ame() works with misim() and glm()", {
 
   e <- sim_ame(s, "treat", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
@@ -192,7 +192,7 @@ test_that("sim_ame() works with misim() and glm()", {
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -203,7 +203,7 @@ test_that("sim_ame() works with misim() and glm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -211,7 +211,7 @@ test_that("sim_ame() works with misim() and glm()", {
   expect_identical(attr(e, "var"), "race")
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
@@ -220,7 +220,7 @@ test_that("sim_ame() works with misim() and glm()", {
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
@@ -231,7 +231,7 @@ test_that("sim_ame() works with misim() and glm()", {
                  "`contrast` is ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
-  expect_good_simbased_est(e)
+  expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),

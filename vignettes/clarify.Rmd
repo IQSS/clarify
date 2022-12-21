@@ -91,7 +91,7 @@ If your model is not supported by `{clarify}`, you can omit the `fit` argument a
 
 `sim()` uses a random number generator to draw the sampled coefficients from the sampling distribution, so a seed should be set using `set.seed()` to ensure results are replicable across sessions.
 
-The output of the call to `sim()` is a `simbased_sim` object, which contains the sampled coefficients, the original model fit object if supplied, and the coefficients and covariance matrix used to sample.
+The output of the call to `sim()` is a `clarify_sim` object, which contains the sampled coefficients, the original model fit object if supplied, and the coefficients and covariance matrix used to sample.
 
 ```{r}
 # Drawing simulated coefficients using an HC2 robust
@@ -103,13 +103,13 @@ s
 
 ## 3. Computing derived quantities
 
-After sampling the coefficients, we will compute derived quantities on each set of sampled coefficient and store the result, which represents a "posterior" distribution of the derived quantity. The core functionality is provided by `sim_apply()`, which accepts a `simbased_sim` object from `sim()` and a function to compute and return one or more derived quantities, then applies that function to each set of simulated coefficients. The arguments to `sim_apply()` are below:
+After sampling the coefficients, we will compute derived quantities on each set of sampled coefficient and store the result, which represents a "posterior" distribution of the derived quantity. The core functionality is provided by `sim_apply()`, which accepts a `clarify_sim` object from `sim()` and a function to compute and return one or more derived quantities, then applies that function to each set of simulated coefficients. The arguments to `sim_apply()` are below:
 
 ``` r
 sim_apply(sim = , FUN = , verbose = , cl = , ...)
 ```
 
--   `sim` -- a `simbased_sim` object; the output of a call to `sim()`.
+-   `sim` -- a `clarify_sim` object; the output of a call to `sim()`.
 
 -   `FUN` -- a function that takes in either a model fit object or a vector of coefficients and returns one or more derived quantities. The first argument should be named `fit` to take in a model fit object or `coefs` to take in coefficients.
 
@@ -137,7 +137,7 @@ est1 <- sim_apply(s, FUN = sim_fun1, verbose = FALSE)
 est1
 ```
 
-The resulting `simbased_est` object contains the simulated estimates in matrix form as well as the estimate computed on the original coefficients. We'll examine the sampling distribution shortly, but first we'll demonstrate computing a derived quantity from the coefficients directly.
+The resulting `clarify_est` object contains the simulated estimates in matrix form as well as the estimate computed on the original coefficients. We'll examine the sampling distribution shortly, but first we'll demonstrate computing a derived quantity from the coefficients directly.
 
 The `race` variable is a factor, and the `black` category is used as the reference level, so it's not immediately clear whether there is a difference between the coefficients `racehispan` and `racewhite`, which represent the non-reference categories `hispan` and `white`. To compare these two directly, we can use `sim_apply()` to compute a derived quantity that corresponds to the difference between them.
 
@@ -164,11 +164,11 @@ There are several functions in `{clarify}` that serve as convenience wrappers fo
 
 -   `sim_adrf()` -- computing average dose-response functions and average marginal effects functions
 
-These are described in their own sections below. In addition, there are functions that have methods for `simabsed_est` objects, including `cbind()` for combining two `simbased_est` objects together and `transform()` for computing quantities that are derived from the already-computed derived quantities. These are also described in their own sections below.
+These are described in their own sections below. In addition, there are functions that have methods for `simabsed_est` objects, including `cbind()` for combining two `clarify_est` objects together and `transform()` for computing quantities that are derived from the already-computed derived quantities. These are also described in their own sections below.
 
 ## 4. Summarize and visualize the simulated distribution
 
-To examine the uncertainty around and perform inference on our estimated quantities, we can use `plot()` and `summary()` on the `simbased_est` object.
+To examine the uncertainty around and perform inference on our estimated quantities, we can use `plot()` and `summary()` on the `clarify_est` object.
 
 `plot()` displays a density plot of the resulting estimates across the simulations, with markers identifying the point estimate (computed using the original coefficients) and, optionally, uncertainty bounds (which function like confidence or credible interval bounds). The arguments to `plot()` are below:
 
@@ -176,7 +176,7 @@ To examine the uncertainty around and perform inference on our estimated quantit
 plot(x = , parm = , ci = , level = , method = )
 ```
 
--   `x` -- the `simbased_est` object (the output of a call to `sim_apply()`).
+-   `x` -- the `clarify_est` object (the output of a call to `sim_apply()`).
 
 -   `parm` -- the names or indices of the quantities to be plotted if more than one was estimated in `sim_apply()`; if unspecified, all will be plotted.
 
@@ -200,7 +200,7 @@ We can use `summary()` to display the value of the point estimate, the uncertain
 summary(object = , parm = , level = , method = , null = )
 ```
 
--   `object` -- the `simbased_est` object (the output of a call to `sim_apply()`).
+-   `object` -- the `clarify_est` object (the output of a call to `sim_apply()`).
 
 -   `parm` -- the names or indices of the quantities to be displayed if more than one was estimated in `sim_apply()`; if unspecified, all will be displayed.
 
@@ -230,7 +230,7 @@ The uncertainty intervals and p-values in the `summary()` output are computed us
 
 `sim_apply()` can be used to compute the simulated sampling distribution for any arbitrary derived quantity of interest, but there are some quantities that are common in applied research and may otherwise be somewhat challenging to program on their own, so `{simabsed}` provides shortcut functions to make computing these quantities simple. These functions include `sim_setx()`, `sim_ame()`, and `sim_adrf()`. Each of these can only be used when regression models compatible with `{clarify}` are supplied to the original call to `sim()`.
 
-Like `sim_apply()`, each of these functions is named `sim_*()`, which signifies that they are to be used on an object produced by `sim()` (i.e., a `simbased_sim` object). (Multiple calls to these functions can be applied to the same `simbased_sim` object and combined; see the `cbind()` section below.) These functions are described below.
+Like `sim_apply()`, each of these functions is named `sim_*()`, which signifies that they are to be used on an object produced by `sim()` (i.e., a `clarify_sim` object). (Multiple calls to these functions can be applied to the same `clarify_sim` object and combined; see the `cbind()` section below.) These functions are described below.
 
 ## `sim_setx()`: predictions at representative values
 
@@ -244,7 +244,7 @@ The arguments to `sim_setx()` are as follows:
 sim_setx(sim = , x = , x1 = , outcome = , type = , verbose = , cl = )
 ```
 
--   `sim` -- a `simbased_sim` object; the output of a call to `sim()`.
+-   `sim` -- a `clarify_sim` object; the output of a call to `sim()`.
 
 -   `x` -- a named list containing the requested values of the predictors, e.g., `list(v1 = 1:4, v2 = "A")`. Any predictors not named will be set at their "typical" value as defined above.
 
@@ -327,7 +327,7 @@ sim_ame(sim = , var = , subset = , contrast = , outcome = ,
         type = , eps = , verbose = , cl = )
 ```
 
--   `sim` -- a `simbased_sim` object; the output of a call to `sim()`.
+-   `sim` -- a `clarify_sim` object; the output of a call to `sim()`.
 
 -   `var` -- the name of focal variable over which to compute the AMMs or AMEs, or a list containing the values for which AMMs should be computed.
 
@@ -390,7 +390,7 @@ sim_adrf(sim = , var = , subset = , contrast = , at = ,
          cl = )
 ```
 
--   `sim` -- a `simbased_sim` object; the output of a call to `sim()`.
+-   `sim` -- a `clarify_sim` object; the output of a call to `sim()`.
 
 -   `var` -- the name of focal variable over which to compute the ADRF or AMEF.
 
@@ -452,7 +452,7 @@ From the plot, we can see the AME of `age` increases slightly but is mostly cons
 
 # Transforming and combining estimates
 
-Often, our quantities of interest are not just the outputs of the functions above, but comparisons between them. For example, to test for moderation of a treatment effect, we may want to compare AMEs in multiple treatment groups. Or, it might be that we are interested in an effect described using a different effect measure than the one originally produced; for example, we may decide we want the risk difference AME after computing the risk ratio AME. The functions `transform()` and `cbind()` allow users to transform quantities in a single `simabsed_est` object and combine two `simbased_est` objects. These are essential for computing quantities that themselves are derived from the derived quantities computed by the `sim_*()` functions.
+Often, our quantities of interest are not just the outputs of the functions above, but comparisons between them. For example, to test for moderation of a treatment effect, we may want to compare AMEs in multiple treatment groups. Or, it might be that we are interested in an effect described using a different effect measure than the one originally produced; for example, we may decide we want the risk difference AME after computing the risk ratio AME. The functions `transform()` and `cbind()` allow users to transform quantities in a single `simabsed_est` object and combine two `clarify_est` objects. These are essential for computing quantities that themselves are derived from the derived quantities computed by the `sim_*()` functions.
 
 ### `transform()`
 
@@ -464,7 +464,7 @@ lalonde <- transform(lalonde, re78_0 = ifelse(re78 == 0, 1, 0))
 
 (Users familiar with the `tidyverse` will note the similarities between `transform()` and `dplyr::mutate()`; only `transform()` can be used with `simabsed_est` objects.)
 
-Similarly, to compute a derived or transformed quantity from a `simbased_est` object, we can use `transform()`. Here, we'll compute the risk difference AME of `treat`; previously, we used `sim_ame()` to compute the AMMs and the risk ratio.
+Similarly, to compute a derived or transformed quantity from a `clarify_est` object, we can use `transform()`. Here, we'll compute the risk difference AME of `treat`; previously, we used `sim_ame()` to compute the AMMs and the risk ratio.
 
 ```{r}
 est6 <- transform(est6, RD = `E[Y(1)]` - `E[Y(0)]`)
@@ -480,11 +480,11 @@ summary(est6, null = c(NA, NA, 1, 0))
 
 Something nice about using simulation-based inference with p-values computed from inverting the confidence intervals is that the p-values for the risk difference and risk ratio (and any other effect measure for comparing a pair of values) will always exactly align, thereby ensuring inference does not depend on the effect measure used.
 
-The same value would be computed if we were to have called `sim_ame()` on the same `simbased_sim` object and requested the risk difference using `contrast = "diff"`; using `transform()` saves time because the AMMs are already computed and stored in the `simbased_est` object.
+The same value would be computed if we were to have called `sim_ame()` on the same `clarify_sim` object and requested the risk difference using `contrast = "diff"`; using `transform()` saves time because the AMMs are already computed and stored in the `clarify_est` object.
 
 ### `cbind()`
 
-`cbind()` is another generic R function that is typically used to combine two or more datasets columnwise (i.e., to widen a dataset). In `clarify`, `cbind()` can be used to combine two `simbased_est` objects so that the estimates can be examined jointly and so that it is possible to compare them directly. For example, let's say we computed AMEs in two subgroups and wanted to compare them. To do so, we would call `sim_ame()` twice, one for each subset:
+`cbind()` is another generic R function that is typically used to combine two or more datasets columnwise (i.e., to widen a dataset). In `clarify`, `cbind()` can be used to combine two `clarify_est` objects so that the estimates can be examined jointly and so that it is possible to compare them directly. For example, let's say we computed AMEs in two subgroups and wanted to compare them. To do so, we would call `sim_ame()` twice, one for each subset:
 
 ```{r}
 # AME of treat with race = "black"
@@ -500,7 +500,7 @@ summary(est10h)
 
 Here, we computed the risk difference for the subgroups `race == "black"` and `race == "hispan"`. If we wanted to compare the risk differences, we could combine them and compute a new quantity equal to their difference. We'll do that below.
 
-First, we need to rename to quantities in each object so they don't overlap; we can do so using `names()`, which has a special method for `simbased_est` objects.
+First, we need to rename to quantities in each object so they don't overlap; we can do so using `names()`, which has a special method for `clarify_est` objects.
 
 ```{r}
 names(est10b) <- paste(names(est10b), "b", sep = "_")
@@ -521,7 +521,7 @@ est10 <- transform(est10, `Dh - Db` = Diff_h - Diff_b)
 summary(est10, est = "Dh - Db")
 ```
 
-Importantly, `cbind()` can only be used to join together `simbased_est` objects computed using the same simulated coefficients (i.e., resulting from the same call to `sim()`). This preserves the covariance among the estimated quantities, which is critical for valid inference. That is, `sim()` should only be called once per model, and all derived quantities should be computed using its output.
+Importantly, `cbind()` can only be used to join together `clarify_est` objects computed using the same simulated coefficients (i.e., resulting from the same call to `sim()`). This preserves the covariance among the estimated quantities, which is critical for valid inference. That is, `sim()` should only be called once per model, and all derived quantities should be computed using its output.
 
 # Using `{clarify}` with multiply imputed data
 

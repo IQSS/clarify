@@ -1,7 +1,7 @@
 #testthat helpers
 
-expect_good_simbased_sim <- function(s) {
-  expect_s3_class(s, "simbased_sim")
+expect_good_clarify_sim <- function(s) {
+  expect_s3_class(s, "clarify_sim")
   expect_true(all(c("sim.coefs", "coefs", "vcov") %in% names(s)))
 
   expect_true(is.matrix(s$sim.coefs))
@@ -25,8 +25,8 @@ expect_good_simbased_sim <- function(s) {
   expect_false(any(!is.finite(s$vcov)))
 }
 
-expect_good_simbased_est <- function(e) {
-  expect_s3_class(e, "simbased_est")
+expect_good_clarify_est <- function(e) {
+  expect_s3_class(e, "clarify_est")
   expect_length(dim(e), 2L)
   expect_type(e, "double")
 
@@ -38,9 +38,9 @@ expect_good_simbased_est <- function(e) {
   expect_false(any(apply(e, 2, all_the_same)))
 }
 
-expect_good_simbased_misim <- function(s) {
-  expect_s3_class(s, "simbased_misim")
-  expect_s3_class(s, "simbased_sim")
+expect_good_clarify_misim <- function(s) {
+  expect_s3_class(s, "clarify_misim")
+  expect_s3_class(s, "clarify_sim")
   expect_true(all(c("sim.coefs", "coefs", "imp") %in% names(s)))
 
   expect_true(is.matrix(s$sim.coefs))

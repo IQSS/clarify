@@ -4,8 +4,8 @@
 #' the outcome at specified values of the predictors, sometimes called marginal
 #' predictions. One can also compute the difference between two marginal
 #' predictions (the "first difference"). Although any function that accepted
-#' `simbased_est` objects can be used with `sim_setx()` output objects, a
-#' special plotting function, [plot.simbased_setx()], can be used to plot marginal
+#' `clarify_est` objects can be used with `sim_setx()` output objects, a
+#' special plotting function, [plot.clarify_setx()], can be used to plot marginal
 #' predictions.
 #'
 #' @inheritParams sim_apply
@@ -14,14 +14,14 @@
 #'   Any omitted predictors are fixed at a "typical" value. See Details.
 #'   When `x1` is specified, `x` should identify a single reference unit.
 #'
-#'   For `print()`, a `simbased_setx` object.
+#'   For `print()`, a `clarify_setx` object.
 #' @param x1 a named list of the value each predictor should take to compute the
 #'   first difference from the predictor combination specified in `x`. `x1` can
 #'   only identify a single unit. See Details.
 #' @param outcome a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.
 #' @param type a string containing the type of predicted values (e.g., the link or the response). Passed to [marginaleffects::get_predict()] and eventually to `predict()` in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).
 #'
-#' @return a `simbased_setx` object, which inherits from `simbased_est` and is similar to the output of `sim_apply()`, with the following additional attributes:
+#' @return a `clarify_setx` object, which inherits from `clarify_est` and is similar to the output of `sim_apply()`, with the following additional attributes:
 #' * `"setx"` - a data frame containing the values at which predictions are to be made
 #' * `"fd"` - whether or not the first difference is to be computed; set to `TRUE` if `x1` is specified and `FALSE` otherwise
 #'
@@ -41,8 +41,8 @@
 #'   predictor changed, specified in `x1`.
 #'
 #' @seealso [sim_apply()], which provides a general interface to computing any
-#'   quantities for simulation-based inference; [plot.simbased_setx()] for plotting the
-#'   output of a call to `sim_setx()`; [summary.simbased_est()] for computing
+#'   quantities for simulation-based inference; [plot.clarify_setx()] for plotting the
+#'   output of a call to `sim_setx()`; [summary.clarify_est()] for computing
 #'   p-values and confidence intervals for the estimated quantities.
 #'
 #' @examples
@@ -91,7 +91,7 @@ sim_setx <- function(sim,
   check_sim_apply_wrapper_ready(sim)
 
   chk::chk_flag(verbose)
-  is_misim <- inherits(sim, "simbased_misim")
+  is_misim <- inherits(sim, "clarify_misim")
 
   if (is_misim) {
     dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors))
@@ -107,11 +107,11 @@ sim_setx <- function(sim,
   #Test to make sure compatible
   if (is_misim) {
     test_dat <- get_pred_data_from_fit(sim$fit[[1]])[1,, drop = FALSE]
-    test_predict <- simbased_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
+    test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
   }
   else {
     test_dat <- get_pred_data_from_fit(sim$fit)[1,, drop = FALSE]
-    test_predict <- simbased_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
+    test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
   }
 
   if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1) {
@@ -181,14 +181,14 @@ sim_setx <- function(sim,
   #make FUN for sim_apply()
   if (fd) {
     FUN <- function(fit) {
-      pred <- simbased_predict(fit, newdata = newdata, group = outcome, type = type)
+      pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
       p <- setNames(pred$predicted, rownames(newdata))
       c(p, "FD" = unname(diff(p)))
     }
   }
   else {
     FUN <- function(fit) {
-      pred <- simbased_predict(fit, newdata = newdata, group = outcome, type = type)
+      pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
       setNames(pred$predicted, rownames(newdata))
     }
   }
@@ -197,19 +197,19 @@ sim_setx <- function(sim,
 
   attr(out, "setx") <- newdata
   attr(out, "fd") <- fd
-  class(out) <- c("simbased_setx", class(out))
+  class(out) <- c("clarify_setx", class(out))
   out
 }
 
-#' @exportS3Method print simbased_setx
+#' @exportS3Method print clarify_setx
 #' @rdname sim_setx
 #' @param digits the minimum number of significant digits to be used; passed to [print.data.frame()].
 #' @param max.ests the maximum number of estimates to display.
-print.simbased_setx <- function(x, digits = NULL, max.ests = 6, ...) {
+print.clarify_setx <- function(x, digits = NULL, max.ests = 6, ...) {
   chk::chk_count(max.ests)
   max.ests <- min(max.ests, length(attr(x, "original")))
 
-  cat("A `simbased_est` object (from `sim_setx()`)\n")
+  cat("A `clarify_est` object (from `sim_setx()`)\n")
   if (isTRUE(attr(x, "fd"))) {
     cat(" - First difference\n")
   }
