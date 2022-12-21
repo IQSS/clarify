@@ -442,8 +442,8 @@ first <code>simabsed_est</code> object to view the point estimate and
 quantile-based uncertainty bounds.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est1</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; PSID1  0.02377 0.00347 0.10151</span></span></code></pre></div>
+<span><span class="co">#&gt;       Estimate  2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt; PSID1   0.0238 0.0044 0.0976</span></span></code></pre></div>
 <p>Our second estimated quantity, the difference between two regression
 coefficients, is closer to Normally distributed, as the plot below
 demonstrates (and would be expected theoretically), so we’ll use the
@@ -456,7 +456,7 @@ Normal approximation to test the hypothesis that difference differs from
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est2</span>, method <span class="op">=</span> <span class="st">"wald"</span>, null <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       Estimate  2.5 % 97.5 % Std. Error Z value P-value</span></span>
-<span><span class="co">#&gt; w - h    0.109 -0.301  0.519      0.209    0.52     0.6</span></span></code></pre></div>
+<span><span class="co">#&gt; w - h    0.109 -0.302  0.519      0.209    0.52     0.6</span></span></code></pre></div>
 <p>The uncertainty intervals and p-values in the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 output are computed using the Normal approximation because we set
 <code>method = "wald"</code>, and the p-value for the test that our
@@ -609,9 +609,9 @@ predicted values and their first difference (“FD”):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est5</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; treat = 0   0.2316  0.1602  0.3147</span></span>
-<span><span class="co">#&gt; treat = 1   0.1667  0.0929  0.2655</span></span>
-<span><span class="co">#&gt; FD         -0.0649 -0.1353  0.0193</span></span></code></pre></div>
+<span><span class="co">#&gt; treat = 0   0.2316  0.1640  0.3161</span></span>
+<span><span class="co">#&gt; treat = 1   0.1667  0.0885  0.2713</span></span>
+<span><span class="co">#&gt; FD         -0.0649 -0.1396  0.0226</span></span></code></pre></div>
 <p>It is possible to compute first differences without using
 <code>x1</code> using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>, which we describe
 later.</p>
@@ -693,9 +693,9 @@ the argument supplied to <code>null</code>).</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est6</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate 2.5 % 97.5 % P-value</span></span>
-<span><span class="co">#&gt; E[Y(0)]    0.319 0.244  0.397       .</span></span>
-<span><span class="co">#&gt; E[Y(1)]    0.244 0.191  0.311       .</span></span>
-<span><span class="co">#&gt; RR         0.765 0.561  1.078    0.13</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]    0.319 0.253  0.404       .</span></span>
+<span><span class="co">#&gt; E[Y(1)]    0.244 0.186  0.311       .</span></span>
+<span><span class="co">#&gt; RR         0.765 0.543  1.093    0.14</span></span></code></pre></div>
 <p>Here we see the estimates for the AMMs, <code>E[Y(0)]</code> for the
 expected value of the outcome setting <code>treat</code> to 0 and
 <code>E[Y(1)]</code> for the expected value of the outcome setting
@@ -717,7 +717,7 @@ uncertainty interval.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est7</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; dY/d(age)  0.00618 0.00262 0.00971</span></span></code></pre></div>
+<span><span class="co">#&gt; dY/d(age)  0.00618 0.00265 0.00961</span></span></code></pre></div>
 <p>The AME is named <code>dY/d(age)</code>, which signifies that a
 derivative has been computed (more precisely, the average of the
 unit-specific derivatives). This estimate can be interpreted like a
@@ -818,23 +818,23 @@ default, so we will request just the first 4 (<code>age</code>s 18 to
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est8</span>, est <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          Estimate 2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(18)]    0.178 0.143  0.227</span></span>
-<span><span class="co">#&gt; E[Y(20)]    0.189 0.156  0.232</span></span>
-<span><span class="co">#&gt; E[Y(22)]    0.200 0.169  0.240</span></span>
-<span><span class="co">#&gt; E[Y(24)]    0.211 0.181  0.250</span></span>
-<span><span class="co">#&gt; E[Y(26)]    0.224 0.194  0.262</span></span>
-<span><span class="co">#&gt; E[Y(28)]    0.236 0.207  0.274</span></span>
-<span><span class="co">#&gt; E[Y(30)]    0.249 0.217  0.287</span></span>
-<span><span class="co">#&gt; E[Y(32)]    0.262 0.225  0.302</span></span>
-<span><span class="co">#&gt; E[Y(34)]    0.275 0.234  0.320</span></span>
-<span><span class="co">#&gt; E[Y(36)]    0.289 0.242  0.342</span></span>
-<span><span class="co">#&gt; E[Y(38)]    0.303 0.249  0.361</span></span>
-<span><span class="co">#&gt; E[Y(40)]    0.318 0.257  0.384</span></span>
-<span><span class="co">#&gt; E[Y(42)]    0.333 0.262  0.406</span></span>
-<span><span class="co">#&gt; E[Y(44)]    0.348 0.269  0.430</span></span>
-<span><span class="co">#&gt; E[Y(46)]    0.363 0.276  0.456</span></span>
-<span><span class="co">#&gt; E[Y(48)]    0.378 0.281  0.480</span></span>
-<span><span class="co">#&gt; E[Y(50)]    0.394 0.285  0.505</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(18)]    0.178 0.144  0.228</span></span>
+<span><span class="co">#&gt; E[Y(20)]    0.189 0.158  0.234</span></span>
+<span><span class="co">#&gt; E[Y(22)]    0.200 0.171  0.241</span></span>
+<span><span class="co">#&gt; E[Y(24)]    0.211 0.184  0.249</span></span>
+<span><span class="co">#&gt; E[Y(26)]    0.224 0.196  0.259</span></span>
+<span><span class="co">#&gt; E[Y(28)]    0.236 0.208  0.273</span></span>
+<span><span class="co">#&gt; E[Y(30)]    0.249 0.219  0.287</span></span>
+<span><span class="co">#&gt; E[Y(32)]    0.262 0.230  0.305</span></span>
+<span><span class="co">#&gt; E[Y(34)]    0.275 0.240  0.325</span></span>
+<span><span class="co">#&gt; E[Y(36)]    0.289 0.248  0.343</span></span>
+<span><span class="co">#&gt; E[Y(38)]    0.303 0.255  0.365</span></span>
+<span><span class="co">#&gt; E[Y(40)]    0.318 0.261  0.387</span></span>
+<span><span class="co">#&gt; E[Y(42)]    0.333 0.266  0.410</span></span>
+<span><span class="co">#&gt; E[Y(44)]    0.348 0.273  0.434</span></span>
+<span><span class="co">#&gt; E[Y(46)]    0.363 0.280  0.459</span></span>
+<span><span class="co">#&gt; E[Y(48)]    0.378 0.286  0.484</span></span>
+<span><span class="co">#&gt; E[Y(50)]    0.394 0.294  0.509</span></span></code></pre></div>
 <p>Next we’ll compute the AMEF, the effect of <code>age</code> at each
 level of <code>age</code>.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
@@ -895,10 +895,10 @@ We’ll also set a null value for this quantity.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est6</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 % P-value</span></span>
-<span><span class="co">#&gt; E[Y(0)]   0.3195  0.2440  0.3973       .</span></span>
-<span><span class="co">#&gt; E[Y(1)]   0.2443  0.1906  0.3110       .</span></span>
-<span><span class="co">#&gt; RR        0.7646  0.5612  1.0783    0.13</span></span>
-<span><span class="co">#&gt; RD       -0.0752 -0.1669  0.0194    0.13</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]   0.3195  0.2530  0.4042       .</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.2443  0.1856  0.3112       .</span></span>
+<span><span class="co">#&gt; RR        0.7646  0.5426  1.0926    0.14</span></span>
+<span><span class="co">#&gt; RD       -0.0752 -0.1717  0.0256    0.14</span></span></code></pre></div>
 <p>Something nice about using simulation-based inference with p-values
 computed from inverting the confidence intervals is that the p-values
 for the risk difference and risk ratio (and any other effect measure for
@@ -928,18 +928,18 @@ for each subset:</p>
 <span>                  contrast <span class="op">=</span> <span class="st">"diff"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10b</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]   0.3370  0.2519  0.4259</span></span>
-<span><span class="co">#&gt; E[Y(1)]   0.2596  0.2014  0.3306</span></span>
-<span><span class="co">#&gt; Diff     -0.0774 -0.1738  0.0197</span></span>
+<span><span class="co">#&gt; E[Y(0)]   0.3370  0.2622  0.4278</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.2596  0.1969  0.3302</span></span>
+<span><span class="co">#&gt; Diff     -0.0774 -0.1780  0.0261</span></span>
 <span></span>
 <span><span class="co"># AME of treat with race = "hispan"</span></span>
 <span><span class="va">est10h</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">race</span> <span class="op">==</span> <span class="st">"hispan"</span>,</span>
 <span>                  contrast <span class="op">=</span> <span class="st">"diff"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10h</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]   0.1745  0.1004  0.2771</span></span>
-<span><span class="co">#&gt; E[Y(1)]   0.1225  0.0617  0.2296</span></span>
-<span><span class="co">#&gt; Diff     -0.0520 -0.1169  0.0146</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]   0.1745  0.1023  0.2764</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.1225  0.0567  0.2286</span></span>
+<span><span class="co">#&gt; Diff     -0.0520 -0.1207  0.0187</span></span></code></pre></div>
 <p>Here, we computed the risk difference for the subgroups
 <code>race == "black"</code> and <code>race == "hispan"</code>. If we
 wanted to compare the risk differences, we could combine them and
@@ -956,25 +956,25 @@ method for <code>clarify_est</code> objects.</p>
 <code class="sourceCode R"><span><span class="va">est10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">est10b</span>, <span class="va">est10h</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]_b   0.3370  0.2519  0.4259</span></span>
-<span><span class="co">#&gt; E[Y(1)]_b   0.2596  0.2014  0.3306</span></span>
-<span><span class="co">#&gt; Diff_b     -0.0774 -0.1738  0.0197</span></span>
-<span><span class="co">#&gt; E[Y(0)]_h   0.1745  0.1004  0.2771</span></span>
-<span><span class="co">#&gt; E[Y(1)]_h   0.1225  0.0617  0.2296</span></span>
-<span><span class="co">#&gt; Diff_h     -0.0520 -0.1169  0.0146</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]_b   0.3370  0.2622  0.4278</span></span>
+<span><span class="co">#&gt; E[Y(1)]_b   0.2596  0.1969  0.3302</span></span>
+<span><span class="co">#&gt; Diff_b     -0.0774 -0.1780  0.0261</span></span>
+<span><span class="co">#&gt; E[Y(0)]_h   0.1745  0.1023  0.2764</span></span>
+<span><span class="co">#&gt; E[Y(1)]_h   0.1225  0.0567  0.2286</span></span>
+<span><span class="co">#&gt; Diff_h     -0.0520 -0.1207  0.0187</span></span></code></pre></div>
 <p>Finally, we can use <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> to compute the
 difference between the risk differences:</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">est10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">est10</span>, `Dh - Db` <span class="op">=</span> <span class="va">Diff_h</span> <span class="op">-</span> <span class="va">Diff_b</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10</span>, est <span class="op">=</span> <span class="st">"Dh - Db"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate    2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]_b  0.33702  0.25187  0.42585</span></span>
-<span><span class="co">#&gt; E[Y(1)]_b  0.25964  0.20140  0.33058</span></span>
-<span><span class="co">#&gt; Diff_b    -0.07739 -0.17381  0.01971</span></span>
-<span><span class="co">#&gt; E[Y(0)]_h  0.17447  0.10038  0.27705</span></span>
-<span><span class="co">#&gt; E[Y(1)]_h  0.12248  0.06168  0.22964</span></span>
-<span><span class="co">#&gt; Diff_h    -0.05199 -0.11695  0.01462</span></span>
-<span><span class="co">#&gt; Dh - Db    0.02540 -0.00489  0.07659</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]_b  0.33702  0.26224  0.42775</span></span>
+<span><span class="co">#&gt; E[Y(1)]_b  0.25964  0.19687  0.33016</span></span>
+<span><span class="co">#&gt; Diff_b    -0.07739 -0.17796  0.02611</span></span>
+<span><span class="co">#&gt; E[Y(0)]_h  0.17447  0.10233  0.27637</span></span>
+<span><span class="co">#&gt; E[Y(1)]_h  0.12248  0.05672  0.22857</span></span>
+<span><span class="co">#&gt; Diff_h    -0.05199 -0.12069  0.01870</span></span>
+<span><span class="co">#&gt; Dh - Db    0.02540 -0.00631  0.08327</span></span></code></pre></div>
 <p>Importantly, <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> can only be used to join together
 <code>clarify_est</code> objects computed using the same simulated
 coefficients (i.e., resulting from the same call to <code><a href="../reference/sim.html">sim()</a></code>).
@@ -1086,7 +1086,7 @@ run the same analysis afterward using <code><a href="../reference/sim_ame.html">
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est_mi</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     Estimate 2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; AME    -5.75 -9.10  -2.56</span></span></code></pre></div>
+<span><span class="co">#&gt; AME    -5.70 -9.06  -2.20</span></span></code></pre></div>
 <p>Note that <code><a href="../reference/sim_apply.html">sim_apply()</a></code> “knows” which imputation produced
 each set of simulated coefficients, so using
 <code><a href="https://easystats.github.io/insight/reference/get_predictors.html" class="external-link">insight::get_predictors()</a></code> on the <code>fit</code> supplied

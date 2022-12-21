@@ -131,7 +131,7 @@
 <span><span class="op">}</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sim_est</span></span>
-<span><span class="co">#&gt; A `simbased_est` object (from `sim_apply()`)</span></span>
+<span><span class="co">#&gt; A `clarify_est` object (from `sim_apply()`)</span></span>
 <span><span class="co">#&gt;  - 1000 simulated values</span></span>
 <span><span class="co">#&gt;  - 3 quantities estimated:                   </span></span>
 <span><span class="co">#&gt;  E[Y(0)]  0.2944381</span></span>
@@ -155,7 +155,7 @@
 <span>                   contrast <span class="op">=</span> <span class="st">"log(RR)"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sim_est</span></span>
-<span><span class="co">#&gt; A `simbased_est` object (from `sim_ame()`)</span></span>
+<span><span class="co">#&gt; A `clarify_est` object (from `sim_ame()`)</span></span>
 <span><span class="co">#&gt;  - Average marginal effect of `treat`</span></span>
 <span><span class="co">#&gt;  - 1000 simulated values</span></span>
 <span><span class="co">#&gt;  - 3 quantities estimated:                   </span></span>
@@ -191,7 +191,7 @@
 <span><span class="co">#&gt; E[Y(1)]    0.243  0.199  0.360       .</span></span>
 <span><span class="co">#&gt; log(RR)   -0.191 -0.479  0.330    0.79</span></span>
 <span><span class="co">#&gt; RR         0.826  0.619  1.391    0.79</span></span></code></pre></div>
-<p>We can also use <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of <code>Zelig</code>’s <code>setx()</code> and <code>setx1()</code> functions, using <code><a href="reference/sim_setx.html">sim_setx()</a></code>:</p>
+<p>We can also use <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of <a href="https://cran.r-project.org/package=Zelig" class="external-link">Zelig</a>’s <code>setx()</code> and <code>setx1()</code> functions, using <code><a href="reference/sim_setx.html">sim_setx()</a></code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Predictions across age and treat at typical values</span></span>
 <span><span class="co"># of the other predictors</span></span>
