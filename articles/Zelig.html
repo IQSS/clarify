@@ -91,16 +91,16 @@
 2008)</span> and how the same tasks can be performed using
 <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a>. We’ll include examples for computing predictions
 at representative values (i.e., <code>setx()</code> and
-<code>sim()</code> in <a href="https://cran.r-project.org/package=Zelig" class="external-link">Zelig</a>), the rare-events logit
+<code><a href="../reference/sim.html">sim()</a></code> in <a href="https://cran.r-project.org/package=Zelig" class="external-link">Zelig</a>), the rare-events logit
 model, estimating the average treatment effect (ATT) after matching, and
 combining estimates after multiple imputation.</p>
 <p>The usual workflow in <a href="https://cran.r-project.org/package=Zelig" class="external-link">Zelig</a> is to fit a model using
 <code>zelig()</code>, specify quantities of interest to simulate using
 <code>setx()</code> on the <code>zelig()</code> output, and then
-simulate those quantities using <code>sim()</code>.
+simulate those quantities using <code><a href="../reference/sim.html">sim()</a></code>.
 <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> uses a similar approach, except that the model is
 fit outside <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> using functions in a different R
-package. In addition, <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a>’s <code>sim_apply()</code>
+package. In addition, <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a>’s <code><a href="../reference/sim_apply.html">sim_apply()</a></code>
 allows for the computation of any arbitrary quantity of interest. We’ll
 demonstrate how to replicate a standard <a href="https://cran.r-project.org/package=Zelig" class="external-link">Zelig</a> analysis
 using <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> step-by-step. Because simulation-based
@@ -112,8 +112,8 @@ most cases, they should be similar.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/ngreifer/clarify" class="external-link">"clarify"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span></code></pre></div>
 <p>Note that both <a href="https://cran.r-project.org/package=Zelig" class="external-link">Zelig</a> and <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> have a
-function called “<code>sim()</code>”, so we will always make it clear
-which package’s <code>sim()</code> is being used.</p>
+function called “<code><a href="../reference/sim.html">sim()</a></code>”, so we will always make it clear
+which package’s <code><a href="../reference/sim.html">sim()</a></code> is being used.</p>
 </div>
 <div class="section level2">
 <h2 id="predictions-at-representative-values">Predictions at representative values<a class="anchor" aria-label="anchor" href="#predictions-at-representative-values"></a>
@@ -140,7 +140,7 @@ values of <code>treat</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">setx</span><span class="op">(</span><span class="va">fit</span>, treat <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">setx1</span><span class="op">(</span><span class="va">fit</span>, treat <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p>Next we simulate the values using <code>sim()</code>:</p>
+<p>Next we simulate the values using <code><a href="../reference/sim.html">sim()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">Zelig</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Zelig/man/sim.html" class="external-link">sim</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, we can print and plot the predicted values and first
@@ -162,13 +162,13 @@ differences:</p>
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
 <span>            <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span></code></pre></div>
 <p>Next, we simulate the model coefficients using
-<code>clarify::sim()</code>:</p>
+<code><a href="../reference/sim.html">clarify::sim()</a></code>:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">clarify</span><span class="fu">::</span><span class="fu">sim</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<p>Next, we use <code>sim_setx()</code> to set our values of the
+<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">clarify</span><span class="fu">::</span><span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<p>Next, we use <code><a href="../reference/sim_setx.html">sim_setx()</a></code> to set our values of the
 predictors:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_setx</span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, we can summarize and plot the predicted values:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
@@ -273,11 +273,11 @@ regression with a correction for bias in the intercept <span class="citation">(P
 <span><span class="co">#&gt; Likelihood ratio test=65.80085 on 9 df, p=1.007627e-10, n=614</span></span>
 <span><span class="co">#&gt; Wald test = 179.4243 on 9 df, p = 0</span></span></code></pre></div>
 <p>We can compute predictions at representative values using
-<code>clarify::sim()</code> and <code>sim_setx()</code>.</p>
+<code><a href="../reference/sim.html">clarify::sim()</a></code> and <code><a href="../reference/sim_setx.html">sim_setx()</a></code>.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">clarify</span><span class="fu">::</span><span class="fu">sim</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">clarify</span><span class="fu">::</span><span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_setx</span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span>
@@ -337,14 +337,14 @@ fit a model outside <a href="https://github.com/ngreifer/clarify" class="externa
 <span>                            <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span><span class="op">)</span>,</span>
 <span>          data <span class="op">=</span> <span class="va">m.data</span><span class="op">)</span></span></code></pre></div>
 <p>Next, we simulate the model coefficients using
-<code>clarify::sim()</code>. Because we performed pair matching, we will
+<code><a href="../reference/sim.html">clarify::sim()</a></code>. Because we performed pair matching, we will
 request a cluster-robust standard error:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">clarify</span><span class="fu">::</span><span class="fu">sim</span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">subclass</span><span class="op">)</span></span></code></pre></div>
-<p>Next, we use <code>sim_ame()</code> to request the average marginal
+<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">clarify</span><span class="fu">::</span><span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="op">~</span><span class="va">subclass</span><span class="op">)</span></span></code></pre></div>
+<p>Next, we use <code><a href="../reference/sim_ame.html">sim_ame()</a></code> to request the average marginal
 effect of <code>treat</code> within the subset of treated units:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span>,</span>
+<code class="sourceCode R"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span>,</span>
 <span>               contrast <span class="op">=</span> <span class="st">"diff"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, we can summarize and plot the ATT:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
@@ -424,14 +424,14 @@ across imputations.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> trade         21.3       1.82      11.7  1.26<span style="color: #949494;">e</span><span style="color: #BB0000;">-31</span>   <span style="text-decoration: underline;">83</span>428. 0.010<span style="text-decoration: underline;">5</span>    0.010<span style="text-decoration: underline;">4</span> </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> infl:trade    -<span style="color: #BB0000;">0.290</span>     0.140     -<span style="color: #BB0000;">2.07</span> 1.96<span style="color: #949494;">e</span>+ 0  <span style="text-decoration: underline;">954</span>984. 0.003<span style="text-decoration: underline;">08</span>   0.003<span style="text-decoration: underline;">07</span></span></span></code></pre></div>
 <p>Derived quantities can be computed using
-<code>clarify::misim()</code> and <code>sim_apply()</code> or its
+<code><a href="../reference/misim.html">clarify::misim()</a></code> and <code><a href="../reference/sim_apply.html">sim_apply()</a></code> or its
 wrappers:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Simulate coefficients, 100 in each of 10 imputations</span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">misim</span><span class="op">(</span><span class="va">fits</span>, n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/misim.html">misim</a></span><span class="op">(</span><span class="va">fits</span>, n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Compute predictions at specified values</span></span>
-<span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_setx</span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>infl <span class="op">=</span> <span class="fl">0</span>, trade <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>,</span>
+<span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>infl <span class="op">=</span> <span class="fl">0</span>, trade <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>,</span>
 <span>                x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>infl <span class="op">=</span> <span class="fl">0</span>, trade <span class="op">=</span> <span class="fl">60</span><span class="op">)</span>,</span>
 <span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>

@@ -25,6 +25,36 @@
     <loc>https://ngreifer.github.io/clarify/news/index.html</loc>
   </url>
   <url>
+    <loc>https://ngreifer.github.io/clarify/reference/clarify-package.html</loc>
+  </url>
+  <url>
     <loc>https://ngreifer.github.io/clarify/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/clarify/reference/misim.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/clarify/reference/plot.clarify_adrf.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/clarify/reference/plot.clarify_setx.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/clarify/reference/sim.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/clarify/reference/sim_adrf.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/clarify/reference/sim_ame.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/clarify/reference/sim_apply.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/clarify/reference/sim_setx.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/clarify/reference/summary.clarify_est.html</loc>
   </url>
 </urlset>

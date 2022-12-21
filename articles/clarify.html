@@ -122,11 +122,11 @@ calculations.</p>
 <ol style="list-style-type: decimal">
 <li><p>Fit the model to the data using modeling functions in supported
 packages</p></li>
-<li><p>Use <code>sim()</code> to take draws from the sampling
+<li><p>Use <code><a href="../reference/sim.html">sim()</a></code> to take draws from the sampling
 distribution of the estimated model coefficients</p></li>
-<li><p>Use <code>sim_apply()</code> or its wrappers
-<code>sim_setx()</code>, <code>sim_ame()</code>, and
-<code>sim_adrf()</code> to compute derived quantities using each
+<li><p>Use <code><a href="../reference/sim_apply.html">sim_apply()</a></code> or its wrappers
+<code><a href="../reference/sim_setx.html">sim_setx()</a></code>, <code><a href="../reference/sim_ame.html">sim_ame()</a></code>, and
+<code><a href="../reference/sim_adrf.html">sim_adrf()</a></code> to compute derived quantities using each
 simulated set of coefficients</p></li>
 <li><p>Use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> to summarize
 and visualize the distribution of the derived quantities and perform
@@ -189,15 +189,15 @@ of them.</p>
 <div class="section level3">
 <h3 id="drawing-from-the-coefficient-distribution">2. Drawing from the coefficient distribution<a class="anchor" aria-label="anchor" href="#drawing-from-the-coefficient-distribution"></a>
 </h3>
-<p>After fitting the model, we will use <code>sim()</code> to draw
+<p>After fitting the model, we will use <code><a href="../reference/sim.html">sim()</a></code> to draw
 coefficients from their sampling distribution. The sampling distribution
 is assumed to be multivariate normal or multivariate t with appropriate
 degrees of freedom, with a mean vector equal to the coefficient vector
 and a covariance matrix equal to the asymptotic covariance matrix
-extracted from the model. The arguments to <code>sim()</code> are listed
+extracted from the model. The arguments to <code><a href="../reference/sim.html">sim()</a></code> are listed
 below:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">sim</span><span class="op">(</span>fit <span class="op">=</span> , n <span class="op">=</span> , vcov <span class="op">=</span> , coefs <span class="op">=</span> , dist <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span>fit <span class="op">=</span> , n <span class="op">=</span> , vcov <span class="op">=</span> , coefs <span class="op">=</span> , dist <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
 <ul>
 <li><p><code>fit</code> – the fitted model object, the output of the
 call to the fitting function (e.g., <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code>)</p></li>
@@ -219,7 +219,7 @@ Typically this does not need to be specified.</p></li>
 draw the sampled coefficients. Can be <code>"normal"</code> for a normal
 distribution or <code>t(#)</code> for a t-distribution, where
 <code>#</code> represents the degrees of freedom. If left unspecified,
-<code>sim()</code> will decide on which distribution makes sense given
+<code><a href="../reference/sim.html">sim()</a></code> will decide on which distribution makes sense given
 the characteristics of the model (the decision is made by
 <code><a href="https://easystats.github.io/insight/reference/get_df.html" class="external-link">insight::get_df()</a></code> with <code>type = "wald"</code>).
 Typically this does not need to be specified.</p></li>
@@ -229,21 +229,21 @@ omit the <code>fit</code> argument and just specify the
 <code>vcov</code> and <code>coefs</code> argument, which will draw the
 coefficients from the distribution named in <code>dist</code>
 (<code>"normal"</code> by default).</p>
-<p><code>sim()</code> uses a random number generator to draw the sampled
+<p><code><a href="../reference/sim.html">sim()</a></code> uses a random number generator to draw the sampled
 coefficients from the sampling distribution, so a seed should be set
 using <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> to ensure results are replicable across
 sessions.</p>
-<p>The output of the call to <code>sim()</code> is a
-<code>simbased_sim</code> object, which contains the sampled
+<p>The output of the call to <code><a href="../reference/sim.html">sim()</a></code> is a
+<code>clarify_sim</code> object, which contains the sampled
 coefficients, the original model fit object if supplied, and the
 coefficients and covariance matrix used to sample.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Drawing simulated coefficients using an HC2 robust</span></span>
 <span><span class="co"># covariance matrix</span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">sim</span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="st">"HC2"</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="st">"HC2"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">s</span></span>
-<span><span class="co">#&gt; A `simbased_sim` object</span></span>
+<span><span class="co">#&gt; A `clarify_sim` object</span></span>
 <span><span class="co">#&gt;  - 10 coefficients, 1000 simulated values</span></span>
 <span><span class="co">#&gt;  - sampled distribution: multivariate normal</span></span>
 <span><span class="co">#&gt;  - original fitting function call:</span></span>
@@ -257,16 +257,16 @@ coefficients and covariance matrix used to sample.</p>
 <p>After sampling the coefficients, we will compute derived quantities
 on each set of sampled coefficient and store the result, which
 represents a “posterior” distribution of the derived quantity. The core
-functionality is provided by <code>sim_apply()</code>, which accepts a
-<code>simbased_sim</code> object from <code>sim()</code> and a function
+functionality is provided by <code><a href="../reference/sim_apply.html">sim_apply()</a></code>, which accepts a
+<code>clarify_sim</code> object from <code><a href="../reference/sim.html">sim()</a></code> and a function
 to compute and return one or more derived quantities, then applies that
 function to each set of simulated coefficients. The arguments to
-<code>sim_apply()</code> are below:</p>
+<code><a href="../reference/sim_apply.html">sim_apply()</a></code> are below:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">sim_apply</span><span class="op">(</span>sim <span class="op">=</span> , FUN <span class="op">=</span> , verbose <span class="op">=</span> , cl <span class="op">=</span> , <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sim_apply.html">sim_apply</a></span><span class="op">(</span>sim <span class="op">=</span> , FUN <span class="op">=</span> , verbose <span class="op">=</span> , cl <span class="op">=</span> , <span class="va">...</span><span class="op">)</span></span></code></pre></div>
 <ul>
-<li><p><code>sim</code> – a <code>simbased_sim</code> object; the output
-of a call to <code>sim()</code>.</p></li>
+<li><p><code>sim</code> – a <code>clarify_sim</code> object; the output
+of a call to <code><a href="../reference/sim.html">sim()</a></code>.</p></li>
 <li><p><code>FUN</code> – a function that takes in either a model fit
 object or a vector of coefficients and returns one or more derived
 quantities. The first argument should be named <code>fit</code> to take
@@ -284,7 +284,7 @@ from <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external
 either as a function that takes in a model fit object or a function that
 takes in a vector of coefficients. The latter will always work but the
 former only works for supported models. When the function takes in a
-model fit object, <code>sim_apply()</code> will first insert each set of
+model fit object, <code><a href="../reference/sim_apply.html">sim_apply()</a></code> will first insert each set of
 sampled coefficients into the model fit object and then supply the
 modified model to <code>FUN</code>.</p>
 <p>For example, let’s say our derived quantity of interest is the
@@ -296,18 +296,18 @@ specified our <code>FUN</code> function as follows:</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p>The <code>fit</code> object supplied to this function will be one in
 which the coefficients have been set to their values in a draw from
-their sampling distribution as generated by <code>sim()</code>. We then
-supply the function to <code>sim_apply()</code> to simulate the sampling
+their sampling distribution as generated by <code><a href="../reference/sim.html">sim()</a></code>. We then
+supply the function to <code><a href="../reference/sim_apply.html">sim_apply()</a></code> to simulate the sampling
 distribution of the predicted value of interest:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est1</span> <span class="op">&lt;-</span> <span class="fu">sim_apply</span><span class="op">(</span><span class="va">s</span>, FUN <span class="op">=</span> <span class="va">sim_fun1</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">est1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_apply.html">sim_apply</a></span><span class="op">(</span><span class="va">s</span>, FUN <span class="op">=</span> <span class="va">sim_fun1</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">est1</span></span>
-<span><span class="co">#&gt; A `simbased_est` object (from `sim_apply()`)</span></span>
+<span><span class="co">#&gt; A `clarify_est` object (from `sim_apply()`)</span></span>
 <span><span class="co">#&gt;  - 1000 simulated values</span></span>
 <span><span class="co">#&gt;  - 1 quantity estimated:                 </span></span>
 <span><span class="co">#&gt;  PSID1 0.02377322</span></span></code></pre></div>
-<p>The resulting <code>simbased_est</code> object contains the simulated
+<p>The resulting <code>clarify_est</code> object contains the simulated
 estimates in matrix form as well as the estimate computed on the
 original coefficients. We’ll examine the sampling distribution shortly,
 but first we’ll demonstrate computing a derived quantity from the
@@ -317,7 +317,7 @@ coefficients directly.</p>
 immediately clear whether there is a difference between the coefficients
 <code>racehispan</code> and <code>racewhite</code>, which represent the
 non-reference categories <code>hispan</code> and <code>white</code>. To
-compare these two directly, we can use <code>sim_apply()</code> to
+compare these two directly, we can use <code><a href="../reference/sim_apply.html">sim_apply()</a></code> to
 compute a derived quantity that corresponds to the difference between
 them.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -328,10 +328,10 @@ them.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"w - h"</span> <span class="op">=</span> <span class="va">white</span> <span class="op">-</span> <span class="va">hispan</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">est2</span> <span class="op">&lt;-</span> <span class="fu">sim_apply</span><span class="op">(</span><span class="va">s</span>, FUN <span class="op">=</span> <span class="va">sim_fun2</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">est2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_apply.html">sim_apply</a></span><span class="op">(</span><span class="va">s</span>, FUN <span class="op">=</span> <span class="va">sim_fun2</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">est2</span></span>
-<span><span class="co">#&gt; A `simbased_est` object (from `sim_apply()`)</span></span>
+<span><span class="co">#&gt; A `clarify_est` object (from `sim_apply()`)</span></span>
 <span><span class="co">#&gt;  - 1000 simulated values</span></span>
 <span><span class="co">#&gt;  - 1 quantity estimated:                </span></span>
 <span><span class="co">#&gt;  w - h 0.1089068</span></span></code></pre></div>
@@ -341,22 +341,22 @@ run of <code>FUN</code> is, the longer it will take to simulate the
 derived quantities. Using parallel processing by supplying an argument
 to <code>cl</code> can sometimes dramatically speed up evaluation.</p>
 <p>There are several functions in <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> that serve as
-convenience wrappers for <code>sim_apply()</code> to automate some
+convenience wrappers for <code><a href="../reference/sim_apply.html">sim_apply()</a></code> to automate some
 common derived quantities of interest. These include</p>
 <ul>
-<li><p><code>sim_setx()</code> – computing predicted values and first
+<li><p><code><a href="../reference/sim_setx.html">sim_setx()</a></code> – computing predicted values and first
 differences at representative or user-specified values of the
 predictors</p></li>
-<li><p><code>sim_ame()</code> – computing average marginal means,
+<li><p><code><a href="../reference/sim_ame.html">sim_ame()</a></code> – computing average marginal means,
 contrasts of average marginal means, and average marginal
 effects</p></li>
-<li><p><code>sim_adrf()</code> – computing average dose-response
+<li><p><code><a href="../reference/sim_adrf.html">sim_adrf()</a></code> – computing average dose-response
 functions and average marginal effects functions</p></li>
 </ul>
 <p>These are described in their own sections below. In addition, there
 are functions that have methods for <code>simabsed_est</code> objects,
 including <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> for combining two
-<code>simbased_est</code> objects together and <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>
+<code>clarify_est</code> objects together and <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>
 for computing quantities that are derived from the already-computed
 derived quantities. These are also described in their own sections
 below.</p>
@@ -366,7 +366,7 @@ below.</p>
 </h3>
 <p>To examine the uncertainty around and perform inference on our
 estimated quantities, we can use <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the <code>simbased_est</code> object.</p>
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the <code>clarify_est</code> object.</p>
 <p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> displays a density plot of the resulting
 estimates across the simulations, with markers identifying the point
 estimate (computed using the original coefficients) and, optionally,
@@ -375,10 +375,10 @@ bounds). The arguments to <code><a href="https://rdrr.io/r/graphics/plot.default
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> , parm <span class="op">=</span> , ci <span class="op">=</span> , level <span class="op">=</span> , method <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
 <ul>
-<li><p><code>x</code> – the <code>simbased_est</code> object (the output
-of a call to <code>sim_apply()</code>).</p></li>
+<li><p><code>x</code> – the <code>clarify_est</code> object (the output
+of a call to <code><a href="../reference/sim_apply.html">sim_apply()</a></code>).</p></li>
 <li><p><code>parm</code> – the names or indices of the quantities to be
-plotted if more than one was estimated in <code>sim_apply()</code>; if
+plotted if more than one was estimated in <code><a href="../reference/sim_apply.html">sim_apply()</a></code>; if
 unspecified, all will be plotted.</p></li>
 <li><p><code>ci</code> – whether to display lines at the uncertainty
 bounds. The default is <code>TRUE</code> to display them.</p></li>
@@ -418,10 +418,10 @@ below:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span>object <span class="op">=</span> , parm <span class="op">=</span> , level <span class="op">=</span> , method <span class="op">=</span> , null <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
 <ul>
-<li><p><code>object</code> – the <code>simbased_est</code> object (the
-output of a call to <code>sim_apply()</code>).</p></li>
+<li><p><code>object</code> – the <code>clarify_est</code> object (the
+output of a call to <code><a href="../reference/sim_apply.html">sim_apply()</a></code>).</p></li>
 <li><p><code>parm</code> – the names or indices of the quantities to be
-displayed if more than one was estimated in <code>sim_apply()</code>; if
+displayed if more than one was estimated in <code><a href="../reference/sim_apply.html">sim_apply()</a></code>; if
 unspecified, all will be displayed.</p></li>
 <li><p><code>level</code> – the desired two-sided confidence level. The
 default is .95 so that that the bounds are at the .025 and .975
@@ -442,8 +442,8 @@ first <code>simabsed_est</code> object to view the point estimate and
 quantile-based uncertainty bounds.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est1</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       Estimate  2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; PSID1   0.0238 0.0035 0.1020</span></span></code></pre></div>
+<span><span class="co">#&gt;       Estimate   2.5 %  97.5 %</span></span>
+<span><span class="co">#&gt; PSID1  0.02377 0.00347 0.10151</span></span></code></pre></div>
 <p>Our second estimated quantity, the difference between two regression
 coefficients, is closer to Normally distributed, as the plot below
 demonstrates (and would be expected theoretically), so we’ll use the
@@ -456,7 +456,7 @@ Normal approximation to test the hypothesis that difference differs from
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est2</span>, method <span class="op">=</span> <span class="st">"wald"</span>, null <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       Estimate  2.5 % 97.5 % Std. Error Z value P-value</span></span>
-<span><span class="co">#&gt; w - h    0.109 -0.329  0.547      0.224    0.49    0.63</span></span></code></pre></div>
+<span><span class="co">#&gt; w - h    0.109 -0.301  0.519      0.209    0.52     0.6</span></span></code></pre></div>
 <p>The uncertainty intervals and p-values in the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 output are computed using the Normal approximation because we set
 <code>method = "wald"</code>, and the p-value for the test that our
@@ -471,28 +471,28 @@ sampling distribution is close to Normal.</p>
 <code>sim_apply()</code> wrappers: <code>sim_setx()</code>,
 <code>sim_ame()</code>, <code>sim_adrf()</code><a class="anchor" aria-label="anchor" href="#sim_apply-wrappers-sim_setx-sim_ame-sim_adrf"></a>
 </h2>
-<p><code>sim_apply()</code> can be used to compute the simulated
+<p><code><a href="../reference/sim_apply.html">sim_apply()</a></code> can be used to compute the simulated
 sampling distribution for any arbitrary derived quantity of interest,
 but there are some quantities that are common in applied research and
 may otherwise be somewhat challenging to program on their own, so
 <code>{simabsed}</code> provides shortcut functions to make computing
 these quantities simple. These functions include
-<code>sim_setx()</code>, <code>sim_ame()</code>, and
-<code>sim_adrf()</code>. Each of these can only be used when regression
+<code><a href="../reference/sim_setx.html">sim_setx()</a></code>, <code><a href="../reference/sim_ame.html">sim_ame()</a></code>, and
+<code><a href="../reference/sim_adrf.html">sim_adrf()</a></code>. Each of these can only be used when regression
 models compatible with <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> are supplied to the
-original call to <code>sim()</code>.</p>
-<p>Like <code>sim_apply()</code>, each of these functions is named
+original call to <code><a href="../reference/sim.html">sim()</a></code>.</p>
+<p>Like <code><a href="../reference/sim_apply.html">sim_apply()</a></code>, each of these functions is named
 <code>sim_*()</code>, which signifies that they are to be used on an
-object produced by <code>sim()</code> (i.e., a <code>simbased_sim</code>
+object produced by <code><a href="../reference/sim.html">sim()</a></code> (i.e., a <code>clarify_sim</code>
 object). (Multiple calls to these functions can be applied to the same
-<code>simbased_sim</code> object and combined; see the
+<code>clarify_sim</code> object and combined; see the
 <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> section below.) These functions are described
 below.</p>
 <div class="section level3">
 <h3 id="sim_setx-predictions-at-representative-values">
 <code>sim_setx()</code>: predictions at representative values<a class="anchor" aria-label="anchor" href="#sim_setx-predictions-at-representative-values"></a>
 </h3>
-<p><code>sim_setx()</code> provides an interface to compute predictions
+<p><code><a href="../reference/sim_setx.html">sim_setx()</a></code> provides an interface to compute predictions
 at representative and user-supplied values of the predictors. For
 example, we might want to know what the effect of treatment is for a
 “typical” individual, which corresponds to the contrast between two
@@ -511,12 +511,12 @@ combinations can be requested by specifying values that will be used to
 create a grid of covariate values. In addition, the “first difference”,
 defined here as the difference between predictions for two covariate
 combinations, can be computed.</p>
-<p>The arguments to <code>sim_setx()</code> are as follows:</p>
+<p>The arguments to <code><a href="../reference/sim_setx.html">sim_setx()</a></code> are as follows:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">sim_setx</span><span class="op">(</span>sim <span class="op">=</span> , x <span class="op">=</span> , x1 <span class="op">=</span> , outcome <span class="op">=</span> , type <span class="op">=</span> , verbose <span class="op">=</span> , cl <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span>sim <span class="op">=</span> , x <span class="op">=</span> , x1 <span class="op">=</span> , outcome <span class="op">=</span> , type <span class="op">=</span> , verbose <span class="op">=</span> , cl <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
 <ul>
-<li><p><code>sim</code> – a <code>simbased_sim</code> object; the output
-of a call to <code>sim()</code>.</p></li>
+<li><p><code>sim</code> – a <code>clarify_sim</code> object; the output
+of a call to <code><a href="../reference/sim.html">sim()</a></code>.</p></li>
 <li><p><code>x</code> – a named list containing the requested values of
 the predictors, e.g., <code>list(v1 = 1:4, v2 = "A")</code>. Any
 predictors not named will be set at their “typical” value as defined
@@ -529,8 +529,8 @@ allowed when <code>x1</code> is specified) and the covariate combination
 defined in <code>x1</code>.</p></li>
 <li><p><code>outcome</code> – a string containing the name of the
 outcome of interest when a multivariate (multiple outcome) model is
-supplied to <code>sim()</code> or the outcome category of interest when
-a multinomial model is supplied to <code>sim()</code>. For univariate
+supplied to <code><a href="../reference/sim.html">sim()</a></code> or the outcome category of interest when
+a multinomial model is supplied to <code><a href="../reference/sim.html">sim()</a></code>. For univariate
 (single outcome) and binary outcomes, this is ignored.</p></li>
 <li><p><code>type</code> – a string containing the type of predicted
 value to return. In most cases, this can be left unspecified to request
@@ -541,11 +541,11 @@ bar.</p></li>
 which can be the number of cores to use or a cluster object resulting
 from <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>.</p></li>
 </ul>
-<p>Here, we’ll use <code>sim_setx()</code> to examine predicted values
+<p>Here, we’ll use <code><a href="../reference/sim_setx.html">sim_setx()</a></code> to examine predicted values
 of the outcome for control and treated units, at <code>re75</code> set
 to 0 and 20000, and <code>race</code> set to “black”.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est3</span> <span class="op">&lt;-</span> <span class="fu">sim_setx</span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>,</span>
+<code class="sourceCode R"><span><span class="va">est3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>,</span>
 <span>                             re75 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20000</span><span class="op">)</span>,</span>
 <span>                             race <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span>,</span>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -582,7 +582,7 @@ the predictors, something like a dose-response function for a typical
 unit can be generated. Below, we set <code>re75</code> to vary from 0 to
 20000 in steps of 2000.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est4</span> <span class="op">&lt;-</span> <span class="fu">sim_setx</span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>,</span>
+<code class="sourceCode R"><span><span class="va">est4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>,</span>
 <span>                             re75 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20000</span>, by <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>,</span>
 <span>                             race <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span>,</span>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -592,16 +592,16 @@ the levels of <code>re75</code>:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est4</span><span class="op">)</span></span></code></pre></div>
 <p><img src="clarify_files/figure-html/unnamed-chunk-15-1.png" width="624" style="display: block; margin: auto;"></p>
 <p>We’ll return to display average dose-response functions using
-<code>sim_adrf()</code> later.</p>
-<p>Finally, we can use <code>sim_setx()</code> to compute first
+<code><a href="../reference/sim_adrf.html">sim_adrf()</a></code> later.</p>
+<p>Finally, we can use <code><a href="../reference/sim_setx.html">sim_setx()</a></code> to compute first
 differences, the contrast between two covariate combinations. We supply
 one covariate profile to <code>x</code> and another to <code>x1</code>,
-and <code>sim_setx()</code> simulates the two predicted values and their
+and <code><a href="../reference/sim_setx.html">sim_setx()</a></code> simulates the two predicted values and their
 difference. Below, we simulate first difference for a treated and
 control unit who have <code>re75</code> of 0 and typical values of all
 other covariates:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est5</span> <span class="op">&lt;-</span> <span class="fu">sim_setx</span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span>, re75 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">est5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span>, re75 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                 x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">1</span>, re75 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>When we use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, we see the estimates for the
@@ -609,9 +609,9 @@ predicted values and their first difference (“FD”):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est5</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; treat = 0   0.2316  0.1576  0.3166</span></span>
-<span><span class="co">#&gt; treat = 1   0.1667  0.0864  0.2686</span></span>
-<span><span class="co">#&gt; FD         -0.0649 -0.1412  0.0267</span></span></code></pre></div>
+<span><span class="co">#&gt; treat = 0   0.2316  0.1602  0.3147</span></span>
+<span><span class="co">#&gt; treat = 1   0.1667  0.0929  0.2655</span></span>
+<span><span class="co">#&gt; FD         -0.0649 -0.1353  0.0193</span></span></code></pre></div>
 <p>It is possible to compute first differences without using
 <code>x1</code> using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>, which we describe
 later.</p>
@@ -631,18 +631,18 @@ AMMs and for continuous predictors as the average of instantaneous rate
 of change corresponding to a small change in the predictor from its
 observed values across all units<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;In &lt;a href="https://vincentarelbundock.github.io/marginaleffects/" class="external-link"&gt;marginaleffects&lt;/a&gt;, AMMs are computed
 using &lt;code&gt;predictions()&lt;/code&gt; (not with &lt;code&gt;marginalmeans()&lt;/code&gt;,
-which does something closer to &lt;code&gt;sim_setx()&lt;/code&gt;), AMEs for binary
+which does something closer to &lt;code&gt;&lt;a href="../reference/sim_setx.html"&gt;sim_setx()&lt;/a&gt;&lt;/code&gt;), AMEs for binary
 variables are computed using &lt;code&gt;comparisons()&lt;/code&gt;, and AMEs for
 continuous variables are computed using &lt;code&gt;marginaleffects()&lt;/code&gt;.
 AMMs are sometimes known as average “adjusted” or “counterfactual”
 predictions.&lt;/p&gt;'><sup>2</sup></a>.</p>
-<p>The arguments to <code>sim_ame()</code> are as follows:</p>
+<p>The arguments to <code><a href="../reference/sim_ame.html">sim_ame()</a></code> are as follows:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">sim_ame</span><span class="op">(</span>sim <span class="op">=</span> , var <span class="op">=</span> , subset <span class="op">=</span> , contrast <span class="op">=</span> , outcome <span class="op">=</span> ,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span>sim <span class="op">=</span> , var <span class="op">=</span> , subset <span class="op">=</span> , contrast <span class="op">=</span> , outcome <span class="op">=</span> ,</span>
 <span>        type <span class="op">=</span> , eps <span class="op">=</span> , verbose <span class="op">=</span> , cl <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
 <ul>
-<li><p><code>sim</code> – a <code>simbased_sim</code> object; the output
-of a call to <code>sim()</code>.</p></li>
+<li><p><code>sim</code> – a <code>clarify_sim</code> object; the output
+of a call to <code><a href="../reference/sim.html">sim()</a></code>.</p></li>
 <li><p><code>var</code> – the name of focal variable over which to
 compute the AMMs or AMEs, or a list containing the values for which AMMs
 should be computed.</p></li>
@@ -663,8 +663,8 @@ describing <code>transfom()</code> for computing contrasts with
 them.</p></li>
 <li><p><code>outcome</code> – a string containing the name of the
 outcome of interest when a multivariate (multiple outcome) model is
-supplied to <code>sim()</code> or the outcome category of interest when
-a multinomial model is supplied to <code>sim()</code>. For univariate
+supplied to <code><a href="../reference/sim.html">sim()</a></code> or the outcome category of interest when
+a multinomial model is supplied to <code><a href="../reference/sim.html">sim()</a></code>. For univariate
 (single outcome) and binary outcomes, this is ignored.</p></li>
 <li><p><code>type</code> – a string containing the type of predicted
 value to return. In most cases, this can be left unspecified to request
@@ -678,12 +678,12 @@ bar.</p></li>
 which can be the number of cores to use or a cluster object resulting
 from <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external-link">parallel::makeCluster()</a></code>.</p></li>
 </ul>
-<p>Here, we’ll use <code>sim_ame()</code> to compute the AME of
+<p>Here, we’ll use <code><a href="../reference/sim_ame.html">sim_ame()</a></code> to compute the AME of
 <code>treat</code> just among those who were treated (in causal
 inference, this is known as the average treatment effect in the treated,
 or ATT). We’ll request our estimate to be on the risk ratio scale.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est6</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span>,</span>
+<code class="sourceCode R"><span><span class="va">est6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span>,</span>
 <span>                contrast <span class="op">=</span> <span class="st">"rr"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We can use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to display the estimates and their
 uncertainty intervals. Here, we’ll also use <code>null</code> to include
@@ -693,9 +693,9 @@ the argument supplied to <code>null</code>).</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est6</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate 2.5 % 97.5 % P-value</span></span>
-<span><span class="co">#&gt; E[Y(0)]    0.319 0.247  0.405       .</span></span>
-<span><span class="co">#&gt; E[Y(1)]    0.244 0.187  0.314       .</span></span>
-<span><span class="co">#&gt; RR         0.765 0.543  1.111    0.16</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]    0.319 0.244  0.397       .</span></span>
+<span><span class="co">#&gt; E[Y(1)]    0.244 0.191  0.311       .</span></span>
+<span><span class="co">#&gt; RR         0.765 0.561  1.078    0.13</span></span></code></pre></div>
 <p>Here we see the estimates for the AMMs, <code>E[Y(0)]</code> for the
 expected value of the outcome setting <code>treat</code> to 0 and
 <code>E[Y(1)]</code> for the expected value of the outcome setting
@@ -711,13 +711,13 @@ this.</p>
 consider <code>age</code> (just for demonstration; this analysis does
 not have a valid interpretation).</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est7</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">est7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We can use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to display the AME estimate and its
 uncertainty interval.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est7</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; dY/d(age)  0.00618 0.00255 0.00948</span></span></code></pre></div>
+<span><span class="co">#&gt; dY/d(age)  0.00618 0.00262 0.00971</span></span></code></pre></div>
 <p>The AME is named <code>dY/d(age)</code>, which signifies that a
 derivative has been computed (more precisely, the average of the
 unit-specific derivatives). This estimate can be interpreted like a
@@ -748,15 +748,15 @@ describes how the <em>effect</em> of the predictor on the outcome
 changes as a function of the predictor. It is essentially the derivative
 of the ADRF and can be used to identify at what points along the ADRF
 the predictor has an effect.</p>
-<p>The ADRF and AMEF can be computed using <code>sim_adrf()</code>. The
+<p>The ADRF and AMEF can be computed using <code><a href="../reference/sim_adrf.html">sim_adrf()</a></code>. The
 arguments are below:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">sim_adrf</span><span class="op">(</span>sim <span class="op">=</span> , var <span class="op">=</span> , subset <span class="op">=</span> , contrast <span class="op">=</span> , at <span class="op">=</span> ,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sim_adrf.html">sim_adrf</a></span><span class="op">(</span>sim <span class="op">=</span> , var <span class="op">=</span> , subset <span class="op">=</span> , contrast <span class="op">=</span> , at <span class="op">=</span> ,</span>
 <span>         n <span class="op">=</span> , outcome <span class="op">=</span> , type <span class="op">=</span> , eps <span class="op">=</span> , verbose <span class="op">=</span> ,</span>
 <span>         cl <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
 <ul>
-<li><p><code>sim</code> – a <code>simbased_sim</code> object; the output
-of a call to <code>sim()</code>.</p></li>
+<li><p><code>sim</code> – a <code>clarify_sim</code> object; the output
+of a call to <code><a href="../reference/sim.html">sim()</a></code>.</p></li>
 <li><p><code>var</code> – the name of focal variable over which to
 compute the ADRF or AMEF.</p></li>
 <li><p><code>subset</code> – a logical vector, evaluated in the original
@@ -778,8 +778,8 @@ ADRF or AMEF. More yields smoother functions, but will take longer and
 require more memory. The default is 21.</p></li>
 <li><p><code>outcome</code> – a string containing the name of the
 outcome of interest when a multivariate (multiple outcome) model is
-supplied to <code>sim()</code> or the outcome category of interest when
-a multinomial model is supplied to <code>sim()</code>. For univariate
+supplied to <code><a href="../reference/sim.html">sim()</a></code> or the outcome category of interest when
+a multinomial model is supplied to <code><a href="../reference/sim.html">sim()</a></code>. For univariate
 (single outcome) and binary outcomes, this is ignored.</p></li>
 <li><p><code>type</code> – a string containing the type of predicted
 value to return. In most cases, this can be left unspecified to request
@@ -802,7 +802,7 @@ which examines how the outcome would vary on average if one set all
 unit’s value of <code>age</code> to each value between 18 and 50 (here
 we only use even ages).</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est8</span> <span class="op">&lt;-</span> <span class="fu">sim_adrf</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, contrast <span class="op">=</span> <span class="st">"adrf"</span>,</span>
+<code class="sourceCode R"><span><span class="va">est8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_adrf.html">sim_adrf</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, contrast <span class="op">=</span> <span class="st">"adrf"</span>,</span>
 <span>                 at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">18</span>, <span class="fl">50</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We can plot the ADRF using <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</p>
@@ -818,27 +818,27 @@ default, so we will request just the first 4 (<code>age</code>s 18 to
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est8</span>, est <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          Estimate 2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(18)]    0.178 0.142  0.224</span></span>
-<span><span class="co">#&gt; E[Y(20)]    0.189 0.156  0.230</span></span>
-<span><span class="co">#&gt; E[Y(22)]    0.200 0.170  0.240</span></span>
-<span><span class="co">#&gt; E[Y(24)]    0.211 0.184  0.250</span></span>
-<span><span class="co">#&gt; E[Y(26)]    0.224 0.197  0.262</span></span>
-<span><span class="co">#&gt; E[Y(28)]    0.236 0.208  0.274</span></span>
-<span><span class="co">#&gt; E[Y(30)]    0.249 0.220  0.288</span></span>
-<span><span class="co">#&gt; E[Y(32)]    0.262 0.229  0.304</span></span>
-<span><span class="co">#&gt; E[Y(34)]    0.275 0.238  0.324</span></span>
-<span><span class="co">#&gt; E[Y(36)]    0.289 0.246  0.342</span></span>
-<span><span class="co">#&gt; E[Y(38)]    0.303 0.253  0.362</span></span>
-<span><span class="co">#&gt; E[Y(40)]    0.318 0.259  0.385</span></span>
-<span><span class="co">#&gt; E[Y(42)]    0.333 0.267  0.408</span></span>
-<span><span class="co">#&gt; E[Y(44)]    0.348 0.273  0.430</span></span>
-<span><span class="co">#&gt; E[Y(46)]    0.363 0.280  0.454</span></span>
-<span><span class="co">#&gt; E[Y(48)]    0.378 0.287  0.479</span></span>
-<span><span class="co">#&gt; E[Y(50)]    0.394 0.293  0.503</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(18)]    0.178 0.143  0.227</span></span>
+<span><span class="co">#&gt; E[Y(20)]    0.189 0.156  0.232</span></span>
+<span><span class="co">#&gt; E[Y(22)]    0.200 0.169  0.240</span></span>
+<span><span class="co">#&gt; E[Y(24)]    0.211 0.181  0.250</span></span>
+<span><span class="co">#&gt; E[Y(26)]    0.224 0.194  0.262</span></span>
+<span><span class="co">#&gt; E[Y(28)]    0.236 0.207  0.274</span></span>
+<span><span class="co">#&gt; E[Y(30)]    0.249 0.217  0.287</span></span>
+<span><span class="co">#&gt; E[Y(32)]    0.262 0.225  0.302</span></span>
+<span><span class="co">#&gt; E[Y(34)]    0.275 0.234  0.320</span></span>
+<span><span class="co">#&gt; E[Y(36)]    0.289 0.242  0.342</span></span>
+<span><span class="co">#&gt; E[Y(38)]    0.303 0.249  0.361</span></span>
+<span><span class="co">#&gt; E[Y(40)]    0.318 0.257  0.384</span></span>
+<span><span class="co">#&gt; E[Y(42)]    0.333 0.262  0.406</span></span>
+<span><span class="co">#&gt; E[Y(44)]    0.348 0.269  0.430</span></span>
+<span><span class="co">#&gt; E[Y(46)]    0.363 0.276  0.456</span></span>
+<span><span class="co">#&gt; E[Y(48)]    0.378 0.281  0.480</span></span>
+<span><span class="co">#&gt; E[Y(50)]    0.394 0.285  0.505</span></span></code></pre></div>
 <p>Next we’ll compute the AMEF, the effect of <code>age</code> at each
 level of <code>age</code>.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est9</span> <span class="op">&lt;-</span> <span class="fu">sim_adrf</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, contrast <span class="op">=</span> <span class="st">"amef"</span>,</span>
+<code class="sourceCode R"><span><span class="va">est9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_adrf.html">sim_adrf</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, contrast <span class="op">=</span> <span class="st">"amef"</span>,</span>
 <span>                 at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">18</span>, <span class="fl">50</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We can plot the AMEF using <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>:</p>
@@ -862,7 +862,7 @@ originally produced; for example, we may decide we want the risk
 difference AME after computing the risk ratio AME. The functions
 <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> and <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> allow users to
 transform quantities in a single <code>simabsed_est</code> object and
-combine two <code>simbased_est</code> objects. These are essential for
+combine two <code>clarify_est</code> objects. These are essential for
 computing quantities that themselves are derived from the derived
 quantities computed by the <code>sim_*()</code> functions.</p>
 <div class="section level4">
@@ -880,9 +880,9 @@ similarities between <code><a href="https://rdrr.io/r/base/transform.html" class
 <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>; only <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> can be used
 with <code>simabsed_est</code> objects.)</p>
 <p>Similarly, to compute a derived or transformed quantity from a
-<code>simbased_est</code> object, we can use <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>.
+<code>clarify_est</code> object, we can use <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>.
 Here, we’ll compute the risk difference AME of <code>treat</code>;
-previously, we used <code>sim_ame()</code> to compute the AMMs and the
+previously, we used <code><a href="../reference/sim_ame.html">sim_ame()</a></code> to compute the AMMs and the
 risk ratio.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">est6</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">est6</span>, RD <span class="op">=</span> <span class="va">`E[Y(1)]`</span> <span class="op">-</span> <span class="va">`E[Y(0)]`</span><span class="op">)</span></span></code></pre></div>
@@ -895,20 +895,20 @@ We’ll also set a null value for this quantity.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est6</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 % P-value</span></span>
-<span><span class="co">#&gt; E[Y(0)]   0.3195  0.2468  0.4051       .</span></span>
-<span><span class="co">#&gt; E[Y(1)]   0.2443  0.1866  0.3144       .</span></span>
-<span><span class="co">#&gt; RR        0.7646  0.5428  1.1113    0.16</span></span>
-<span><span class="co">#&gt; RD       -0.0752 -0.1707  0.0269    0.16</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]   0.3195  0.2440  0.3973       .</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.2443  0.1906  0.3110       .</span></span>
+<span><span class="co">#&gt; RR        0.7646  0.5612  1.0783    0.13</span></span>
+<span><span class="co">#&gt; RD       -0.0752 -0.1669  0.0194    0.13</span></span></code></pre></div>
 <p>Something nice about using simulation-based inference with p-values
 computed from inverting the confidence intervals is that the p-values
 for the risk difference and risk ratio (and any other effect measure for
 comparing a pair of values) will always exactly align, thereby ensuring
 inference does not depend on the effect measure used.</p>
 <p>The same value would be computed if we were to have called
-<code>sim_ame()</code> on the same <code>simbased_sim</code> object and
+<code><a href="../reference/sim_ame.html">sim_ame()</a></code> on the same <code>clarify_sim</code> object and
 requested the risk difference using <code>contrast = "diff"</code>;
 using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> saves time because the AMMs are already
-computed and stored in the <code>simbased_est</code> object.</p>
+computed and stored in the <code>clarify_est</code> object.</p>
 </div>
 <div class="section level4">
 <h4 id="cbind">
@@ -917,29 +917,29 @@ computed and stored in the <code>simbased_est</code> object.</p>
 <p><code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> is another generic R function that is typically
 used to combine two or more datasets columnwise (i.e., to widen a
 dataset). In <code>clarify</code>, <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> can be used to
-combine two <code>simbased_est</code> objects so that the estimates can
+combine two <code>clarify_est</code> objects so that the estimates can
 be examined jointly and so that it is possible to compare them directly.
 For example, let’s say we computed AMEs in two subgroups and wanted to
-compare them. To do so, we would call <code>sim_ame()</code> twice, one
+compare them. To do so, we would call <code><a href="../reference/sim_ame.html">sim_ame()</a></code> twice, one
 for each subset:</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># AME of treat with race = "black"</span></span>
-<span><span class="va">est10b</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">race</span> <span class="op">==</span> <span class="st">"black"</span>,</span>
+<span><span class="va">est10b</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">race</span> <span class="op">==</span> <span class="st">"black"</span>,</span>
 <span>                  contrast <span class="op">=</span> <span class="st">"diff"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10b</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]   0.3370  0.2556  0.4317</span></span>
-<span><span class="co">#&gt; E[Y(1)]   0.2596  0.1992  0.3322</span></span>
-<span><span class="co">#&gt; Diff     -0.0774 -0.1779  0.0279</span></span>
+<span><span class="co">#&gt; E[Y(0)]   0.3370  0.2519  0.4259</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.2596  0.2014  0.3306</span></span>
+<span><span class="co">#&gt; Diff     -0.0774 -0.1738  0.0197</span></span>
 <span></span>
 <span><span class="co"># AME of treat with race = "hispan"</span></span>
-<span><span class="va">est10h</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">race</span> <span class="op">==</span> <span class="st">"hispan"</span>,</span>
+<span><span class="va">est10h</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">race</span> <span class="op">==</span> <span class="st">"hispan"</span>,</span>
 <span>                  contrast <span class="op">=</span> <span class="st">"diff"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10h</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]   0.1745  0.0998  0.2768</span></span>
-<span><span class="co">#&gt; E[Y(1)]   0.1225  0.0555  0.2278</span></span>
-<span><span class="co">#&gt; Diff     -0.0520 -0.1178  0.0187</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]   0.1745  0.1004  0.2771</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.1225  0.0617  0.2296</span></span>
+<span><span class="co">#&gt; Diff     -0.0520 -0.1169  0.0146</span></span></code></pre></div>
 <p>Here, we computed the risk difference for the subgroups
 <code>race == "black"</code> and <code>race == "hispan"</code>. If we
 wanted to compare the risk differences, we could combine them and
@@ -947,7 +947,7 @@ compute a new quantity equal to their difference. We’ll do that
 below.</p>
 <p>First, we need to rename to quantities in each object so they don’t
 overlap; we can do so using <code><a href="https://rdrr.io/r/base/names.html" class="external-link">names()</a></code>, which has a special
-method for <code>simbased_est</code> objects.</p>
+method for <code>clarify_est</code> objects.</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">est10b</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">est10b</span><span class="op">)</span>, <span class="st">"b"</span>, sep <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">est10h</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">est10h</span><span class="op">)</span>, <span class="st">"h"</span>, sep <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span></span></code></pre></div>
@@ -956,30 +956,30 @@ method for <code>simbased_est</code> objects.</p>
 <code class="sourceCode R"><span><span class="va">est10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">est10b</span>, <span class="va">est10h</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]_b   0.3370  0.2556  0.4317</span></span>
-<span><span class="co">#&gt; E[Y(1)]_b   0.2596  0.1992  0.3322</span></span>
-<span><span class="co">#&gt; Diff_b     -0.0774 -0.1779  0.0279</span></span>
-<span><span class="co">#&gt; E[Y(0)]_h   0.1745  0.0998  0.2768</span></span>
-<span><span class="co">#&gt; E[Y(1)]_h   0.1225  0.0555  0.2278</span></span>
-<span><span class="co">#&gt; Diff_h     -0.0520 -0.1178  0.0187</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]_b   0.3370  0.2519  0.4259</span></span>
+<span><span class="co">#&gt; E[Y(1)]_b   0.2596  0.2014  0.3306</span></span>
+<span><span class="co">#&gt; Diff_b     -0.0774 -0.1738  0.0197</span></span>
+<span><span class="co">#&gt; E[Y(0)]_h   0.1745  0.1004  0.2771</span></span>
+<span><span class="co">#&gt; E[Y(1)]_h   0.1225  0.0617  0.2296</span></span>
+<span><span class="co">#&gt; Diff_h     -0.0520 -0.1169  0.0146</span></span></code></pre></div>
 <p>Finally, we can use <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> to compute the
 difference between the risk differences:</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">est10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">est10</span>, `Dh - Db` <span class="op">=</span> <span class="va">Diff_h</span> <span class="op">-</span> <span class="va">Diff_b</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10</span>, est <span class="op">=</span> <span class="st">"Dh - Db"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate    2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]_b  0.33702  0.25555  0.43169</span></span>
-<span><span class="co">#&gt; E[Y(1)]_b  0.25964  0.19920  0.33224</span></span>
-<span><span class="co">#&gt; Diff_b    -0.07739 -0.17794  0.02791</span></span>
-<span><span class="co">#&gt; E[Y(0)]_h  0.17447  0.09976  0.27680</span></span>
-<span><span class="co">#&gt; E[Y(1)]_h  0.12248  0.05549  0.22778</span></span>
-<span><span class="co">#&gt; Diff_h    -0.05199 -0.11785  0.01868</span></span>
-<span><span class="co">#&gt; Dh - Db    0.02540 -0.00712  0.08450</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]_b  0.33702  0.25187  0.42585</span></span>
+<span><span class="co">#&gt; E[Y(1)]_b  0.25964  0.20140  0.33058</span></span>
+<span><span class="co">#&gt; Diff_b    -0.07739 -0.17381  0.01971</span></span>
+<span><span class="co">#&gt; E[Y(0)]_h  0.17447  0.10038  0.27705</span></span>
+<span><span class="co">#&gt; E[Y(1)]_h  0.12248  0.06168  0.22964</span></span>
+<span><span class="co">#&gt; Diff_h    -0.05199 -0.11695  0.01462</span></span>
+<span><span class="co">#&gt; Dh - Db    0.02540 -0.00489  0.07659</span></span></code></pre></div>
 <p>Importantly, <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> can only be used to join together
-<code>simbased_est</code> objects computed using the same simulated
-coefficients (i.e., resulting from the same call to <code>sim()</code>).
+<code>clarify_est</code> objects computed using the same simulated
+coefficients (i.e., resulting from the same call to <code><a href="../reference/sim.html">sim()</a></code>).
 This preserves the covariance among the estimated quantities, which is
-critical for valid inference. That is, <code>sim()</code> should only be
+critical for valid inference. That is, <code><a href="../reference/sim.html">sim()</a></code> should only be
 called once per model, and all derived quantities should be computed
 using its output.</p>
 </div>
@@ -995,25 +995,25 @@ Bayesian terms, this would be considered “mixing draws” and is the
 recommended approach for Bayesian analysis with multiply imputed data
 <span class="citation">(Zhou and Reiter 2010)</span>.</p>
 <p>Using <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> with multiply imputed data is simple.
-Rather than using <code>sim()</code>, we use the function
-<code>misim()</code> (i.e., to <strong>sim</strong>ulate with
+Rather than using <code><a href="../reference/sim.html">sim()</a></code>, we use the function
+<code><a href="../reference/misim.html">misim()</a></code> (i.e., to <strong>sim</strong>ulate with
 <strong>m</strong>ultiply <strong>i</strong>mputed data).
-<code>misim()</code> functions just like <code>sim()</code> except that
+<code><a href="../reference/misim.html">misim()</a></code> functions just like <code><a href="../reference/sim.html">sim()</a></code> except that
 it takes in a list of model fits (i.e, containing a model fit to each
 imputed dataset) or an object containing such a list (e.g., a
 <code>mira</code> object from <code>mice::with()</code> or a
 <code>mimira</code> object from <code>MatchThem::with()</code>).
-<code>misim()</code> simulates coefficient distributions within each
+<code><a href="../reference/misim.html">misim()</a></code> simulates coefficient distributions within each
 imputed dataset and then appends them together to a form a single
 combined set of coefficient draws.</p>
-<p><code>sim_apply()</code> and its wrappers accept the output of
-<code>misim()</code> and compute the desired quantity using each set of
+<p><code><a href="../reference/sim_apply.html">sim_apply()</a></code> and its wrappers accept the output of
+<code><a href="../reference/misim.html">misim()</a></code> and compute the desired quantity using each set of
 coefficients. When these function rely on using a dataset (e.g.,
-<code>sim_ame()</code>, which averages predicted outcomes across all
+<code><a href="../reference/sim_ame.html">sim_ame()</a></code>, which averages predicted outcomes across all
 units in the dataset used to fit the model), they automatically know to
 associate a given coefficient draw with the imputed dataset that was
 used to fit the model that produced that draw. In user-written functions
-supplied to the <code>FUN</code> argument if <code>sim_apply()</code>,
+supplied to the <code>FUN</code> argument if <code><a href="../reference/sim_apply.html">sim_apply()</a></code>,
 it is important to extract the dataset from the model fit. This is
 demonstrated below.</p>
 <p>The final estimates of the quantity of interest is computed as the
@@ -1023,9 +1023,9 @@ quantity that would be computed using standard pooling rules. This is
 not always valid for noncollapsible estimates, like ratios, and so care
 should be taken to ensure the mean of the resulting estimates has a
 valid interpretation.</p>
-<p>The arguments to <code>misim()</code> are as follows:</p>
+<p>The arguments to <code><a href="../reference/misim.html">misim()</a></code> are as follows:</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">misim</span><span class="op">(</span>fitlist <span class="op">=</span> , n <span class="op">=</span> , vcov <span class="op">=</span> , coefs <span class="op">=</span> , dist <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/misim.html">misim</a></span><span class="op">(</span>fitlist <span class="op">=</span> , n <span class="op">=</span> , vcov <span class="op">=</span> , coefs <span class="op">=</span> , dist <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
 <ul>
 <li><p><code>fitslist</code> – a list of model fits or an accepted
 object containing them (e.g., <code>mira</code> object from
@@ -1035,11 +1035,11 @@ imputed dataset. The default is 1000, but fewer can be used because the
 total number of simulated quantities will be <code>m*n</code>, where
 <code>m</code> is the number of imputed datasets.</p></li>
 <li><p><code>vcov</code>, <code>coefs</code>, <code>dist</code> – the
-same as with <code>sim()</code>, except that a list of such arguments
+same as with <code><a href="../reference/sim.html">sim()</a></code>, except that a list of such arguments
 can be supplied to be applied to each imputed dataset.</p></li>
 </ul>
-<p>Below we illustrate using <code>misim()</code> and
-<code>sim_apply()</code> with multiply imputed data. We’ll use the
+<p>Below we illustrate using <code><a href="../reference/misim.html">misim()</a></code> and
+<code><a href="../reference/sim_apply.html">sim_apply()</a></code> with multiply imputed data. We’ll use the
 <code>africa</code> dataset from the <a href="https://gking.harvard.edu/amelia" class="external-link">Amelia</a> package.</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gking.harvard.edu/amelia" class="external-link">Amelia</a></span><span class="op">)</span></span>
@@ -1060,15 +1060,15 @@ can be supplied to be applied to each imputed dataset.</p></li>
 <span><span class="va">model.list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">a.out</span>, <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">gdp_pc</span> <span class="op">~</span> <span class="va">infl</span> <span class="op">*</span> <span class="va">trade</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Simulate coefficients</span></span>
-<span><span class="va">si</span> <span class="op">&lt;-</span> <span class="fu">misim</span><span class="op">(</span><span class="va">model.list</span>, n <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<span><span class="va">si</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/misim.html">misim</a></span><span class="op">(</span><span class="va">model.list</span>, n <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">si</span></span>
-<span><span class="co">#&gt; A `simbased_misim` object</span></span>
+<span><span class="co">#&gt; A `clarify_misim` object</span></span>
 <span><span class="co">#&gt;  - 4 coefficients, 10 imputations with 200 simulated values each</span></span>
 <span><span class="co">#&gt;  - sampled distributions: multivariate t(116)</span></span></code></pre></div>
 <p>The function we’ll be applying to each imputed dataset will be one
 that computes the average marginal effect of <code>infl</code>. (We’ll
-run the same analysis afterward using <code>sim_ame()</code>.)</p>
+run the same analysis afterward using <code><a href="../reference/sim_ame.html">sim_ame()</a></code>.)</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co">#Extract the original dataset using get_predictors()</span></span>
@@ -1082,12 +1082,12 @@ run the same analysis afterward using <code>sim_ame()</code>.)</p>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>AME <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">p1</span> <span class="op">-</span> <span class="va">p0</span><span class="op">)</span><span class="op">/</span><span class="fl">1e-5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">est_mi</span> <span class="op">&lt;-</span> <span class="fu">sim_apply</span><span class="op">(</span><span class="va">si</span>, FUN <span class="op">=</span> <span class="va">sim_fun</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">est_mi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_apply.html">sim_apply</a></span><span class="op">(</span><span class="va">si</span>, FUN <span class="op">=</span> <span class="va">sim_fun</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est_mi</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     Estimate 2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; AME    -5.68 -8.99  -2.29</span></span></code></pre></div>
-<p>Note that <code>sim_apply()</code> “knows” which imputation produced
+<span><span class="co">#&gt; AME    -5.75 -9.10  -2.56</span></span></code></pre></div>
+<p>Note that <code><a href="../reference/sim_apply.html">sim_apply()</a></code> “knows” which imputation produced
 each set of simulated coefficients, so using
 <code><a href="https://easystats.github.io/insight/reference/get_predictors.html" class="external-link">insight::get_predictors()</a></code> on the <code>fit</code> supplied
 to <code>sim_fun()</code> will use the right dataset. Care should be
@@ -1095,9 +1095,9 @@ taken when analyses restrict each imputed dataset in a different way
 (e.g. when matching with a caliper in each one), as the resulting
 imputations may not refer to a specific target population and mixing the
 draws may be invalid.</p>
-<p>Below, we can use <code>sim_ame()</code>:</p>
+<p>Below, we can use <code><a href="../reference/sim_ame.html">sim_ame()</a></code>:</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est_mi2</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">si</span>, var <span class="op">=</span> <span class="st">"infl"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">est_mi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">si</span>, var <span class="op">=</span> <span class="st">"infl"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We get the same results, as expected.</p>
 </div>
 <div class="section level2">
