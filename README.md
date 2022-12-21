@@ -111,7 +111,7 @@ sim_est <- sim_apply(sim_coefs, function(fit) {
 }, verbose = FALSE)
 
 sim_est
-#> A `simbased_est` object (from `sim_apply()`)
+#> A `clarify_est` object (from `sim_apply()`)
 #>  - 1000 simulated values
 #>  - 3 quantities estimated:                   
 #>  E[Y(0)]  0.2944381
@@ -142,7 +142,7 @@ sim_est <- sim_ame(sim_coefs, var = "treat", subset = treat == 1,
                    contrast = "log(RR)", verbose = FALSE)
 
 sim_est
-#> A `simbased_est` object (from `sim_ame()`)
+#> A `clarify_est` object (from `sim_ame()`)
 #>  - Average marginal effect of `treat`
 #>  - 1000 simulated values
 #>  - 3 quantities estimated:                   
@@ -193,10 +193,9 @@ summary(sim_est, null = c(NA, NA, 0, 1))
 #> RR         0.826  0.619  1.391    0.79
 ```
 
-We can also use `{clarify}` to compute predictions and first
-differences at set and typical values of the predictors, mimicking the
-functionality of `Zelig`’s `setx()` and `setx1()` functions, using
-`sim_setx()`:
+We can also use `{clarify}` to compute predictions and first differences
+at set and typical values of the predictors, mimicking the functionality
+of `{Zelig}`’s `setx()` and `setx1()` functions, using `sim_setx()`:
 
 ``` r
 # Predictions across age and treat at typical values

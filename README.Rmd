@@ -113,7 +113,7 @@ sim_est <- transform(sim_est, `RR` = exp(`log(RR)`))
 summary(sim_est, null = c(NA, NA, 0, 1))
 ```
 
-We can also use `{clarify}` to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of `Zelig`'s `setx()` and `setx1()` functions, using `sim_setx()`:
+We can also use `{clarify}` to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of `{Zelig}`'s `setx()` and `setx1()` functions, using `sim_setx()`:
 
 ```{r, fig.width=7, fig.height=3}
 # Predictions across age and treat at typical values
