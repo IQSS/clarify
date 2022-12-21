@@ -6,7 +6,7 @@
 #'   quantities of interest. Capabilities are available for parallelization.
 #'
 #' @param sim a `simbased_sim` object; the output of a call to [sim()] or
-#'   [simmi()].
+#'   [misim()].
 #' @param FUN a function to be applied to each set of simulated coefficients.
 #'   See Details.
 #' @param verbose `logical`; whether to display a text progress bar indicating
@@ -49,7 +49,7 @@
 #'
 #'   ## `sim_apply()` with multiply imputed data
 #'
-#'   When using [simmi()] and `sim_apply()` with multiply imputed data, the
+#'   When using [misim()] and `sim_apply()` with multiply imputed data, the
 #'   coefficients are supplied to the model fit corresponding to the imputation
 #'   identifier associated with each set of coefficients, which means if `FUN`
 #'   uses a dataset extracted from a model, it will do so from the model fit in
@@ -135,7 +135,7 @@ sim_apply <- function(sim,
     }
 
     ests <- sim$sim.coefs
-    if (inherits(sim, "simbased_simmi")) {
+    if (inherits(sim, "simbased_misim")) {
       attr(ests, "original") <- colMeans(sim$coefs)
     }
     else {
@@ -152,7 +152,7 @@ sim_apply <- function(sim,
   opb <- pbapply::pboptions(type = if (verbose) "timer" else "none")
   on.exit(pbapply::pboptions(opb))
 
-  if (inherits(sim, "simbased_simmi")) {
+  if (inherits(sim, "simbased_misim")) {
     nimp <- nrow(sim$coefs)
 
     apply_FUN <- make_apply_FUN_mi(FUN)

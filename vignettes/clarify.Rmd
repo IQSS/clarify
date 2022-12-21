@@ -1,9 +1,9 @@
 ---
-title: "simbased"
+title: "clarify"
 output: rmarkdown::html_vignette
 date: "`r Sys.Date()`"
 vignette: >
-  %\VignetteIndexEntry{simbased}
+  %\VignetteIndexEntry{clarify}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -21,15 +21,15 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-Although regression models are frequently used in empirical research to study relationships among variables, often the quantity of substantive interest is not one of the coefficients of the model, but rather a quantity derived from the coefficients, such as predicted values or average marginal effects. The usual method for estimating the uncertainty of the derived quantities is an approximation known as the "delta method". The delta method involves two approximations: 1) that the variance of the derived quantity can be represented as a first-order Taylor series, and 2) that the resulting estimate is normally distributed[^1].In many cases, especially with nonlinear models, these approximation can fail badly. `{simbased}` implements an alternative to the delta method---simulation-based inference---which involves simulating the sampling distributions of the derived quantities.
+Although regression models are frequently used in empirical research to study relationships among variables, often the quantity of substantive interest is not one of the coefficients of the model, but rather a quantity derived from the coefficients, such as predicted values or average marginal effects. The usual method for estimating the uncertainty of the derived quantities is an approximation known as the "delta method". The delta method involves two approximations: 1) that the variance of the derived quantity can be represented as a first-order Taylor series, and 2) that the resulting estimate is normally distributed[^1].In many cases, especially with nonlinear models, these approximation can fail badly. `{clarify}` implements an alternative to the delta method---simulation-based inference---which involves simulating the sampling distributions of the derived quantities.
 
 [^1]: In addition, most software that uses the delta method uses numerical differentiation, which also involves an approximation.
 
-The methodology `{simbased}` relies on is described in @kingMakingMostStatistical2000. Similar functionality exists in the `clarify` package in Stata [@tomzClarifySoftwareInterpreting2003] and used to be available in the `Zelig` R package [@imaiCommonFrameworkStatistical2008a] . `{simbased}` provides additional flexibility by allowing the user to request any derived quantity, in addition to providing shortcuts for common quantities, including predicted vales at representative values, average marginal effects, and average dose-response functions (described below). `{simbased}` relies on and can be seen as a companion to the `{marginaleffects}` package, which offers similar functionality but uses the delta method for its calculations.
+The methodology `{clarify}` relies on is described in @kingMakingMostStatistical2000. Similar functionality exists in the `clarify` package in Stata [@tomzClarifySoftwareInterpreting2003] and used to be available in the `Zelig` R package [@imaiCommonFrameworkStatistical2008a] . `{clarify}` provides additional flexibility by allowing the user to request any derived quantity, in addition to providing shortcuts for common quantities, including predicted vales at representative values, average marginal effects, and average dose-response functions (described below). `{clarify}` relies on and can be seen as a companion to the `{marginaleffects}` package, which offers similar functionality but uses the delta method for its calculations.
 
-## Using `{simbased}`
+## Using `{clarify}`
 
-There are four steps to using `{simbased}`:
+There are four steps to using `{clarify}`:
 
 1.  Fit the model to the data using modeling functions in supported packages
 
@@ -39,13 +39,13 @@ There are four steps to using `{simbased}`:
 
 4.  Use `summary()` and `plot()` to summarize and visualize the distribution of the derived quantities and perform inference on them
 
-In the sections below, we'll describe how to implement these steps in detail. First, we'll load `{simbased}` using `library()`.
+In the sections below, we'll describe how to implement these steps in detail. First, we'll load `{clarify}` using `library()`.
 
 ```{r setup}
-library(simbased)
+library(clarify)
 ```
 
-For a running example, we'll use the `lalonde` dataset in the `{MatchIt}` package, which contains data on 614 participants enrolled in a job training program or sampled from a survey. The treatment variable is `treat` and the outcome is `re78`, and all other variables are confounders. Although the original intent was to estimate the effect of `treat` on `re78`, we'll use it more generally to demonstrate all of `{simbased}`'s capabilities. In addition, we'll use a transformation of the outcome variable to demonstrate applications to nonlinear models.
+For a running example, we'll use the `lalonde` dataset in the `{MatchIt}` package, which contains data on 614 participants enrolled in a job training program or sampled from a survey. The treatment variable is `treat` and the outcome is `re78`, and all other variables are confounders. Although the original intent was to estimate the effect of `treat` on `re78`, we'll use it more generally to demonstrate all of `{clarify}`'s capabilities. In addition, we'll use a transformation of the outcome variable to demonstrate applications to nonlinear models.
 
 ```{r}
 data("lalonde", package = "MatchIt")
@@ -57,7 +57,7 @@ head(lalonde)
 
 ## 1. Fitting the model
 
-The first step is to fit the model. `{simbased}` can operate on a large set of models (those supported by `{marginaleffects}`), including generalized linear models, multinomial models, multivariate models, and instrumental variable models, many of which are available in other R packages. Even if `{simbased}` does not offer direct support for a given model, there are ways to use its functionality regardless (explained in more detail below).
+The first step is to fit the model. `{clarify}` can operate on a large set of models (those supported by `{marginaleffects}`), including generalized linear models, multinomial models, multivariate models, and instrumental variable models, many of which are available in other R packages. Even if `{clarify}` does not offer direct support for a given model, there are ways to use its functionality regardless (explained in more detail below).
 
 Because we are computing derived quantities, it is not critical to parameterize the model in such a way that the coefficients are interpretable. Below, we'll fit a probit regression model for the outcome given the treatment and confounders.
 
@@ -87,7 +87,7 @@ sim(fit = , n = , vcov = , coefs = , dist = )
 
 -   `dist` -- the name of the distribution from which to draw the sampled coefficients. Can be `"normal"` for a normal distribution or `t(#)` for a t-distribution, where `#` represents the degrees of freedom. If left unspecified, `sim()` will decide on which distribution makes sense given the characteristics of the model (the decision is made by `insight::get_df()` with `type = "wald"`). Typically this does not need to be specified.
 
-If your model is not supported by `{simbased}`, you can omit the `fit` argument and just specify the `vcov` and `coefs` argument, which will draw the coefficients from the distribution named in `dist` (`"normal"` by default).
+If your model is not supported by `{clarify}`, you can omit the `fit` argument and just specify the `vcov` and `coefs` argument, which will draw the coefficients from the distribution named in `dist` (`"normal"` by default).
 
 `sim()` uses a random number generator to draw the sampled coefficients from the sampling distribution, so a seed should be set using `set.seed()` to ensure results are replicable across sessions.
 
@@ -156,7 +156,7 @@ est2
 
 The function `FUN` can be arbitrarily complicated and return as many derived quantities as you want, though the slower each run of `FUN` is, the longer it will take to simulate the derived quantities. Using parallel processing by supplying an argument to `cl` can sometimes dramatically speed up evaluation.
 
-There are several functions in `{simbased}` that serve as convenience wrappers for `sim_apply()` to automate some common derived quantities of interest. These include
+There are several functions in `{clarify}` that serve as convenience wrappers for `sim_apply()` to automate some common derived quantities of interest. These include
 
 -   `sim_setx()` -- computing predicted values and first differences at representative or user-specified values of the predictors
 
@@ -228,7 +228,7 @@ The uncertainty intervals and p-values in the `summary()` output are computed us
 
 # `sim_apply()` wrappers: `sim_setx()`, `sim_ame()`, `sim_adrf()`
 
-`sim_apply()` can be used to compute the simulated sampling distribution for any arbitrary derived quantity of interest, but there are some quantities that are common in applied research and may otherwise be somewhat challenging to program on their own, so `{simabsed}` provides shortcut functions to make computing these quantities simple. These functions include `sim_setx()`, `sim_ame()`, and `sim_adrf()`. Each of these can only be used when regression models compatible with `{simbased}` are supplied to the original call to `sim()`.
+`sim_apply()` can be used to compute the simulated sampling distribution for any arbitrary derived quantity of interest, but there are some quantities that are common in applied research and may otherwise be somewhat challenging to program on their own, so `{simabsed}` provides shortcut functions to make computing these quantities simple. These functions include `sim_setx()`, `sim_ame()`, and `sim_adrf()`. Each of these can only be used when regression models compatible with `{clarify}` are supplied to the original call to `sim()`.
 
 Like `sim_apply()`, each of these functions is named `sim_*()`, which signifies that they are to be used on an object produced by `sim()` (i.e., a `simbased_sim` object). (Multiple calls to these functions can be applied to the same `simbased_sim` object and combined; see the `cbind()` section below.) These functions are described below.
 
@@ -236,7 +236,7 @@ Like `sim_apply()`, each of these functions is named `sim_*()`, which signifies 
 
 `sim_setx()` provides an interface to compute predictions at representative and user-supplied values of the predictors. For example, we might want to know what the effect of treatment is for a "typical" individual, which corresponds to the contrast between two model-based predictions (i.e., one under treatment and one under control for a unit with "typical" covariate values). This functionality mirrors the `setx()` and `setx1()` functionality of `{Zelig}` and provides similar functionality to functions in `{modelbased}`, `{emmeans}`, `{effects}`, and `{ggeffects}`.
 
-For each covariate, the user can specify whether they want predictions at specific values or at "typical" values, which are defined in `{simbased}` as the mode for unordered categorical and binary variables, the median for ordered categorical variables, and the mean for continuous variables. Predictions for multiple covariate combinations can be requested by specifying values that will be used to create a grid of covariate values. In addition, the "first difference", defined here as the difference between predictions for two covariate combinations, can be computed.
+For each covariate, the user can specify whether they want predictions at specific values or at "typical" values, which are defined in `{clarify}` as the mode for unordered categorical and binary variables, the median for ordered categorical variables, and the mean for continuous variables. Predictions for multiple covariate combinations can be requested by specifying values that will be used to create a grid of covariate values. In addition, the "first difference", defined here as the difference between predictions for two covariate combinations, can be computed.
 
 The arguments to `sim_setx()` are as follows:
 
@@ -484,7 +484,7 @@ The same value would be computed if we were to have called `sim_ame()` on the sa
 
 ### `cbind()`
 
-`cbind()` is another generic R function that is typically used to combine two or more datasets columnwise (i.e., to widen a dataset). In `simbased`, `cbind()` can be used to combine two `simbased_est` objects so that the estimates can be examined jointly and so that it is possible to compare them directly. For example, let's say we computed AMEs in two subgroups and wanted to compare them. To do so, we would call `sim_ame()` twice, one for each subset:
+`cbind()` is another generic R function that is typically used to combine two or more datasets columnwise (i.e., to widen a dataset). In `clarify`, `cbind()` can be used to combine two `simbased_est` objects so that the estimates can be examined jointly and so that it is possible to compare them directly. For example, let's say we computed AMEs in two subgroups and wanted to compare them. To do so, we would call `sim_ame()` twice, one for each subset:
 
 ```{r}
 # AME of treat with race = "black"
@@ -523,7 +523,7 @@ summary(est10, est = "Dh - Db")
 
 Importantly, `cbind()` can only be used to join together `simbased_est` objects computed using the same simulated coefficients (i.e., resulting from the same call to `sim()`). This preserves the covariance among the estimated quantities, which is critical for valid inference. That is, `sim()` should only be called once per model, and all derived quantities should be computed using its output.
 
-# Using `{simbased}` with multiply imputed data
+# Using `{clarify}` with multiply imputed data
 
 ```{r, include=F}
 amelia_ok <- requireNamespace("Amelia", quietly = TRUE)
@@ -532,16 +532,16 @@ amelia_ok <- requireNamespace("Amelia", quietly = TRUE)
 
 Simulation-based inference in multiply imputed data is relatively straightforward. Simulated coefficients are drawn from the model estimated in each imputed dataset separately, and then the simulated coefficients are pooled into a single set of simulated coefficients. In Bayesian terms, this would be considered "mixing draws" and is the recommended approach for Bayesian analysis with multiply imputed data [@zhouNoteBayesianInference2010].
 
-Using `{simbased}` with multiply imputed data is simple. Rather than using `sim()`, we use the function `simmi()` (i.e., to **sim**ulate with **m**ultiply **i**mputed data). `simmi()` functions just like `sim()` except that it takes in a list of model fits (i.e, containing a model fit to each imputed dataset) or an object containing such a list (e.g., a `mira` object from `mice::with()` or a `mimira` object from `MatchThem::with()`). `simmi()` simulates coefficient distributions within each imputed dataset and then appends them together to a form a single combined set of coefficient draws.
+Using `{clarify}` with multiply imputed data is simple. Rather than using `sim()`, we use the function `misim()` (i.e., to **sim**ulate with **m**ultiply **i**mputed data). `misim()` functions just like `sim()` except that it takes in a list of model fits (i.e, containing a model fit to each imputed dataset) or an object containing such a list (e.g., a `mira` object from `mice::with()` or a `mimira` object from `MatchThem::with()`). `misim()` simulates coefficient distributions within each imputed dataset and then appends them together to a form a single combined set of coefficient draws.
 
-`sim_apply()` and its wrappers accept the output of `simmi()` and compute the desired quantity using each set of coefficients. When these function rely on using a dataset (e.g., `sim_ame()`, which averages predicted outcomes across all units in the dataset used to fit the model), they automatically know to associate a given coefficient draw with the imputed dataset that was used to fit the model that produced that draw. In user-written functions supplied to the `FUN` argument if `sim_apply()`, it is important to extract the dataset from the model fit. This is demonstrated below.
+`sim_apply()` and its wrappers accept the output of `misim()` and compute the desired quantity using each set of coefficients. When these function rely on using a dataset (e.g., `sim_ame()`, which averages predicted outcomes across all units in the dataset used to fit the model), they automatically know to associate a given coefficient draw with the imputed dataset that was used to fit the model that produced that draw. In user-written functions supplied to the `FUN` argument if `sim_apply()`, it is important to extract the dataset from the model fit. This is demonstrated below.
 
 The final estimates of the quantity of interest is computed as the mean of the estimates computed in each imputed dataset (i.e., using the original coefficients, not the simulated ones), which is the same quantity that would be computed using standard pooling rules. This is not always valid for noncollapsible estimates, like ratios, and so care should be taken to ensure the mean of the resulting estimates has a valid interpretation.
 
-The arguments to `simmi()` are as follows:
+The arguments to `misim()` are as follows:
 
 ``` r
-simmi(fitlist = , n = , vcov = , coefs = , dist = )
+misim(fitlist = , n = , vcov = , coefs = , dist = )
 ```
 
 -   `fitslist` -- a list of model fits or an accepted object containing them (e.g., `mira` object from `mice::with()`)
@@ -550,7 +550,7 @@ simmi(fitlist = , n = , vcov = , coefs = , dist = )
 
 -   `vcov`, `coefs`, `dist` -- the same as with `sim()`, except that a list of such arguments can be supplied to be applied to each imputed dataset.
 
-Below we illustrate using `simmi()` and `sim_apply()` with multiply imputed data. We'll use the `africa` dataset from the `{Amelia}` package.
+Below we illustrate using `misim()` and `sim_apply()` with multiply imputed data. We'll use the `africa` dataset from the `{Amelia}` package.
 
 ```{r, eval = amelia_ok}
 library(Amelia)
@@ -564,7 +564,7 @@ a.out <- amelia(x = africa, m = 10, cs = "country",
 model.list <- with(a.out, lm(gdp_pc ~ infl * trade))
 
 # Simulate coefficients
-si <- simmi(model.list, n = 200)
+si <- misim(model.list, n = 200)
 
 si
 ```

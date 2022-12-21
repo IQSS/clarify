@@ -218,7 +218,7 @@ test_that("sim() works with betareg::betareg()", {
                           data = mdata, weights = weights)
 
   if (length(marginaleffects::get_coef(fit)) != 10L) {
-    skip("disagreement between `marginaleffects` and `simbased` treatment of `betareg` obejcts")
+    skip("disagreement between `marginaleffects` and `clarify` treatment of `betareg` obejcts")
   }
 
   s <- sim(fit, n = 5)

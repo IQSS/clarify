@@ -7,4 +7,3 @@
 ^pkgdown$
 ^\.github$
 ^\_dev$
-^vignettes/Zelig\.Rmd

@@ -37,21 +37,29 @@ Cannot accept `fixest.multi` models, i.e., resulting from multiple models being 
 
 * `rms::ols()`, `rms::lrm()`
 
+* `robustbase::lmrob()`, `robustbase::glmrob()`
+
+* `robust::lmRob()`, `robust::glmRob()`
+
+* `AER::tobit()`
+
 * Multiply imputed data (fit list or `mids`)
 
-Need to add tests and examples
+Need to add examples
+
+* `ivreg` models
 
 ## Models to add
 
 * `survival` models (incl. `rms::cph()`)
-
-* `ivreg` models
 
 * `gam` models
 
 * `estimatr::iv_robust()`
 
 Only operates on second stage model. NOTE: bug in `estimatr` preventing full use.
+
+* Quantile regression (`quantreg::rq()`)
 
 ### Way down the road
 
@@ -69,13 +77,15 @@ Probably want an `as.sim()` method to use posterior as simulated values. May als
 
 Returns a `brms` object.
 
+* SEM (`lavaan`)
+
 ## Adding new models
 
 * Add `transform_coefs()` (probably okay unless `coef()` doesn't return a vector)
 * Add `get_vcov()` (probably okay)
 * Add `get_df()` (probably set to `Inf` unless model is a linear model fit with OLS)
+* Add `get_coef_location()` (probably `"coefficients"`)
 * Add `get_coef_template()` (probably okay unless coefficients stored in unusual way)
 * Add `untransform_coefs()` (probably okay unless coefficients stored in unusual way)
-* Add `get_coef_location()` (probably `"coefficients"`)
-* Add `simbased_predict()` (probably okay unless multivariate)
+* Add `simbased_predict()`
 * Add test to `test-sim.R` and `test-sim_ame.R`

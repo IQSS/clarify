@@ -73,7 +73,7 @@ sim_adrf <- function(sim,
   check_sim_apply_wrapper_ready(sim)
 
   chk::chk_flag(verbose)
-  is_simmi <- inherits(sim, "simbased_simmi")
+  is_misim <- inherits(sim, "simbased_misim")
 
   if (missing(var)) {
     .err("`var` must be supplied, identifying the focal variable")
@@ -86,7 +86,7 @@ sim_adrf <- function(sim,
   contrast <- tolower(contrast)
   contrast <- match_arg(contrast, c("adrf", "amef"))
 
-  if (is_simmi) {
+  if (is_misim) {
     dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors))
   }
   else {
@@ -108,10 +108,10 @@ sim_adrf <- function(sim,
 
   index.sub <- substitute(subset)
   sim$fit <- attach_pred_data_to_fit(sim$fit, index.sub = index.sub,
-                                     is_fitlist = is_simmi)
+                                     is_fitlist = is_misim)
 
   #Test to make sure compatible
-  if (is_simmi) {
+  if (is_misim) {
     test_dat <- get_pred_data_from_fit(sim$fit[[1]])
     test_predict <- simbased_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
   }

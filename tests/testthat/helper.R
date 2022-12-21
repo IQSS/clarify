@@ -38,8 +38,8 @@ expect_good_simbased_est <- function(e) {
   expect_false(any(apply(e, 2, all_the_same)))
 }
 
-expect_good_simbased_simmi <- function(s) {
-  expect_s3_class(s, "simbased_simmi")
+expect_good_simbased_misim <- function(s) {
+  expect_s3_class(s, "simbased_misim")
   expect_s3_class(s, "simbased_sim")
   expect_true(all(c("sim.coefs", "coefs", "imp") %in% names(s)))
 

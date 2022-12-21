@@ -1,5 +1,5 @@
 data("lalonde", package = "MatchIt")
-library(simbased)
+library(clarify)
 
 lalonde$re78_0 <- as.numeric(lalonde$re78 == 0)
 

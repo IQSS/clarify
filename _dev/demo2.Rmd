@@ -1,0 +1,270 @@
+---
+title: "clarify demo"
+author: "Noah Greifer"
+date: "2022-10-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      fig.width = 7,
+                      fig.height = 3.5,
+                      fig.align = "center",
+                      message = FALSE)
+```
+
+This is a demo of `clarify`, a general-purpose package for simulation-based inference of post-estimation quantities from regression models.
+
+We'll load in the `lalonde` dataset that comes with `MatchIt`.
+
+```{r}
+#Loading in lalonde dataset
+data("lalonde", package = "MatchIt")
+
+#Attaching `clarify`
+library(clarify)
+```
+
+We can fit a regression model and estimate derived quantities, using simulation to approximate their sampling distribution without relying on delta-method approximations.
+
+```{r}
+#Fitting treatment effect model on binary outcome
+fit <- glm(I(re78 > 0) ~ treat + age + educ + race + 
+             married + nodegree + re74 + re75,
+           data = lalonde, family = binomial)
+```
+
+## Simulate coefficients with `sim()`
+
+The first step is simulate the model coefficients from a multivariate normal or t-distribution using `sim()`. Users can supply their own covariance matrix or a function for extracting them:
+
+```{r}
+set.seed(543)
+
+#Simulate 1000 coefficients, use robust SE
+s <- sim(fit, n = 1e3, vcov = sandwich::vcovHC)
+s
+```
+
+## Computing arbitrary quantities using `sim_apply()`
+
+`clarify` provides a general-purpose interface for estimating any derived quantity (`sim_apply()`) as well as two convenience functions for estimating commonly estimated quantities, namely `sim_ame()` for estimating average marginal effects and `sim_setx()` for estimating marginal predictions and first differences at representative values.
+
+We'll use `sim_apply()` to manually estimate a derived quantity, the product of two coefficients:
+
+```{r}
+est_fun <- function(fit) {
+  prod <- coef(fit)["racewhite"] * coef(fit)["racehispan"]
+  return(c(`w * h` = unname(prod)))
+}
+e <- sim_apply(s, est_fun)
+e
+summary(e)
+plot(e)
+```
+
+`summary()` has options to display a p-value by specifying the null value of a hypothesis test for the estimated quantity:
+
+```{r}
+summary(e, null = 1)
+```
+
+One can also set `normal = TRUE` to compute Wald-style confidence intervals and p-values using the standard deviation of the estimates. Below we compare this with delta-method estimates.
+
+```{r}
+summary(e, null = 1, normal = TRUE)
+
+#Using delta method
+marginaleffects::deltamethod(fit, FUN = est_fun, vcov = "HC3")
+```
+
+
+## Compute average marginal effects using `sim_ame()`
+
+Next we'll use `sim_ame()` to estimate an average marginal effect. For binary and categorical variables, this involves computing the expected potential outcomes, and, optionally, computing an effect measure to contrast them. For continuous variables, this involves computing the average of the derivatives with respect to that variable.
+
+```{r}
+#Estimating ATE of treat
+e <- sim_ame(s, var = "treat", contrast = "rd")
+e
+summary(e)
+```
+
+If we want a different effect measure, we can use `transform()` to compute a new quantity from the estimated quantities:
+
+```{r}
+#Computing risk ratio from expected POs
+summary(e |> transform(`RR` = `E[Y(1)]` / `E[Y(0)]`))
+```
+
+Next we'll look at a continuous variable:
+
+```{r}
+#Computing AME of age
+e <- sim_ame(s, var = "age")
+e
+summary(e)
+```
+
+## Computing average dose-response functions using `sim_adrf()`
+
+We'll use `sim_adrf()` to estimate the average does-response function (ADRF) for `age`, which estimates the average marginal means at each level of `age`.
+
+```{r}
+e <- sim_adrf(s, var = "age")
+e
+plot(e)
+```
+
+We can also estimate the average marginal effect function, which is the derivative of the (ADRF):
+
+```{r}
+e <- sim_adrf(s, var = "age", contrast = "amef")
+e
+plot(e)
+```
+
+
+## Computing predictions at representative values using `sim_setx()`
+
+Next we'll use `sim_setx()` to estimate marginal predictions at representative values of the predictors.
+
+```{r}
+#Predicted values at cross of treat levels and race levels
+e <- sim_setx(s, x = list(treat = 0:1, race = c("black", "hispan", "white")),
+              verbose = FALSE)
+e
+summary(e)
+plot(e)
+```
+
+We can compute first differences using the `x1` argument, like in `Zelig`:
+
+```{r}
+#Difference between Black and white with college and typical values
+#of other covariates
+e <- sim_setx(s, x = list(race = "white", educ = 16),
+              x1 = list(race = "black", educ = 16))
+e
+summary(e)
+```
+
+When looking at predictions across levels of a continuous variable, we get different kind of plot:
+
+```{r}
+#Predicted values at treat levels and wide range of re74 values
+e <- sim_setx(s, x = list(treat = 0:1, re74 = seq(0, 100000, len = 101)))
+e
+plot(e)
+```
+
+Notice that the confidence intervals never exceed the bounds of the variable, which would not be the case for delta method-based intervals.
+
+## Simulating coefficients for multiply imputed data using `simmi()`
+
+`clarify` is compatible with models fit in multiply imputed data. The function `simmi()` simulates coefficients from each imputation and appends them (i.e., "mixes the draws"). Here we use a complicated example that involves propensity score matching using the `MatchThem` package.
+
+```{r}
+#Load dataset with missingness
+data("lalonde_mis", package = "cobalt")
+
+#Multiple imputation, 20 imputations
+imp <- mice::mice(lalonde_mis, m = 20, print = FALSE)
+
+#Matching within each imputed dataset
+m.out <- MatchThem::matchthem(treat ~ age + educ + race + married +
+                                nodegree + re74 + re75,
+                              datasets = imp)
+
+#Fitting outcome model with a few covariates
+library(survey)
+fits <- with(m.out, svyglm(I(re78 > 0) ~ treat * (married + re74 + re75),
+                           family = quasibinomial))
+
+#Simulating coefficients from each imputation
+s <- simmi(fits, n = 100)
+s
+```
+
+We can estimate the ATT on the risk difference scale using `sim_ame()`, which is compatible with `simmi()`:
+
+```{r}
+#Estimating ATT of treat across imputations
+e <- sim_ame(s, "treat", subset = treat == 1, contrast = "rd",
+             verbose = TRUE, cl = 4)
+e
+summary(e)
+plot(e)
+```
+
+Same as above but using `Amelia`.
+
+```{r}
+#Load dataset with missingness
+data("lalonde_mis", package = "cobalt")
+
+#Multiple imputation, 20 imputations
+imp <- Amelia::amelia(lalonde_mis, m = 20, noms = c("race"),
+                      ords = c("married", "nodegree"))
+
+#Fitting outcome model with a few covariates
+fits <- lapply(imp$imputations, function(d) {
+  glm(I(re78 > 0) ~ treat + age + educ + race + 
+             married + nodegree + re74 + re75,
+           data = d, family = binomial)
+})
+
+#Simulating coefficients from each imputation
+s <- simmi(fits, n = 100)
+s
+```
+
+We can estimate the ATT on the risk difference scale using `sim_ame()`, which is compatible with `simmi()`:
+
+```{r}
+#Estimating ATT of treat across imputations
+e <- sim_ame(s, "treat", subset = treat == 1, contrast = "rd",
+             verbose = TRUE, cl = 4)
+e
+summary(e)
+plot(e)
+```
+## Notes
+
+### Models supported and tested:
+
+* `stats::lm()`
+* `stats::glm()`
+* `MASS::glm.nb()`
+* `survey::svyglm()`
+* `estimatr::lm_robust()`
+* `fixest::feols()`, `fixest::feglm()`, `fixest::femlm()`, etc.
+* `betareg::betareg()`
+* `logistf` models (`logistf::logistf()`, `logistf::flic()`, `logistf::flac()`)
+* `geepack::geeglm()`
+* `rms::ols()`, `rms::lrm()`
+* `robustbase::lmrob()`, `robustbase::glmrob()`
+* `robust::lmRob()`, `robust::glmRob()`
+* `AER::tobit()`
+
+### Models in progress:
+
+* Survival models (`survival::coxph()`, `survival::survreg()`, `rms::cph()`)
+* GAM models (`mgcv::gam()`)
+* `ivreg` models
+* Quantile regression (`quantreg::rq()`)
+
+### Future models:
+
+* Bayesian models (`brms::brm()`)
+* Multinomial regression (`nnet::multinom()`, `mlogit::mlogit()`, `mclogit::mblogit()`)
+* Ordinal regression (`MASS::polr()`, `rms::olr()`, `geepack::ordgee()`)
+* SEM (`lavaan`)
+* Mixed models (`lme4::lmer()`, `lme4::glmer()`, `nlme::lme()`, `glmmTMB::glmmTMB()`)
+
+### Comparison to `simluate` package:
+
+* `simulate` only computes predictions at representative values; `clarify` is a general-purpose tools for simulation-based inference, providing shortcuts for predictions at representative values and average marginal effects.
+* `simulate` only provides support for `glm`, `lm`, and `betareg` models; `clarify` provides support for these and many other related models, including unit tests for each class.
+* `simulate` uses the standard variance of the coefficients; `clarify` allows custom variances.
+* `simulate` use sequential computation; `clarify` supports parallel computation.

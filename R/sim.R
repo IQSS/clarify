@@ -21,7 +21,7 @@
 #' When a multivariate normal is used, it is sampled from with means equal to the estimated coefficients and the parameter covariance matrix as the covariance matrix using [mvnfast::rmvn()]. When a multivariate t distribution is used, it is sampled from with means equal to the estimated coefficients and scaling matrix equal to `cov*(df - 2)/df`, where `cov` is the parameter covariance matrix and `df` is the residual degrees of freedom for the model, using [mvnfast::rmvt()].
 #'
 #' @seealso
-#' * [simmi()] for simulating model coefficients after multiple imputation
+#' * [misim()] for simulating model coefficients after multiple imputation
 #' * [sim_apply()] for applying a function to each set of simulated coefficients
 #' * [sim_ame()] for computing average marginal effects in each simulation draw
 #' * [sim_setx()] for computing marginal predictions and first differences at typical values in each simulation draw

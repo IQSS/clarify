@@ -1,13 +1,22 @@
-Package: simbased
+Package: clarify
 Type: Package
 Title: Simulation-Based Inference for Regression Models
-Version: 0.1.0
+Version: 0.0.0.9001
 Authors@R: c(
   person("Noah", "Greifer", role = c("aut", "cre"), 
          email = "ngreifer@iq.harvard.edu",
-	       comment = c(ORCID="0000-0003-3067-7154"))
+	       comment = c(ORCID="0000-0003-3067-7154")),
+	person("Steve", "Worthington", role = c("aut"), 
+         email = "sworthington@iq.harvard.edu",
+	       comment = c(ORCID="0000-0001-9550-5797")),
+	person("Stefano", "Iacus", role = c("aut"), 
+         email = "siacus@iq.harvard.edu",
+	       comment = c(ORCID="0000-0002-4884-0047")),
+	person("Gary", "King", role = c("aut"), 
+         email = "king@harvard.edu",
+	       comment = c(ORCID="0000-0002-5327-7631"))
   )
-Description: Performs simulation-based inference as an alternative to the delta method for obtaining valid confidence intervals and p-values, which is especially useful when the resulting quantity is not normally distributed and the delta method approximation fails. The framework for simulation-based inference is described in King, Tomz, and Wittenberg (2000) <doi:10.2307/2669316>.
+Description: Performs simulation-based inference as an alternative to the delta method for obtaining valid confidence intervals and p-values, which is especially useful when the resulting quantity is not normally distributed and the delta method approximation fails. The framework for simulation-based inference is described in King, Tomz, and Wittenberg (2000) <doi:10.2307/2669316>. 'clarify' is meant to replace some of the functionality of 'Zelig'; see the vignette "Translating Zelig to clarify" for replicating this functionality.
 License: GPL (>= 3)
 Encoding: UTF-8
 Depends: R (>= 3.5.0)
@@ -25,13 +34,13 @@ Suggests:
     parallel,
     knitr,
     rmarkdown,
-    Zelig, Amelia,
+    Amelia,
     MASS, betareg, survey, estimatr, fixest, logistf, geepack, rms,
     robustbase, robust, AER, ivreg, mgcv, sandwich
 Config/testthat/edition: 3
 RoxygenNote: 7.2.2
 Roxygen: list(markdown = TRUE)
-URL: https://github.com/ngreifer/simbased,
-    https://ngreifer.github.io/simbased/
-BugReports: https://github.com/ngreifer/simbased/issues
+URL: https://github.com/ngreifer/clarify,
+    https://ngreifer.github.io/clarify/
+BugReports: https://github.com/ngreifer/clarify/issues
 VignetteBuilder: knitr

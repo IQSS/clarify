@@ -124,7 +124,7 @@ Ops.simbased_est <- function(e1, e2 = NULL) {
     }
 
     if (!identical(attr(e1, "hash"), attr(e2, "hash"))) {
-      .err(sprintf("`%s` can only be used on `simbased_est` objects originating from calls applied to the same `simbased-sim` object",
+      .err(sprintf("`%s` can only be used on `simbased_est` objects originating from calls applied to the same `clarify-sim` object",
                    .Generic))
     }
 
