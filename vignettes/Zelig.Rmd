@@ -24,8 +24,8 @@ In this document, we demonstrate some common uses of `{Zelig}` [@imaiCommonFrame
 
 The usual workflow in `{Zelig}` is to fit a model using `zelig()`, specify quantities of interest to simulate using `setx()` on the `zelig()` output, and then simulate those quantities using `sim()`. `{clarify}` uses a similar approach, except that the model is fit outside `{clarify}` using functions in a different R package. In addition, `{clarify}`'s `sim_apply()` allows for the computation of any arbitrary quantity of interest. We'll demonstrate how to replicate a standard `{Zelig}` analysis using `{clarify}` step-by-step. Because simulation-based inference involves randomness and some of the algorithms may not perfectly align, one shouldn't expect results to be identical, though in most cases, they should be similar.
 
-```{r, eval = 2:3}
-library("Zelig")
+```{r}
+## library("Zelig")
 library("clarify")
 set.seed(100)
 ```
@@ -294,7 +294,7 @@ plot(fit)
 
 ### `{clarify}` workflow
 
-`{clarify}` does not combine coefficients, unlike `zelig()`; instead, the models should be fit using `Amelia::with()` and combined using `Amelia::mi.combine()`.
+`{clarify}` does not combine coefficients, unlike `zelig()`; instead, the models should be fit using `Amelia::with()`. To view the combined coefficient estimates, use `Amelia::mi.combine()`.
 
 ```{r}
 #Use Amelia functions to model and combine coefficients
@@ -303,7 +303,7 @@ fits <- with(a.out, lm(gdp_pc ~ infl * trade))
 mi.combine(fits)
 ```
 
-Derived quantities can be computed using `clarify::misim()` and `sim_apply()` or its wrappers:
+Derived quantities can be computed using `clarify::misim()` and `sim_apply()` or its wrappers on the `with()` output, which is a list of regression model fits:
 
 ```{r}
 #Simulate coefficients, 100 in each of 10 imputations
