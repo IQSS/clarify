@@ -118,9 +118,9 @@ which package’s <code><a href="../reference/sim.html">sim()</a></code> is bein
 <div class="section level2">
 <h2 id="predictions-at-representative-values">Predictions at representative values<a class="anchor" aria-label="anchor" href="#predictions-at-representative-values"></a>
 </h2>
-<p>Here we’ll use the <code>lalonde</code> dataset and fit a linear
-model for <code>re78</code> as a function of the treatment
-<code>treat</code> and covariates.</p>
+<p>Here we’ll use the <code>lalonde</code> dataset in
+<a href="https://kosukeimai.github.io/MatchIt/" class="external-link">MatchIt</a> and fit a linear model for <code>re78</code> as a
+function of the treatment <code>treat</code> and covariates.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"MatchIt"</span><span class="op">)</span></span></code></pre></div>
 <p>We’ll be interested in the predicted values of the outcome for a
@@ -156,7 +156,7 @@ differences:</p>
 </h3>
 <p>In <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a>, we fit the model using functions outside
 <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a>, like <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm()</a></code> in the
-<code>{stats}</code> package or <code>feols</code> in the
+<code>{stats}</code> package or <code>feols()</code> in the
 <a href="https://lrberge.github.io/fixest/" class="external-link">fixest</a> package.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
@@ -224,8 +224,7 @@ logistic regression in <a href="https://cran.r-project.org/package=Zelig" class=
 <span></span>
 <span><span class="va">fit</span></span></code></pre></div>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Plotting is bugged</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="clarify-workflow-1">
@@ -409,8 +408,8 @@ across imputations.</p>
 </h3>
 <p><a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> does not combine coefficients, unlike
 <code>zelig()</code>; instead, the models should be fit using
-<code>Amelia::with()</code> and combined using
-<code><a href="https://rdrr.io/pkg/Amelia/man/mi.combine.html" class="external-link">Amelia::mi.combine()</a></code>.</p>
+<code>Amelia::with()</code>. To view the combined coefficient estimates,
+use <code><a href="https://rdrr.io/pkg/Amelia/man/mi.combine.html" class="external-link">Amelia::mi.combine()</a></code>.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Use Amelia functions to model and combine coefficients</span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">a.out</span>, <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">gdp_pc</span> <span class="op">~</span> <span class="va">infl</span> <span class="op">*</span> <span class="va">trade</span><span class="op">)</span><span class="op">)</span></span>
@@ -425,7 +424,8 @@ across imputations.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> infl:trade    -<span style="color: #BB0000;">0.290</span>     0.140     -<span style="color: #BB0000;">2.07</span> 1.96<span style="color: #949494;">e</span>+ 0  <span style="text-decoration: underline;">954</span>984. 0.003<span style="text-decoration: underline;">08</span>   0.003<span style="text-decoration: underline;">07</span></span></span></code></pre></div>
 <p>Derived quantities can be computed using
 <code><a href="../reference/misim.html">clarify::misim()</a></code> and <code><a href="../reference/sim_apply.html">sim_apply()</a></code> or its
-wrappers:</p>
+wrappers on the <code><a href="https://rdrr.io/r/base/with.html" class="external-link">with()</a></code> output, which is a list of
+regression model fits:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Simulate coefficients, 100 in each of 10 imputations</span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/misim.html">misim</a></span><span class="op">(</span><span class="va">fits</span>, n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
@@ -474,7 +474,7 @@ Medicine</em> 36 (14): 2302–17. <a href="https://doi.org/10.1002/sim.7273" cla
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Noah Greifer, Steve Worthington, Stefano Iacus, Gary King.</p>
+<p>Developed by Noah Greifer, Steven Worthington, Stefano Iacus, Gary King.</p>
 </div>
 
 <div class="pkgdown-footer-right">

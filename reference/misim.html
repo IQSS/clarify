@@ -122,12 +122,32 @@
 </ul></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"africa"</span>, package <span class="op">=</span> <span class="st">"Amelia"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Multiple imputation using Amelia</span></span></span>
+<span class="r-in"><span><span class="va">a.out</span> <span class="op">&lt;-</span> <span class="fu">Amelia</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Amelia/man/amelia.html" class="external-link">amelia</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">africa</span>, m <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>                        cs <span class="op">=</span> <span class="st">"country"</span>,</span></span>
+<span class="r-in"><span>                        ts <span class="op">=</span> <span class="st">"year"</span>, logs <span class="op">=</span> <span class="st">"gdp_pc"</span>,</span></span>
+<span class="r-in"><span>                        p2s <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">a.out</span>, <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">gdp_pc</span> <span class="op">~</span> <span class="va">infl</span> <span class="op">*</span> <span class="va">trade</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Simulate coefficients</span></span></span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">misim</span><span class="op">(</span><span class="va">fits</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A `clarify_misim` object</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 4 coefficients, 10 imputations with 1000 simulated values each</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - sampled distributions: multivariate t(116)</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Noah Greifer, Steve Worthington, Stefano Iacus, Gary King.</p>
+  <p></p><p>Developed by Noah Greifer, Steven Worthington, Stefano Iacus, Gary King.</p>
 </div>
 
 <div class="pkgdown-footer-right">

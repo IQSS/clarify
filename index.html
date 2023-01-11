@@ -71,15 +71,15 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="clarify-simulation-based-inference-for-regression-models">
-<code>{clarify}</code>: Simulation-Based Inference for Regression Models<a class="anchor" aria-label="anchor" href="#clarify-simulation-based-inference-for-regression-models"></a>
+<code>clarify</code>: Simulation-Based Inference for Regression Models<a class="anchor" aria-label="anchor" href="#clarify-simulation-based-inference-for-regression-models"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p><a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> implements simulation-based inference as an alternative to the delta method for computing functions of model parameters, such as average marginal effects.</p>
+<p><code>clarify</code> implements simulation-based inference as an alternative to the delta method for computing functions of model parameters, such as average marginal effects. See the <code>clarify</code> <a href="https://ngreifer.github.io/clarify">website</a> for documentation and other examples.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install the development version of <code>clarify</code> from <a href="https://github.com/ngreifer/clarify" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ngreifer/clarify"</span><span class="op">)</span></span></code></pre></div>
@@ -87,9 +87,9 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Simulation-based inference is an alternative to the delta method and bootstrapping for performing inference on quantities that are functions of model parameters. The delta method involves multiple assumptions: 1) the regression coefficients are normally distributed, 2) the resulting quantity of interest is normally distributed, and 3) the first-order approximation to the variance of the desired estimator is equal to the true variance. When these assumptions are incorrect, which is especially likely when the quantity of interest is a complicated nonlinear function of the model coefficients, the resulting inferences can be inaccurate. Bootstrapping is one solution to this problem that does not require any of the above assumptions for valid nonparametric inference; however, it is computationally intensive since the original model needs to be fit many times, and any problems with the model that are only apparent in some bootstrap samples (e.g., failure to converge, perfect prediction) can make using bootstrapping challenging.</p>
+<p>Simulation-based inference is an alternative to the delta method and bootstrapping for performing inference on quantities that are functions of model parameters. The delta method involves multiple assumptions: 1) the regression coefficients are normally distributed, 2) the resulting quantity of interest is normally distributed, and 3) the first-order approximation to the variance of the desired estimator is equal to the true variance. When these assumptions are incorrect, which is especially likely when the quantity of interest is a complicated nonlinear function of the model coefficients, the resulting inferences can be inaccurate. Bootstrapping is one solution to this problem that does not require any of the above assumptions for valid nonparametric inference; however, it is computationally intensive because the original model needs to be fit many times, and any problems with the model that are only apparent in some bootstrap samples (e.g., failure to converge, perfect prediction) can make using bootstrapping challenging.</p>
 <p>Simulation-based inference provides a compromise to these two methods: it is more accurate than the delta method because it does not require assumptions 2) and 3), and it is faster and more stable than bootstrapping because the model only needs to be fit once. Simulation-based inference involves simulating model coefficients from their multivariate distribution using their estimated values and covariance from a single model fit to the original data, computing the quantities of interest from each set of model coefficients, and then performing inference using the resulting distribution of the estimates as their sampling distribution. Confidence intervals can be computed using the percentiles of the resulting sampling distribution, and p-values can be computed by inverting the confidence intervals. Alternatively, if the resulting sampling distribution is normally distributed, its standard error can be estimated as the standard deviation of the estimates and normal-theory confidence intervals and p-values can be computed.</p>
-<p>The <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> package was designed to provide a simple, general interface to simulation-based inference, along with a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> are <code><a href="reference/sim.html">sim()</a></code>, <code><a href="reference/sim_apply.html">sim_apply()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. These work together to create a simple workflow for simulation-based inference.</p>
+<p>The <code>clarify</code> package was designed to provide a simple, general interface to simulation-based inference, along with a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of <code>clarify</code> are <code><a href="reference/sim.html">sim()</a></code>, <code><a href="reference/sim_apply.html">sim_apply()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. These work together to create a simple workflow for simulation-based inference.</p>
 <ul>
 <li>
 <code><a href="reference/sim.html">sim()</a></code> simulates model parameters from a fitted model</li>
@@ -100,7 +100,7 @@
 <li>
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> produces plots of the simulated sampling distribution of the resulting estimates</li>
 </ul>
-<p>There are also some wrappers for <code><a href="reference/sim_apply.html">sim_apply()</a></code> for performing some common operations: <code><a href="reference/sim_ame.html">sim_ame()</a></code> computes the average marginal effect of a variable, mirroring <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons()</a></code> and <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>; and <code><a href="reference/sim_setx.html">sim_setx()</a></code> computes predicted values at typical values of the covariates and differences between them, mirroring <code><a href="https://rdrr.io/pkg/Zelig/man/setx.html" class="external-link">Zelig::setx()</a></code> and <code><a href="https://rdrr.io/pkg/Zelig/man/setx1.html" class="external-link">Zelig::setx1()</a></code>.</p>
+<p>There are also some wrappers for <code><a href="reference/sim_apply.html">sim_apply()</a></code> for performing some common operations: <code><a href="reference/sim_ame.html">sim_ame()</a></code> computes the average marginal effect of a variable, mirroring <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons()</a></code> and <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>; <code><a href="reference/sim_setx.html">sim_setx()</a></code> computes predicted values at typical values of the covariates and differences between them, mirroring <code><a href="https://rdrr.io/pkg/Zelig/man/setx.html" class="external-link">Zelig::setx()</a></code> and <code><a href="https://rdrr.io/pkg/Zelig/man/setx1.html" class="external-link">Zelig::setx1()</a></code>; and <code><a href="reference/sim_adrf.html">sim_adrf()</a></code> computes average dose-response functions. <code>clarify</code> also offers support for models fit to multiply imputed data with the <code><a href="reference/misim.html">misim()</a></code> function.</p>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
@@ -148,7 +148,7 @@
 <span><span class="co">#Plot the resulting sampling distributions</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-example-1.png" width="80%"></p>
-<p><a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> provides a shortcut for computing average marginal effects and comparisons between average adjusted predictions, <code><a href="reference/sim_ame.html">sim_ame()</a></code>, which is essentially a wrapper for <code><a href="reference/sim_apply.html">sim_apply()</a></code> with extra processing. We can compute the log marginal risk ratio below:</p>
+<p><code>clarify</code> provides a shortcut for computing average marginal effects and comparisons between average adjusted predictions, <code><a href="reference/sim_ame.html">sim_ame()</a></code>, which is essentially a wrapper for <code><a href="reference/sim_apply.html">sim_apply()</a></code> with extra processing. We can compute the log marginal risk ratio below:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Marginal risk ratio ATT, simulation-based</span></span>
 <span><span class="va">sim_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">sim_coefs</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span>,</span>
@@ -171,7 +171,7 @@
 <p>We could have used <code>marginaleffects</code>, which uses the delta method instead:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Marginal risk ratio ATT, delta method-based</span></span>
-<span><span class="fu">marginaleffects</span><span class="fu">::</span><span class="fu"><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">comparisons</a></span><span class="op">(</span><span class="va">fit</span>, variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span><span class="op">)</span>,</span>
+<span><span class="fu">marginaleffects</span><span class="fu">::</span><span class="fu"><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">comparisons</a></span><span class="op">(</span><span class="va">fit</span>, variables <span class="op">=</span> <span class="st">"treat"</span>,</span>
 <span>                             newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                             transform_pre <span class="op">=</span> <span class="st">"lnratioavg"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -191,7 +191,7 @@
 <span><span class="co">#&gt; E[Y(1)]    0.243  0.199  0.360       .</span></span>
 <span><span class="co">#&gt; log(RR)   -0.191 -0.479  0.330    0.79</span></span>
 <span><span class="co">#&gt; RR         0.826  0.619  1.391    0.79</span></span></code></pre></div>
-<p>We can also use <a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of <a href="https://cran.r-project.org/package=Zelig" class="external-link">Zelig</a>’s <code>setx()</code> and <code>setx1()</code> functions, using <code><a href="reference/sim_setx.html">sim_setx()</a></code>:</p>
+<p>We can also use <code>clarify</code> to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of <code>Zelig</code>’s <code>setx()</code> and <code>setx1()</code> functions, using <code><a href="reference/sim_setx.html">sim_setx()</a></code>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Predictions across age and treat at typical values</span></span>
 <span><span class="co"># of the other predictors</span></span>
@@ -201,7 +201,7 @@
 <span><span class="co">#Plot of predicted values across age for each value of treat</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="80%"></p>
-<p><a href="https://github.com/ngreifer/clarify" class="external-link">clarify</a> offers parallel processing for all estimation functions to speed up computation.</p>
+<p><code>clarify</code> offers parallel processing for all estimation functions to speed up computation.</p>
 <p>The methodology of simulation-based inference is described in King, Tomz, and Wittenberg (2000).</p>
 <p>King, G., Tomz, M., &amp; Wittenberg, J. (2000). Making the Most of Statistical Analyses: Improving Interpretation and Presentation. <em>American Journal of Political Science</em>, 44(2), 347–361. <a href="https://doi.org/10.2307/2669316" class="external-link uri">https://doi.org/10.2307/2669316</a></p>
 </div>
@@ -217,8 +217,7 @@
 <div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="LICENSE.html">Full license</a></li>
-<li><small>GPL (&gt;= 3)</small></li>
+<li>GPL (&gt;= 3)</li>
 </ul>
 </div>
 
@@ -234,7 +233,7 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Noah Greifer <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3067-7154" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>Steve Worthington <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-9550-5797" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Steven Worthington <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-9550-5797" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>Stefano Iacus <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-4884-0047" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>Gary King <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-5327-7631" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
@@ -253,7 +252,7 @@
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Noah Greifer, Steve Worthington, Stefano Iacus, Gary King.</p>
+<p>Developed by Noah Greifer, Steven Worthington, Stefano Iacus, Gary King.</p>
 </div>
 
 <div class="pkgdown-footer-right">
