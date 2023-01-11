@@ -22,7 +22,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Steve Worthington \email{sworthington@iq.harvard.edu} (\href{https://orcid.org/0000-0001-9550-5797}{ORCID})
+  \item Steven Worthington \email{sworthington@iq.harvard.edu} (\href{https://orcid.org/0000-0001-9550-5797}{ORCID})
   \item Stefano Iacus \email{siacus@iq.harvard.edu} (\href{https://orcid.org/0000-0002-4884-0047}{ORCID})
   \item Gary King \email{king@harvard.edu} (\href{https://orcid.org/0000-0002-5327-7631}{ORCID})
 }

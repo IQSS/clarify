@@ -23,7 +23,20 @@
 #'
 #' Zhou, X., & Reiter, J. P. (2010). A Note on Bayesian Inference After Multiple Imputation. *The American Statistician*, 64(2), 159–163. \doi{10.1198/tast.2010.09109}
 #'
-#' @examples
+#' @examplesIf requireNamespace("Amelia", quietly = TRUE)
+#' data("africa", package = "Amelia")
+#'
+#' # Multiple imputation using Amelia
+#' a.out <- Amelia::amelia(x = africa, m = 10,
+#'                         cs = "country",
+#'                         ts = "year", logs = "gdp_pc",
+#'                         p2s = 0)
+#'
+#' fits <- with(a.out, lm(gdp_pc ~ infl * trade))
+#'
+#' # Simulate coefficients
+#' s <- misim(fits)
+#' s
 #'
 #' @seealso
 #' * [sim()] for simulating model coefficients for a single dataset
@@ -165,8 +178,4 @@ print.clarify_misim <- function(x, ...) {
       cat("\n")
     }
   }
-  # if (!is.null(x$fit)) {
-  #   cat(" - original fitting function call:\n\n")
-  #   print(insight::get_call(x$fit))
-  # }
 }

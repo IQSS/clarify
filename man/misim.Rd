@@ -31,6 +31,23 @@ The \code{"dist"} attribute contains \code{"normal"} if the coefficients were sa
 \details{
 \code{misim()} essentially combines multiple \code{sim()} calls applied to a list of model fits, each fit in an imputed dataset, into a single combined pool of simulated coefficients. When simulation-based inference is to be used with multiply imputed data, many imputations are required; see Zhou and Reiter (2010).
 }
+\examples{
+\dontshow{if (requireNamespace("Amelia", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+data("africa", package = "Amelia")
+
+# Multiple imputation using Amelia
+a.out <- Amelia::amelia(x = africa, m = 10,
+                        cs = "country",
+                        ts = "year", logs = "gdp_pc",
+                        p2s = 0)
+
+fits <- with(a.out, lm(gdp_pc ~ infl * trade))
+
+# Simulate coefficients
+s <- misim(fits)
+s
+\dontshow{\}) # examplesIf}
+}
 \references{
 Zhou, X., & Reiter, J. P. (2010). A Note on Bayesian Inference After Multiple Imputation. \emph{The American Statistician}, 64(2), 159–163. \doi{10.1198/tast.2010.09109}
 }

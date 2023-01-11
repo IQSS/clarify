@@ -34,7 +34,7 @@ Note that both `{Zelig}` and `{clarify}` have a function called "`sim()`", so we
 
 ## Predictions at representative values
 
-Here we'll use the `lalonde` dataset and fit a linear model for `re78` as a function of the treatment `treat` and covariates.
+Here we'll use the `lalonde` dataset in `{MatchIt}` and fit a linear model for `re78` as a function of the treatment `treat` and covariates.
 
 ```{r}
 data("lalonde", package = "MatchIt")
@@ -77,7 +77,7 @@ plot(fit)
 
 ### `{clarify}` workflow
 
-In `{clarify}`, we fit the model using functions outside `{clarify}`, like `lm()` in the `{stats}` package or `feols` in the `{fixest}` package.
+In `{clarify}`, we fit the model using functions outside `{clarify}`, like `lm()` in the `{stats}` package or `feols()` in the `{fixest}` package.
 
 ```{r}
 fit <- lm(re78 ~ treat + age + educ + married + race +
@@ -142,7 +142,6 @@ fit
 ```
 
 ```{r, eval = FALSE}
-#Plotting is bugged
 plot(fit)
 ```
 

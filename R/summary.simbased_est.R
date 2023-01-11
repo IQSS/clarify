@@ -23,6 +23,7 @@
 #' The plots are produced using [ggplot2::geom_density()] and can be customized with \pkg{ggplot2} functions.
 #'
 #' @seealso
+#' * [sim_apply()] for applying a function to each set of simulated coefficients
 #'
 #' @examples
 #' data("lalonde", package = "MatchIt")

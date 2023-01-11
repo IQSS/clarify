@@ -73,3 +73,8 @@ summary(est, null = c(NA, NA, 0, 1),
 plot(est, parm = c("RD", "RR"))
 
 }
+\seealso{
+\itemize{
+\item \code{\link[=sim_apply]{sim_apply()}} for applying a function to each set of simulated coefficients
+}
+}
