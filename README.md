@@ -12,17 +12,17 @@ status](https://www.r-pkg.org/badges/version/clarify)](https://CRAN.R-project.or
 `clarify` implements simulation-based inference as an alternative to the
 delta method for computing functions of model parameters, such as
 average marginal effects. See the `clarify`
-[website](https://ngreifer.github.io/clarify) for documentation and
-other examples.
+[website](https://iqss.github.io/clarify) for documentation and other
+examples.
 
 ## Installation
 
 You can install the development version of `clarify` from
-[GitHub](https://github.com/ngreifer/clarify) with:
+[GitHub](https://github.com/iqss/clarify) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("ngreifer/clarify")
+devtools::install_github("iqss/clarify")
 ```
 
 ## Introduction
