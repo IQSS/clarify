@@ -42,5 +42,5 @@ RoxygenNote: 7.2.2
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/iqss/clarify,
     https://iqss.github.io/clarify/
-BugReports: https://iqss.com/ngreifer/clarify/issues
+BugReports: https://iqss.github.io/clarify/issues
 VignetteBuilder: knitr
