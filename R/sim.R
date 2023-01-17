@@ -119,7 +119,7 @@ get_sampling_dist <- function(fit = NULL, dist = NULL) {
     chk::chk_string(dist)
     dist <- tolower(dist)
     if (startsWith(dist, "t(") && endsWith(dist, ")")) {
-      df <- substr(dist, 3, nchar(dist)-1)
+      df <- substr(dist, 3, nchar(dist) - 1)
       if (nchar(df) == 0 || anyNA(suppressWarnings(df <- as.numeric(df))) || !chk::vld_number(df)) {
         .err("when `dist` is supplied as t({#}), `{#}` must be a number")
       }
@@ -145,7 +145,7 @@ get_sampling_dist <- function(fit = NULL, dist = NULL) {
 
   if (dist == "t") {
     f <- function(n, mu, cov) {
-      sigma <- cov*(df - 2)/df
+      sigma <- cov * (df - 2) / df
       #Need pivoted cholesky for when cov isn't PSD (sometimes true for fixed effects models)
       ch <- suppressWarnings(chol(sigma, pivot = TRUE))
       piv <- attr(ch, "pivot")

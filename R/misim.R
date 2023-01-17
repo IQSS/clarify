@@ -164,7 +164,7 @@ print.clarify_misim <- function(x, ...) {
   obj <- deparse1(substitute(x))
   cat("A `clarify_misim` object\n")
   cat(sprintf(" - %s coefficients, %s imputations with %s simulated values each\n",
-              ncol(x$sim.coefs), nrow(x$coefs), nrow(x$sim.coefs)/nrow(x$coefs)))
+              ncol(x$sim.coefs), nrow(x$coefs), nrow(x$sim.coefs) / nrow(x$coefs)))
   cat(" - sampled distributions: ")
   if (length(attr(x, "dist")) == 1) {
     cat(sprintf("multivariate %s\n", attr(x, "dist")))

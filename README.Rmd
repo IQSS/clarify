@@ -19,30 +19,37 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/clarify)](https://CRAN.R-project.org/package=clarify)
 <!-- badges: end -->
 
-`clarify` implements simulation-based inference as an alternative to the delta method for computing functions of model parameters, such as average marginal effects. See the `clarify` [website](https://iqss.github.io/clarify) for documentation and other examples.
+`clarify` implements simulation-based inference for computing functions of model parameters, such as average marginal effects. See the `clarify` [website](https://iqss.github.io/clarify) for documentation and other examples.
 
-## Installation
-
-You can install the development version of `clarify` from [GitHub](https://github.com/iqss/clarify) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("iqss/clarify")
-```
 ## Introduction
 
 Simulation-based inference is an alternative to the delta method and bootstrapping for performing inference on quantities that are functions of model parameters. The delta method involves multiple assumptions: 1) the regression coefficients are normally distributed, 2) the resulting quantity of interest is normally distributed, and 3) the first-order approximation to the variance of the desired estimator is equal to the true variance. When these assumptions are incorrect, which is especially likely when the quantity of interest is a complicated nonlinear function of the model coefficients, the resulting inferences can be inaccurate. Bootstrapping is one solution to this problem that does not require any of the above assumptions for valid nonparametric inference; however, it is computationally intensive because the original model needs to be fit many times, and any problems with the model that are only apparent in some bootstrap samples (e.g., failure to converge, perfect prediction) can make using bootstrapping challenging.
 
 Simulation-based inference provides a compromise to these two methods: it is more accurate than the delta method because it does not require assumptions 2) and 3), and it is faster and more stable than bootstrapping because the model only needs to be fit once. Simulation-based inference involves simulating model coefficients from their multivariate distribution using their estimated values and covariance from a single model fit to the original data, computing the quantities of interest from each set of model coefficients, and then performing inference using the resulting distribution of the estimates as their sampling distribution. Confidence intervals can be computed using the percentiles of the resulting sampling distribution, and p-values can be computed by inverting the confidence intervals. Alternatively, if the resulting sampling distribution is normally distributed, its standard error can be estimated as the standard deviation of the estimates and normal-theory confidence intervals and p-values can be computed.
 
-The `clarify` package was designed to provide a simple, general interface to simulation-based inference, along with a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of `clarify` are `sim()`, `sim_apply()`, `summary()`, and `plot()`. These work together to create a simple workflow for simulation-based inference.
+The `clarify` package was designed to provide a simple, general interface for simulation-based inference, along with a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of `clarify` are `sim()`, `sim_apply()`, `summary()`, and `plot()`. These work together to create a simple workflow for simulation-based inference.
 
 * `sim()` simulates model parameters from a fitted model
 * `sim_apply()` applies an estimator to the simulated coefficients, or to the original object but with the new coefficients inserted
 * `summary()` produces confidence intervals and p-values for the resulting estimates
 * `plot()` produces plots of the simulated sampling distribution of the resulting estimates
 
-There are also some wrappers for `sim_apply()` for performing some common operations: `sim_ame()` computes the average marginal effect of a variable, mirroring `marginaleffects::comparisons()` and `marginaleffects::marginaleffects()`; `sim_setx()` computes predicted values at typical values of the covariates and differences between them, mirroring `Zelig::setx()` and `Zelig::setx1()`; and `sim_adrf()`  computes average dose-response functions. `clarify` also offers support for models fit to multiply imputed data with the `misim()` function.
+There are also some wrappers for `sim_apply()` for performing some common operations: `sim_ame()` computes the average marginal effect of a variable, mirroring `marginaleffects::comparisons()` and `marginaleffects::marginaleffects()`; `sim_setx()` computes predictions at typical values of the covariates and differences between them, mirroring `Zelig::setx()` and `Zelig::setx1()`; and `sim_adrf()` computes average dose-response functions. `clarify` also offers support for models fit to multiply imputed data with the `misim()` function.
+
+## Installation
+
+`clarify` can be installed from CRAN using
+
+```{r, eval = F}
+install.packages("clarify")
+```
+
+You can install the development version of `clarify` from [GitHub](https://github.com/iqss/clarify) with
+
+```{r, eval = F}
+install.packages("remotes")
+remotes::install_github("iqss/clarify")
+```
 
 ## Example
 
@@ -53,16 +60,17 @@ library(clarify)
 
 data("lalonde", package = "MatchIt")
 
-#Fit the model
-fit <- glm(I(re78 == 0) ~ treat * (age + educ + race + married + nodegree + re74 + re75),
+# Fit the model
+fit <- glm(I(re78 == 0) ~ treat * (age + educ + race + married
+                                   + nodegree + re74 + re75),
            data = lalonde, family = binomial)
 
-#Simulate coefficients from a multivariate normal distribution
+# Simulate coefficients from a multivariate normal distribution
 set.seed(123)
 sim_coefs <- sim(fit)
 
-#Apply a function that estimate the g-computation estimate for the ATT
-#to models with the estimated coefficients replaced by the simulated ones
+# Apply a function that computes the g-computation estimate for the ATT
+# to models with the estimated coefficients replaced by the simulated ones
 sim_est <- sim_apply(sim_coefs, function(fit) {
   d <- subset(lalonde, treat == 1)
   d$treat <- 1
@@ -74,10 +82,10 @@ sim_est <- sim_apply(sim_coefs, function(fit) {
 
 sim_est
 
-#View the estimates, confidence intervals, and p-values
+# View the estimates, confidence intervals, and p-values
 summary(sim_est, null = c(NA, NA, 0))
 
-#Plot the resulting sampling distributions
+# Plot the resulting sampling distributions
 plot(sim_est)
 ```
 

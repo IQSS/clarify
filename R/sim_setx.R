@@ -106,11 +106,11 @@ sim_setx <- function(sim,
 
   #Test to make sure compatible
   if (is_misim) {
-    test_dat <- get_pred_data_from_fit(sim$fit[[1]])[1,, drop = FALSE]
+    test_dat <- get_pred_data_from_fit(sim$fit[[1]])[1, , drop = FALSE]
     test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
   }
   else {
-    test_dat <- get_pred_data_from_fit(sim$fit)[1,, drop = FALSE]
+    test_dat <- get_pred_data_from_fit(sim$fit)[1, , drop = FALSE]
     test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
   }
 

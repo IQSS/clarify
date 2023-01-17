@@ -256,7 +256,9 @@ check_classes <- function(olddata, newdata) {
     else .err(sprintf("variables %s were specified with different types from the original model fit",
                           word_list(names(old)[wrong], quotes = TRUE)))
   }
-  else invisible(NULL)
+  else {
+    invisible(NULL)
+  }
 }
 
 check_sim_apply_wrapper_ready <- function(sim) {

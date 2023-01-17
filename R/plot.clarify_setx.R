@@ -177,7 +177,7 @@ setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
   }
 
   if (ci) {
-    s <- summary.clarify_est(x, level = level, method = method)[rownames(newdata),, drop = FALSE]
+    s <- summary.clarify_est(x, level = level, method = method)[rownames(newdata), , drop = FALSE]
   }
   else {
     s <- matrix(coef(x)[rownames(newdata)], ncol = 1,

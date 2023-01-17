@@ -9,21 +9,10 @@
 status](https://www.r-pkg.org/badges/version/clarify)](https://CRAN.R-project.org/package=clarify)
 <!-- badges: end -->
 
-`clarify` implements simulation-based inference as an alternative to the
-delta method for computing functions of model parameters, such as
-average marginal effects. See the `clarify`
+`clarify` implements simulation-based inference for computing functions
+of model parameters, such as average marginal effects. See the `clarify`
 [website](https://iqss.github.io/clarify) for documentation and other
 examples.
-
-## Installation
-
-You can install the development version of `clarify` from
-[GitHub](https://github.com/iqss/clarify) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("iqss/clarify")
-```
 
 ## Introduction
 
@@ -61,7 +50,7 @@ deviation of the estimates and normal-theory confidence intervals and
 p-values can be computed.
 
 The `clarify` package was designed to provide a simple, general
-interface to simulation-based inference, along with a few convenience
+interface for simulation-based inference, along with a few convenience
 functions to perform common tasks like computing average marginal
 effects. The primary functions of `clarify` are `sim()`, `sim_apply()`,
 `summary()`, and `plot()`. These work together to create a simple
@@ -78,11 +67,27 @@ workflow for simulation-based inference.
 There are also some wrappers for `sim_apply()` for performing some
 common operations: `sim_ame()` computes the average marginal effect of a
 variable, mirroring `marginaleffects::comparisons()` and
-`marginaleffects::marginaleffects()`; `sim_setx()` computes predicted
-values at typical values of the covariates and differences between them,
+`marginaleffects::marginaleffects()`; `sim_setx()` computes predictions
+at typical values of the covariates and differences between them,
 mirroring `Zelig::setx()` and `Zelig::setx1()`; and `sim_adrf()`
 computes average dose-response functions. `clarify` also offers support
 for models fit to multiply imputed data with the `misim()` function.
+
+## Installation
+
+`clarify` can be installed from CRAN using
+
+``` r
+install.packages("clarify")
+```
+
+You can install the development version of `clarify` from
+[GitHub](https://github.com/iqss/clarify) with
+
+``` r
+install.packages("remotes")
+remotes::install_github("iqss/clarify")
+```
 
 ## Example
 
@@ -95,16 +100,17 @@ library(clarify)
 
 data("lalonde", package = "MatchIt")
 
-#Fit the model
-fit <- glm(I(re78 == 0) ~ treat * (age + educ + race + married + nodegree + re74 + re75),
+# Fit the model
+fit <- glm(I(re78 == 0) ~ treat * (age + educ + race + married
+                                   + nodegree + re74 + re75),
            data = lalonde, family = binomial)
 
-#Simulate coefficients from a multivariate normal distribution
+# Simulate coefficients from a multivariate normal distribution
 set.seed(123)
 sim_coefs <- sim(fit)
 
-#Apply a function that estimate the g-computation estimate for the ATT
-#to models with the estimated coefficients replaced by the simulated ones
+# Apply a function that computes the g-computation estimate for the ATT
+# to models with the estimated coefficients replaced by the simulated ones
 sim_est <- sim_apply(sim_coefs, function(fit) {
   d <- subset(lalonde, treat == 1)
   d$treat <- 1
@@ -122,14 +128,14 @@ sim_est
 #>  E[Y(1)]  0.2432432
 #>  log(RR) -0.1910068
 
-#View the estimates, confidence intervals, and p-values
+# View the estimates, confidence intervals, and p-values
 summary(sim_est, null = c(NA, NA, 0))
 #>         Estimate  2.5 % 97.5 % P-value
 #> E[Y(0)]    0.294  0.220  0.384       .
 #> E[Y(1)]    0.243  0.199  0.360       .
 #> log(RR)   -0.191 -0.479  0.330    0.79
 
-#Plot the resulting sampling distributions
+# Plot the resulting sampling distributions
 plot(sim_est)
 ```
 
@@ -211,7 +217,7 @@ sim_est <- sim_setx(sim_coefs, x = list(age = 20:50, treat = 0:1),
 plot(sim_est)
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="80%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="80%" />
 
 `clarify` offers parallel processing for all estimation functions to
 speed up computation.

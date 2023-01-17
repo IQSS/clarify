@@ -193,11 +193,14 @@ sim_ame <- function(sim,
     FUN <- function(fit) {
       dat <- get_pred_data_from_fit(fit)
       m <- nrow(dat)
-      dat2 <- do.call("rbind", lapply(vals, function(v) {dat[[var]][] <- v; dat}))
+      dat2 <- do.call("rbind", lapply(vals, function(v) {
+        dat[[var]][] <- v
+        dat
+      }))
       pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
       p <- pred$predicted
       vapply(seq_along(vals), function(i) {
-        weighted.mean(p[seq_len(m) + (i-1)*m], attr(fit, "weights"))
+        weighted.mean(p[seq_len(m) + (i - 1) * m], attr(fit, "weights"))
       }, numeric(1L))
     }
 
@@ -208,12 +211,12 @@ sim_ame <- function(sim,
     if (!is.null(contrast)) {
       out <- transform(out,
                        `.C` = switch(tolower(contrast),
-                                     "diff" =, "rd" = M2 - M1,
-                                     "nnt" = 1/(M2 - M1),
-                                     "irr" =, "rr" = M2 / M1,
-                                     "log(irr)" =, "log(rr)" = log(M2 / M1),
-                                     "or" = (M2/(1-M2))/(M1/(1-M1)),
-                                     "log(or)" = log((M2/(1-M2))/(M1/(1-M1)))))
+                                     "diff" = , "rd" = M2 - M1,
+                                     "nnt" = 1 / (M2 - M1),
+                                     "irr" = , "rr" = M2 / M1,
+                                     "log(irr)" = , "log(rr)" = log(M2 / M1),
+                                     "or" = (M2 / (1 - M2)) / (M1 / (1 - M1)),
+                                     "log(or)" = log((M2 / (1 - M2)) / (M1 / (1 - M1)))))
       names(out)[3] <- rename_contrast(contrast)
     }
 
@@ -236,8 +239,8 @@ sim_ame <- function(sim,
       ind <- seq_len(nrow(dat))
       dat2 <- rbind(dat, dat)
 
-      dat2[[var]][ind] <- dat2[[var]][ind] - eps/2
-      dat2[[var]][-ind] <- dat2[[var]][-ind] + eps/2
+      dat2[[var]][ind] <- dat2[[var]][ind] - eps / 2
+      dat2[[var]][-ind] <- dat2[[var]][-ind] + eps / 2
 
       pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
       p <- pred$predicted
@@ -245,7 +248,7 @@ sim_ame <- function(sim,
       m0 <- weighted.mean(p[ind], attr(fit, "weights"))
       m1 <- weighted.mean(p[-ind], attr(fit, "weights"))
 
-      (m1 - m0)/eps
+      (m1 - m0) / eps
     }
 
     out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
@@ -313,12 +316,12 @@ attach_pred_data_to_fit <- function(fit, index.sub = NULL, is_fitlist = FALSE) {
         .err("when `subset` is logical, it must have the same length as the original dataset")
       }
       if (length(subset) > 0) {
-        data <- data[subset,]
+        data <- data[subset, ]
         weights <- weights[subset]
       }
     }
 
-    attr(fit, "clarify_data") <- data[,intersect(vars, colnames(data)), drop = FALSE]
+    attr(fit, "clarify_data") <- data[, intersect(vars, colnames(data)), drop = FALSE]
     attr(fit, "weights") <- weights
   }
   return(fit)

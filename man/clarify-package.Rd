@@ -11,9 +11,9 @@ Performs simulation-based inference as an alternative to the delta method for ob
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/ngreifer/clarify}
-  \item \url{https://ngreifer.github.io/clarify/}
-  \item Report bugs at \url{https://github.com/ngreifer/clarify/issues}
+  \item \url{https://github.com/iqss/clarify}
+  \item \url{https://iqss.github.io/clarify/}
+  \item Report bugs at \url{https://iqss.com/ngreifer/clarify/issues}
 }
 
 }

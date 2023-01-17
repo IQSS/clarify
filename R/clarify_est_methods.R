@@ -46,13 +46,13 @@ transform.clarify_est <- function(`_data`, ...) {
 
     if (any(!nulls)) {
       for (i in seq_along(e)[matched][!nulls]) {
-        `_data`[,inx[i]] <- e[[i]]
+        `_data`[, inx[i]] <- e[[i]]
         attr(`_data`, "original")[inx[i]] <- as.numeric(e_original[i])
       }
     }
 
     if (any(nulls)) {
-      `_data` <- `_data`[,-inx[matched][nulls]]
+      `_data` <- `_data`[, -inx[matched][nulls]]
     }
   }
   if (!all(matched)) {
@@ -178,7 +178,7 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
     attr(y, "at") <- unname(setNames(attr(y, "at"), names(attr(x, "original")))[j])
   }
   if ("setx" %in% names(attrs)) {
-    attr(y, "setx") <- attr(y, "setx")[j,,drop = FALSE]
+    attr(y, "setx") <- attr(y, "setx")[j, , drop = FALSE]
   }
 
   y

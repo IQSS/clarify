@@ -25,11 +25,11 @@ word_list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
     else {
       and.or <- match_arg(and.or)
       if (L == 2) {
-        out <- paste(word.list, collapse = paste0(" ", and.or," "))
+        out <- paste(word.list, collapse = paste0(" ", and.or, " "))
       }
       else {
-        out <- paste(paste(word.list[seq_len(L-1)], collapse = ", "),
-                     word.list[L], sep = paste0(", ", and.or," "))
+        out <- paste(paste(word.list[seq_len(L - 1)], collapse = ", "),
+                     word.list[L], sep = paste0(", ", and.or, " "))
 
       }
       if (is.are) out <- paste(out, "are")
@@ -171,10 +171,10 @@ is_error <- function(x) {
 
 pkg_caller_call <- function(start = 1) {
   package.funs <- c(getNamespaceExports(utils::packageName()),
-                    .getNamespaceInfo(asNamespace(utils::packageName()), "S3methods")[,3])
+                    .getNamespaceInfo(asNamespace(utils::packageName()), "S3methods")[, 3])
   k <- start #skip checking pkg_caller_call()
   e_max <- NULL
-  while(!is.null(e <- rlang::caller_call(k))) {
+  while (!is.null(e <- rlang::caller_call(k))) {
     if (!is.null(n <- rlang::call_name(e)) &&
         n %in% package.funs) e_max <- k
     k <- k + 1

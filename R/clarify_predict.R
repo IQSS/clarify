@@ -13,5 +13,5 @@ clarify_predict <- function(x, newdata = NULL, group = NULL, type = NULL) {
 
 subset_group <- function(pred, group = NULL) {
   if (is.null(group)) pred
-  else pred[pred$group == group,]
+  else pred[pred$group == group, , drop = FALSE]
 }
