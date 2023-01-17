@@ -1,3 +1,3 @@
-# `clarify` (development version)
+# `clarify` 0.1.0
 
 * First release!
