@@ -431,7 +431,7 @@ From the plot, we can see that as `age` increases, the expected outcome also inc
 We can also examine the AMMs at the requested ages using `summary()`, which will display all the estimated AMMs by default, so we will request just the first 4 (`age`s 18 to 24):
 
 ```{r}
-summary(est8, est = 1:4)
+summary(est8, parm = 1:4)
 ```
 
 Next we'll compute the AMEF, the effect of `age` at each level of `age`.
@@ -518,7 +518,7 @@ Finally, we can use `transform()` to compute the difference between the risk dif
 
 ```{r}
 est10 <- transform(est10, `Dh - Db` = Diff_h - Diff_b)
-summary(est10, est = "Dh - Db")
+summary(est10, parm = "Dh - Db")
 ```
 
 Importantly, `cbind()` can only be used to join together `clarify_est` objects computed using the same simulated coefficients (i.e., resulting from the same call to `sim()`). This preserves the covariance among the estimated quantities, which is critical for valid inference. That is, `sim()` should only be called once per model, and all derived quantities should be computed using its output.
@@ -581,7 +581,7 @@ sim_fun <- function(fit) {
   #Perturb infl slightly
   p1 <- predict(fit, newdata = transform(X, infl = infl + 1e-5))
 
-  return(c(AME = mean((p1 - p0)/1e-5)))
+  return(c(AME = mean((p1 - p0) / 1e-5)))
 }
 
 est_mi <- sim_apply(si, FUN = sim_fun, verbose = FALSE)

@@ -183,13 +183,13 @@ sim_adrf <- function(sim,
       dat2 <- rbind(dat, dat)
       weights <- attr(fit, "weights")
       vapply(at, function(x) {
-        dat2[[var]][ind] <- x - eps/2
-        dat2[[var]][-ind] <- x + eps/2
+        dat2[[var]][ind] <- x - eps / 2
+        dat2[[var]][-ind] <- x + eps / 2
         pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
         p <- pred$predicted
         m0 <- weighted.mean(p[ind], weights)
         m1 <- weighted.mean(p[-ind], weights)
-        (m1 - m0)/eps
+        (m1 - m0) / eps
       }, numeric(1L))
     }
 
@@ -230,13 +230,13 @@ print.clarify_adrf <- function(x, digits = NULL, max.ests = 6, ...) {
                      row.names = FALSE, right = FALSE, digits = digits)
   }
   else {
-    print.data.frame(data.frame(names(attr(x, "original"))[seq_len(floor(max.ests/2))],
-                                attr(x, "original")[seq_len(floor(max.ests/2))],
+    print.data.frame(data.frame(names(attr(x, "original"))[seq_len(floor(max.ests / 2))],
+                                attr(x, "original")[seq_len(floor(max.ests / 2))],
                                 fix.empty.names	= FALSE),
                      row.names = FALSE, right = FALSE, digits = digits)
-    cat(sprintf("# ... and %s more", n.ests - floor(max.ests/2) - ceiling(max.ests/2)))
-    print.data.frame(data.frame(names(attr(x, "original"))[seq(n.ests - ceiling(max.ests/2), n.ests)],
-                                attr(x, "original")[seq(n.ests - ceiling(max.ests/2), n.ests)],
+    cat(sprintf("# ... and %s more", n.ests - floor(max.ests / 2) - ceiling(max.ests / 2)))
+    print.data.frame(data.frame(names(attr(x, "original"))[seq(n.ests - ceiling(max.ests / 2), n.ests)],
+                                attr(x, "original")[seq(n.ests - ceiling(max.ests / 2), n.ests)],
                                 fix.empty.names	= FALSE),
                      row.names = FALSE, right = FALSE, digits = digits)
   }

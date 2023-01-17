@@ -6,4 +6,3 @@
 #' @import ggplot2
 ## usethis namespace: end
 NULL
-

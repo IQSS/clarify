@@ -55,11 +55,11 @@
 #'
 #' @export
 summary.clarify_est <- function(object,
-                                 parm,
-                                 level = .95,
-                                 method = "quantile",
-                                 null = NA,
-                                 ...) {
+                                parm,
+                                level = .95,
+                                method = "quantile",
+                                null = NA,
+                                ...) {
   ans <- list()
 
   if (is.null(attr(object, "original")) ||
@@ -87,15 +87,15 @@ summary.clarify_est <- function(object,
   if (test) {
     if (!chk::vld_length(null, length(parm))) {
       .err(sprintf("`null` must have length 1 or length equal to the number of quantities estimated (%s)",
-                       length(parm)))
+                   length(parm)))
     }
   }
 
-  nas <- anyNA(object[,parm])
+  nas <- anyNA(object[, parm])
   if (nas) chk::wrn("NA values present among the estimates")
 
   ans <- cbind(Estimate = original_est[parm],
-               confint(object, parm = parm, level =level,
+               confint(object, parm = parm, level = level,
                        method = method))
 
   if (test) {
@@ -103,21 +103,21 @@ summary.clarify_est <- function(object,
     object <- drop_sim_class(object)
 
     if (method == "wald") {
-      se <- apply(object[,parm, drop = FALSE], 2, sd, na.rm = TRUE)
-      z <- (original_est[parm] - null)/se
+      se <- apply(object[, parm, drop = FALSE], 2, sd, na.rm = TRUE)
+      z <- (original_est[parm] - null) / se
       p <- 2 * pnorm(abs(z), lower.tail = FALSE)
       p[p < .Machine$double.eps] <- 0
     }
     else if (method == "quantile") {
       ns <- {
-        if (nas) colSums(!is.na(object[,parm, drop = FALSE]))
+        if (nas) colSums(!is.na(object[, parm, drop = FALSE]))
         else rep(nrow(object), length(parm))
       }
       p <- vapply(seq_along(parm), function(i) {
         if (is.na(null[i])) return(NA_real_)
         x <- object[, parm[i]]
         2 * min(sum(x < null[i], na.rm = nas),
-                sum(x > null[i], na.rm = nas))/ns[i]
+                sum(x > null[i], na.rm = nas)) / ns[i]
       }, numeric(1L))
     }
 
@@ -145,10 +145,10 @@ print.summary.clarify_est <- function(x, digits = 3, ...) {
 #' @exportS3Method confint clarify_est
 #' @rdname summary.clarify_est
 confint.clarify_est <- function(object,
-                                 parm,
-                                 level = .95,
-                                 method = "quantile",
-                                 ...) {
+                                parm,
+                                level = .95,
+                                method = "quantile",
+                                ...) {
 
   chk::chk_number(level)
   if (level <= .5 || level >= 1) {
@@ -165,7 +165,7 @@ confint.clarify_est <- function(object,
 
   est_names <- names(object)[parm]
 
-  a <- (1 - level)/2
+  a <- (1 - level) / 2
   a <- c(a, 1 - a)
 
   pct <- fmt.prc(a, 3)
@@ -173,7 +173,7 @@ confint.clarify_est <- function(object,
   ci <- array(NA, dim = c(length(parm), 2L),
               dimnames = list(est_names, pct))
 
-  nas <- anyNA(object[,parm])
+  nas <- anyNA(object[, parm])
   if (nas) chk::wrn("`NA` values present among the estimates")
 
   if (method == "wald") {
@@ -183,7 +183,7 @@ confint.clarify_est <- function(object,
     ci[] <- cf[parm] + outer(ses, fac, "*")
   }
   else if (method == "quantile") {
-    ci[] <- t(apply(object[,parm, drop = FALSE], 2, quantile, probs = a,
+    ci[] <- t(apply(object[, parm, drop = FALSE], 2, quantile, probs = a,
                     na.rm = nas))
   }
 

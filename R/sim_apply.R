@@ -174,7 +174,7 @@ sim_apply <- function(sim,
     if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
 
     ests.list <- pbapply::pblapply(seq_len(nrow(sim$sim.coefs)), function(i) {
-      apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i,], imp = sim$imp[i], ...)
+      apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i, ], imp = sim$imp[i], ...)
     }, cl = cl)
   }
   else {
@@ -190,7 +190,7 @@ sim_apply <- function(sim,
     if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
 
     ests.list <- pbapply::pblapply(seq_len(nrow(sim$sim.coefs)), function(i) {
-      apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i,], ...)
+      apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i, ], ...)
     }, cl = cl)
   }
 
