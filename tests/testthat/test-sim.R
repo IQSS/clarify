@@ -92,7 +92,7 @@ test_that("sim() works with lm()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = "HC3"))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -144,7 +144,7 @@ test_that("sim() works with glm()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = "HC3"))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -160,6 +160,7 @@ test_that("sim() works with glm()", {
 })
 
 test_that("sim() works with MASS::glm.nb()", {
+  skip_if_not_installed("MASS")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- MASS::glm.nb(countY ~ treat + age + educ + race + re74, data = mdata,
@@ -196,7 +197,7 @@ test_that("sim() works with MASS::glm.nb()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = "HC3"))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -212,6 +213,7 @@ test_that("sim() works with MASS::glm.nb()", {
 })
 
 test_that("sim() works with betareg::betareg()", {
+  skip_if_not_installed("betareg")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- betareg::betareg(propY ~ treat + age + educ + race + re74 | treat + age,
@@ -253,7 +255,8 @@ test_that("sim() works with betareg::betareg()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL))
+  if (packageVersion("marginaleffects") > '0.8.1')
+    expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -269,6 +272,7 @@ test_that("sim() works with betareg::betareg()", {
 })
 
 test_that("sim() works with survey::svyglm()", {
+  skip_if_not_installed("survey")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- survey::svyglm(binY ~ treat + age + educ + race + re74, family = quasibinomial,
@@ -305,7 +309,7 @@ test_that("sim() works with survey::svyglm()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = "HC3"))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata$subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -321,6 +325,7 @@ test_that("sim() works with survey::svyglm()", {
 })
 
 test_that("sim() works with estimatr::lm_robust()", {
+  skip_if_not_installed("estimatr")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- estimatr::lm_robust(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -376,6 +381,7 @@ test_that("sim() works with estimatr::lm_robust()", {
 })
 
 test_that("sim() works with estimatr::iv_robust()", {
+  skip_if_not_installed("estimatr")
   # skip("iv_robust() has errors; not yet fully supported")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
@@ -432,6 +438,7 @@ test_that("sim() works with estimatr::iv_robust()", {
 })
 
 test_that("sim() works with fixest::feols()", {
+  skip_if_not_installed("fixest")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- fixest::feols(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -472,7 +479,7 @@ test_that("sim() works with fixest::feols()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = "HC1"))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata["subclass"])))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -488,6 +495,7 @@ test_that("sim() works with fixest::feols()", {
 })
 
 test_that("sim() works with fixest::feglm()", {
+  skip_if_not_installed("fixest")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- fixest::feglm(binY ~ treat + age + educ + race + re74, data = mdata,
@@ -524,7 +532,7 @@ test_that("sim() works with fixest::feglm()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = "HC1"))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = mdata["subclass"])))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -540,6 +548,7 @@ test_that("sim() works with fixest::feglm()", {
 })
 
 test_that("sim() works with logistf::logistf()", {
+  skip_if_not_installed("logistf")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- logistf::logistf(binY ~ treat + age + educ + race + re74, data = mdata,
@@ -591,6 +600,7 @@ test_that("sim() works with logistf::logistf()", {
 })
 
 test_that("sim() works with geepack::geeglm()", {
+  skip_if_not_installed("geepack")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   suppressWarnings({
@@ -645,6 +655,7 @@ test_that("sim() works with geepack::geeglm()", {
 })
 
 test_that("sim() works with rms::ols()", {
+  skip_if_not_installed("rms")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   suppressMessages(library(rms))
@@ -693,7 +704,8 @@ test_that("sim() works with rms::ols()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
+  if (packageVersion("marginaleffects") > '0.8.1')
+    expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
   # expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -712,6 +724,7 @@ test_that("sim() works with rms::ols()", {
 })
 
 test_that("sim() works with rms::lrm()", {
+  skip_if_not_installed("rms")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   suppressMessages(library(rms))
@@ -757,7 +770,8 @@ test_that("sim() works with rms::lrm()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
+  if (packageVersion("marginaleffects") > '0.8.1')
+    expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov(fit)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -773,6 +787,7 @@ test_that("sim() works with rms::lrm()", {
 })
 
 test_that("sim() works with robustbase::lmrob()", {
+  skip_if_not_installed("robustbase")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- robustbase::lmrob(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -813,7 +828,8 @@ test_that("sim() works with robustbase::lmrob()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
+  if (packageVersion("marginaleffects") > '0.8.1')
+    expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
   # expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -829,6 +845,7 @@ test_that("sim() works with robustbase::lmrob()", {
 })
 
 test_that("sim() works with robustbase::glmrob()", {
+  skip_if_not_installed("robustbase")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- robustbase::glmrob(binY ~ treat + age + educ + race + re74, data = mdata,
@@ -866,7 +883,8 @@ test_that("sim() works with robustbase::glmrob()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
+  if (packageVersion("marginaleffects") > '0.8.1')
+    expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = vcov(fit)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -882,6 +900,7 @@ test_that("sim() works with robustbase::glmrob()", {
 })
 
 test_that("sim() works with robust::lmRob()", {
+  skip_if_not_installed("robust")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- robust::lmRob(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -922,7 +941,8 @@ test_that("sim() works with robust::lmRob()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = insight:::get_varcov))
+  if (packageVersion("marginaleffects") > '0.8.1')
+    expect_good_clarify_sim(sim(fit, n = 5, vcov = insight:::get_varcov))
   # expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = insight:::get_varcov(fit)[-2,-2]))
 
@@ -938,6 +958,7 @@ test_that("sim() works with robust::lmRob()", {
 })
 
 test_that("sim() works with robust::glmRob()", {
+  skip_if_not_installed("robust")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- robust::glmRob(binY ~ treat + age + educ + I(educ^2) + I(race=="black") + re74, data = mdata,
@@ -975,7 +996,8 @@ test_that("sim() works with robust::glmRob()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = insight:::get_varcov))
+  if (packageVersion("marginaleffects") > '0.8.1')
+    expect_good_clarify_sim(sim(fit, n = 5, vcov = insight:::get_varcov))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = insight:::get_varcov(fit)))
   expect_error(sim(fit, n = 5, vcov = insight:::get_varcov(fit)[-2,-2]))
 
@@ -991,6 +1013,7 @@ test_that("sim() works with robust::glmRob()", {
 })
 
 test_that("sim() works with AER::tobit()", {
+  skip_if_not_installed("AER")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- AER::tobit(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -1043,6 +1066,7 @@ test_that("sim() works with AER::tobit()", {
 })
 
 test_that("sim() works with ivreg::ivreg()", {
+  skip_if_not_installed("ivreg")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- ivreg::ivreg(re78 ~ treat + age + race | educ + age + race, data = mdata,
@@ -1085,7 +1109,7 @@ test_that("sim() works with ivreg::ivreg()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = "HC3"))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
@@ -1102,6 +1126,7 @@ test_that("sim() works with ivreg::ivreg()", {
 })
 
 test_that("sim() works with mgcv::gam()", {
+  skip_if_not_installed("mgcv")
   # skip("mgcv::gam() not ready yet")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
@@ -1141,7 +1166,8 @@ test_that("sim() works with mgcv::gam()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_sim(sim(fit, n = 5, vcov = function(...) vcov(..., sandwich = TRUE)))
+  if (packageVersion("marginaleffects") > '0.8.1')
+    expect_good_clarify_sim(sim(fit, n = 5, vcov = function(...) vcov(..., sandwich = TRUE)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 
   #Custom coefs
