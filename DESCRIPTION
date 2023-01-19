@@ -16,7 +16,7 @@ Authors@R: c(
          email = "king@harvard.edu",
 	       comment = c(ORCID="0000-0002-5327-7631"))
   )
-Description: Performs simulation-based inference as an alternative to the delta method for obtaining valid confidence intervals and p-values, which is especially useful when the resulting quantity is not normally distributed and the delta method approximation fails. The framework for simulation-based inference is described in King, Tomz, and Wittenberg (2000) <doi:10.2307/2669316>. 'clarify' is meant to replace some of the functionality of 'Zelig'; see the vignette "Translating Zelig to clarify" for replicating this functionality.
+Description: Performs simulation-based inference as an alternative to the delta method for obtaining valid confidence intervals and p-values for regression post-estimation quantities, such as average marginal effects and predictions at representative values. This framework for simulation-based inference is especially useful when the resulting quantity is not normally distributed and the delta method approximation fails. The methodology is described in King, Tomz, and Wittenberg (2000) <doi:10.2307/2669316>. 'clarify' is meant to replace some of the functionality of the archived package 'Zelig'; see the vignette "Translating Zelig to clarify" for replicating this functionality.
 License: GPL (>= 3)
 Encoding: UTF-8
 Depends: R (>= 3.5.0)
@@ -42,5 +42,5 @@ RoxygenNote: 7.2.2
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/iqss/clarify,
     https://iqss.github.io/clarify/
-BugReports: https://iqss.github.io/clarify/issues
+BugReports: https://github.com/iqss/clarify/issues
 VignetteBuilder: knitr
