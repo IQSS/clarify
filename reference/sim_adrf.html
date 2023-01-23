@@ -182,51 +182,45 @@ p-values and confidence intervals for the estimated quantities.</p>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span>, n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ADRF for `age`</span></span></span>
-<span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_adrf</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">55</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_adrf</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>,</span></span>
+<span class="r-in"><span>                at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">55</span>, length.out <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">est</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A `clarify_est` object (from `sim_adrf()`)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - Average does-response function of `age`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - 100 simulated values</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - 9 quantities estimated:                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 6 quantities estimated:                   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(15)] 0.8428184</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(20)] 0.8152710</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(25)] 0.7842572</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # ... and 3 more                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(40)] 0.6711382</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(45)] 0.6277080</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(50)] 0.5822739</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(23)] 0.7970814</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(31)] 0.7424782</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(39)] 0.6795296</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(47)] 0.6097376</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(55)] 0.5355393</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sim_adrf-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># AMEF for `age`</span></span></span>
 <span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_adrf</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, contrast <span class="op">=</span> <span class="st">"amef"</span>,</span></span>
-<span class="r-in"><span>               at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">55</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>               at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">55</span>, length.out <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>               verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">est</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A `clarify_est` object (from `sim_adrf()`)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - Average marginal effect function of `age`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - 100 simulated values</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - 9 quantities estimated:                          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 6 quantities estimated:                          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|15 -0.005168501</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|20 -0.005854165</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|25 -0.006551336</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> # ... and 3 more                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|40 -0.008444219</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|45 -0.008908180</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|50 -0.009241880</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|23 -0.006272573</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|31 -0.007367736</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|39 -0.008338032</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|47 -0.009058567</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|55 -0.009425810</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              Estimate    2.5 %   97.5 %</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|15 -0.00517 -0.00666 -0.00342</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|20 -0.00585 -0.00802 -0.00368</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|25 -0.00655 -0.00938 -0.00393</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|30 -0.00724 -0.01103 -0.00419</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|35 -0.00788 -0.01255 -0.00443</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|40 -0.00844 -0.01369 -0.00467</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|45 -0.00891 -0.01430 -0.00489</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|50 -0.00924 -0.01436 -0.00509</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|23 -0.00627 -0.00877 -0.00383</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|31 -0.00737 -0.01135 -0.00424</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|39 -0.00834 -0.01353 -0.00462</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|47 -0.00906 -0.01440 -0.00498</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|55 -0.00943 -0.01387 -0.00527</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sim_adrf-2.png" alt="" width="700" height="433"></span>
