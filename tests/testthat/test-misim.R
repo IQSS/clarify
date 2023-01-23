@@ -32,14 +32,14 @@ test_that("misim() works with lists of regressions", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = "HC3"))
   expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC(m[[1]])))
-  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC)))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) "HC3")))
   expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m[[i]]))))
 
   expect_error(misim(m, n = 5, vcov = coef))
   expect_error(misim(m, n = 5, vcov = sandwich::vcovHC(m[[1]])[-2,-2]))
-  expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) sandwich::vcovHC)))
+  expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) "HC3")))
   expect_error(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m[[i]])[-2,-2])))
   expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) sandwich::vcovHC(m[[i]]))))
 
@@ -91,14 +91,14 @@ test_that("misim() works with mira objects", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = "HC3"))
   expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])))
-  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC)))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) "HC3")))
   expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m$analyses[[i]]))))
 
   expect_error(misim(m, n = 5, vcov = coef))
   expect_error(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])[-2,-2]))
-  expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) sandwich::vcovHC)))
+  expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) "HC3")))
   expect_error(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m$analyses[[i]])[-2,-2])))
   expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) sandwich::vcovHC(m$analyses[[i]]))))
 
@@ -150,14 +150,14 @@ test_that("misim() works with mimira objects", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = "HC3"))
   expect_good_clarify_misim(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])))
-  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC)))
+  expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) "HC3")))
   expect_good_clarify_misim(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m$analyses[[i]]))))
 
   expect_error(misim(m, n = 5, vcov = coef))
   expect_error(misim(m, n = 5, vcov = sandwich::vcovHC(m$analyses[[1]])[-2,-2]))
-  expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) sandwich::vcovHC)))
+  expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) "HC3")))
   expect_error(misim(m, n = 5, vcov = lapply(1:10, function(i) sandwich::vcovHC(m$analyses[[i]])[-2,-2])))
   expect_error(misim(m, n = 5, vcov = lapply(1:9, function(i) sandwich::vcovHC(m$analyses[[i]]))))
 

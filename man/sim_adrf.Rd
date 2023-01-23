@@ -86,14 +86,15 @@ set.seed(123)
 s <- sim(fit, n = 100)
 
 # ADRF for `age`
-est <- sim_adrf(s, var = "age", at = seq(15, 55, by = 5),
+est <- sim_adrf(s, var = "age",
+                at = seq(15, 55, length.out = 6),
                 verbose = FALSE)
 est
 plot(est)
 
 # AMEF for `age`
 est <- sim_adrf(s, var = "age", contrast = "amef",
-               at = seq(15, 55, by = 5),
+               at = seq(15, 55, length.out = 6),
                verbose = FALSE)
 est
 summary(est)
