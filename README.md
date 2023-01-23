@@ -11,7 +11,7 @@ status](https://www.r-pkg.org/badges/version/clarify)](https://CRAN.R-project.or
 
 `clarify` implements simulation-based inference for computing functions
 of model parameters, such as average marginal effects. See the `clarify`
-[website](https://iqss.github.io/clarify) for documentation and other
+[website](https://iqss.github.io/clarify/) for documentation and other
 examples.
 
 ## Introduction
