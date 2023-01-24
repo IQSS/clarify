@@ -36,7 +36,7 @@
 #' s
 #'
 #' ## Could also use a robust covariance matrix, e.g.,
-#' # s <- sim(fit, vcov = sandwich::vcovHC)
+#' s <- sim(fit, vcov = "HC3")
 #'
 #' # Simulated coefficients assuming a normal distribution
 #' # for coefficients; default for `lm` objects is a t-

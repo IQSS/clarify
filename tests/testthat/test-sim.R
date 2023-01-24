@@ -655,6 +655,7 @@ test_that("sim() works with geepack::geeglm()", {
 })
 
 test_that("sim() works with rms::ols()", {
+  skip_on_cran()
   skip_if_not_installed("rms")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
@@ -724,6 +725,7 @@ test_that("sim() works with rms::ols()", {
 })
 
 test_that("sim() works with rms::lrm()", {
+  skip_on_cran()
   skip_if_not_installed("rms")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
