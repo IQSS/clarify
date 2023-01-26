@@ -6,7 +6,7 @@
 #' @param parm a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be displayed.
 #' @param level the confidence level desired. Default is .95 for 95% confidence intervals.
 #' @param method the method used to compute p-values and confidence intervals. Can be `"wald"` to use a Normal approximation or `"quantile"` to use the simulated sampling distribution (default). See Details. Abbreviations allowed.
-#' @param null the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled. Set values to `NA` to omit p-values for those quantities. When all values are `NA`, the default, no p-values are produced.
+#' @param null the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled, or it can be a named vector with just the names of quantities for which null values are to be set. Set values to `NA` to omit p-values for those quantities. When all values are `NA`, the default, no p-values are produced.
 #' @param ci `logical`; whether to display confidence interval limits for the estimates. Default is `TRUE`.
 #' @param ... for `plot()`, further arguments passed to [ggplot2::geom_density()].
 #'
@@ -44,9 +44,10 @@
 #'
 #' # Compute confidence intervals and p-values,
 #' # using given null values for computing p-values
-#' summary(est, null = c(NA, NA, 0, 1))
+#' summary(est, null = c(`RD` = 0, `RR` = 1))
 #'
-#' # Same tests using normal approximation
+#' # Same tests using normal approximation and alternate
+#' # syntax for `null`
 #' summary(est, null = c(NA, NA, 0, 1),
 #'         normal = TRUE)
 #'
@@ -76,20 +77,9 @@ summary.clarify_est <- function(object,
     .err("`parm` must be a numeric or character vector identifying the estimates to summarize")
   }
 
-  if (length(null) == 0 || (is.atomic(null) && all(is.na(null)))) {
-    null <- NA_real_
-  }
-  chk::chk_numeric(null)
+  null <- process_null(null, object, parm)
 
-  if (length(null) == 1) null <- rep(null, length(parm))
   test <- !all(is.na(null))
-
-  if (test) {
-    if (!chk::vld_length(null, length(parm))) {
-      .err(sprintf("`null` must have length 1 or length equal to the number of quantities estimated (%s)",
-                   length(parm)))
-    }
-  }
 
   nas <- anyNA(object[, parm])
   if (nas) chk::wrn("NA values present among the estimates")
