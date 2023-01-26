@@ -10,9 +10,85 @@ status](https://www.r-pkg.org/badges/version/clarify)](https://CRAN.R-project.or
 <!-- badges: end -->
 
 `clarify` implements simulation-based inference for computing functions
-of model parameters, such as average marginal effects. See the `clarify`
+of model parameters, such as average marginal effects and predictions at
+representative values of the predictors. See the `clarify`
 [website](https://iqss.github.io/clarify/) for documentation and other
-examples.
+examples. `clarify` was designed to replicate and expand on
+functionality previously provided by the `Zelig` package.
+
+## Installation
+
+`clarify` can be installed from CRAN using
+
+``` r
+install.packages("clarify")
+```
+
+You can install the development version of `clarify` from
+[GitHub](https://github.com/iqss/clarify) with
+
+``` r
+install.packages("remotes")
+remotes::install_github("iqss/clarify")
+```
+
+## Example
+
+Below is an example of performing g-computation for the average
+treatment effect on the treated (ATT) after logistic regression to
+compute the marginal log risk ratio and its confidence interval. First
+we load the data (in this case the `lalonde` dataset from `MatchIt`) and
+fit a logistic regression using functions outside of `clarify`:
+
+``` r
+library(clarify)
+
+data("lalonde", package = "MatchIt")
+
+# Fit the model
+fit <- glm(I(re78 == 0) ~ treat * (age + educ + race + married +
+                                     nodegree + re74 + re75),
+           data = lalonde, family = binomial)
+```
+
+Next, to estimate the ATT risk ratio, we simulate coefficients from
+their implied distribution and compute the effects of interest in each
+simulation, yielding a distribution of estimates that was can summarize
+and use for inference:
+
+``` r
+# Simulate coefficients from a multivariate normal distribution
+set.seed(123)
+sim_coefs <- sim(fit)
+
+# Marginal risk ratio ATT, simulation-based
+sim_est <- sim_ame(sim_coefs, var = "treat", subset = treat == 1,
+                   contrast = "RR", verbose = FALSE)
+
+sim_est
+#> A `clarify_est` object (from `sim_ame()`)
+#>  - Average marginal effect of `treat`
+#>  - 1000 simulated values
+#>  - 3 quantities estimated:                  
+#>  E[Y(0)] 0.2944381
+#>  E[Y(1)] 0.2432432
+#>  RR      0.8261270
+
+# View the estimates, confidence intervals, and p-values
+summary(sim_est, null = c(`RR` = 1))
+#>         Estimate 2.5 % 97.5 % P-value
+#> E[Y(0)]    0.294 0.220  0.384       .
+#> E[Y(1)]    0.243 0.199  0.360       .
+#> RR         0.826 0.619  1.391    0.79
+
+# Plot the resulting sampling distributions
+plot(sim_est)
+```
+
+<img src="man/figures/README-example-1.png" width="80%" />
+
+Below, we provide information on the framework `clarify` uses and some
+other examples. For a complete vignette, see `vignette("clarify")`.
 
 ## Introduction
 
@@ -47,14 +123,15 @@ p-values can be computed by inverting the confidence intervals.
 Alternatively, if the resulting sampling distribution is normally
 distributed, its standard error can be estimated as the standard
 deviation of the estimates and normal-theory confidence intervals and
-p-values can be computed.
+p-values can be computed. The methodology of simulation-based inference
+is explained in King, Tomz, and Wittenberg (2000).
 
-The `clarify` package was designed to provide a simple, general
-interface for simulation-based inference, along with a few convenience
-functions to perform common tasks like computing average marginal
-effects. The primary functions of `clarify` are `sim()`, `sim_apply()`,
-`summary()`, and `plot()`. These work together to create a simple
-workflow for simulation-based inference.
+`clarify` was designed to provide a simple, general interface for
+simulation-based inference, along with a few convenience functions to
+perform common tasks like computing average marginal effects. The
+primary functions of `clarify` are `sim()`, `sim_apply()`, `summary()`,
+and `plot()`. These work together to create a simple workflow for
+simulation-based inference.
 
 - `sim()` simulates model parameters from a fitted model
 - `sim_apply()` applies an estimator to the simulated coefficients, or
@@ -73,134 +150,64 @@ mirroring `Zelig::setx()` and `Zelig::setx1()`; and `sim_adrf()`
 computes average dose-response functions. `clarify` also offers support
 for models fit to multiply imputed data with the `misim()` function.
 
-## Installation
-
-`clarify` can be installed from CRAN using
-
-``` r
-install.packages("clarify")
-```
-
-You can install the development version of `clarify` from
-[GitHub](https://github.com/iqss/clarify) with
+In the example above, we used `sim_ame()` to compute the ATT, but we
+could have also done so manually using `sim_apply()`, as demonstrated
+below:
 
 ``` r
-install.packages("remotes")
-remotes::install_github("iqss/clarify")
-```
-
-## Example
-
-Below is an example of performing g-computation for the ATT after
-logistic regression to compute the marginal log risk ratio and its
-confidence interval:
-
-``` r
-library(clarify)
-
-data("lalonde", package = "MatchIt")
-
-# Fit the model
-fit <- glm(I(re78 == 0) ~ treat * (age + educ + race + married
-                                   + nodegree + re74 + re75),
-           data = lalonde, family = binomial)
-
-# Simulate coefficients from a multivariate normal distribution
-set.seed(123)
-sim_coefs <- sim(fit)
-
-# Apply a function that computes the g-computation estimate for the ATT
-# to models with the estimated coefficients replaced by the simulated ones
-sim_est <- sim_apply(sim_coefs, function(fit) {
+# Write a function that computes the g-computation estimate for the ATT
+ATT_fun <- function(fit) {
   d <- subset(lalonde, treat == 1)
   d$treat <- 1
   p1 <- mean(predict(fit, newdata = d, type = "response"))
   d$treat <- 0
   p0 <- mean(predict(fit, newdata = d, type = "response"))
-  c(`E[Y(0)]` = p0, `E[Y(1)]` = p1, `log(RR)` = log(p1 / p0))
-}, verbose = FALSE)
+  c(`E[Y(0)]` = p0, `E[Y(1)]` = p1, `RR` = p1 / p0)
+}
+
+# Apply that function to the simulated coefficient
+sim_est <- sim_apply(sim_coefs, ATT_fun, verbose = FALSE)
 
 sim_est
 #> A `clarify_est` object (from `sim_apply()`)
 #>  - 1000 simulated values
-#>  - 3 quantities estimated:                   
-#>  E[Y(0)]  0.2944381
-#>  E[Y(1)]  0.2432432
-#>  log(RR) -0.1910068
+#>  - 3 quantities estimated:                  
+#>  E[Y(0)] 0.2944381
+#>  E[Y(1)] 0.2432432
+#>  RR      0.8261270
 
-# View the estimates, confidence intervals, and p-values
-summary(sim_est, null = c(NA, NA, 0))
-#>         Estimate  2.5 % 97.5 % P-value
-#> E[Y(0)]    0.294  0.220  0.384       .
-#> E[Y(1)]    0.243  0.199  0.360       .
-#> log(RR)   -0.191 -0.479  0.330    0.79
+# View the estimates, confidence intervals, and p-values;
+# they are the same as when using sim_ame() above
+summary(sim_est, null = c(`RR` = 1))
+#>         Estimate 2.5 % 97.5 % P-value
+#> E[Y(0)]    0.294 0.220  0.384       .
+#> E[Y(1)]    0.243 0.199  0.360       .
+#> RR         0.826 0.619  1.391    0.79
 
 # Plot the resulting sampling distributions
 plot(sim_est)
 ```
 
-<img src="man/figures/README-example-1.png" width="80%" />
-
-`clarify` provides a shortcut for computing average marginal effects and
-comparisons between average adjusted predictions, `sim_ame()`, which is
-essentially a wrapper for `sim_apply()` with extra processing. We can
-compute the log marginal risk ratio below:
-
-``` r
-# Marginal risk ratio ATT, simulation-based
-sim_est <- sim_ame(sim_coefs, var = "treat", subset = treat == 1,
-                   contrast = "log(RR)", verbose = FALSE)
-
-sim_est
-#> A `clarify_est` object (from `sim_ame()`)
-#>  - Average marginal effect of `treat`
-#>  - 1000 simulated values
-#>  - 3 quantities estimated:                   
-#>  E[Y(0)]  0.2944381
-#>  E[Y(1)]  0.2432432
-#>  log(RR) -0.1910068
-
-summary(sim_est, null = c(NA, NA, 0))
-#>         Estimate  2.5 % 97.5 % P-value
-#> E[Y(0)]    0.294  0.220  0.384       .
-#> E[Y(1)]    0.243  0.199  0.360       .
-#> log(RR)   -0.191 -0.479  0.330    0.79
-```
-
-We could have used `marginaleffects`, which uses the delta method
-instead:
-
-``` r
-# Marginal risk ratio ATT, delta method-based
-marginaleffects::comparisons(fit, variables = "treat",
-                             newdata = subset(lalonde, treat == 1),
-                             transform_pre = "lnratioavg") |>
-  summary()
-#>    Term              Contrast Effect Std. Error z value Pr(>|z|)   2.5 % 97.5 %
-#> 1 treat ln(mean(1) / mean(0)) -0.191     0.1925  -0.992  0.32119 -0.5684 0.1864
-#> 
-#> Model type:  glm 
-#> Prediction type:  response
-```
+<img src="man/figures/README-example2-1.png" width="80%" />
 
 The plot of the simulated sampling distribution indicates that the
-sampling distribution for the log risk ratio is not normally distributed
+sampling distribution for the risk ratio is not normally distributed
 around the estimate, indicating that the delta method may be a poor
 approximation and the asymmetric confidence intervals produced using the
 simulation may be more valid.
 
-If we want to compute the marginal risk ratio, we can do that using
+If we want to compute the risk difference, we can do that using
 `transform()` on the already-produced output:
 
 ``` r
 #Transform estimates into new quantities of interest
-sim_est <- transform(sim_est, `RR` = exp(`log(RR)`))
-summary(sim_est, null = c(NA, NA, 0, 1))
-#>         Estimate  2.5 % 97.5 % P-value
-#> E[Y(0)]    0.294  0.220  0.384       .
-#> E[Y(1)]    0.243  0.199  0.360       .
-#> log(RR)   -0.191 -0.479  0.330    0.79
-#> RR         0.826  0.619  1.391    0.79
+sim_est <- transform(sim_est, `RD` = `E[Y(1)]` - `E[Y(0)]`)
+summary(sim_est, null = c(`RR` = 1, `RD` = 0))
+#>         Estimate   2.5 %  97.5 % P-value
+#> E[Y(0)]   0.2944  0.2199  0.3841       .
+#> E[Y(1)]   0.2432  0.1994  0.3602       .
+#> RR        0.8261  0.6192  1.3908    0.79
+#> RD       -0.0512 -0.1379  0.0927    0.79
 ```
 
 We can also use `clarify` to compute predictions and first differences
@@ -217,13 +224,18 @@ sim_est <- sim_setx(sim_coefs, x = list(age = 20:50, treat = 0:1),
 plot(sim_est)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="80%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="80%" />
+
+See `vignette("Zelig", package = "clarify")` for more examples of
+translating a `Zelig`-based workflow into one that uses `clarify` to
+estimate the same quantities of interest.
 
 `clarify` offers parallel processing for all estimation functions to
-speed up computation.
+speed up computation. Functionality is also available for the analysis
+of models fit to multiply imputed data. See `vignette("clarify")` for
+more details.
 
-The methodology of simulation-based inference is described in King,
-Tomz, and Wittenberg (2000).
+## References
 
 King, G., Tomz, M., & Wittenberg, J. (2000). Making the Most of
 Statistical Analyses: Improving Interpretation and Presentation.

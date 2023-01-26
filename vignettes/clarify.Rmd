@@ -59,15 +59,13 @@ head(lalonde)
 
 The first step is to fit the model. `clarify` can operate on a large set of models (those supported by `marginaleffects`), including generalized linear models, multinomial models, multivariate models, and instrumental variable models, many of which are available in other R packages. Even if `clarify` does not offer direct support for a given model, there are ways to use its functionality regardless (explained in more detail below).
 
-Because we are computing derived quantities, it is not critical to parameterize the model in such a way that the coefficients are interpretable. Below, we'll fit a probit regression model for the outcome given the treatment and confounders.
+Because we are computing derived quantities, it is not critical to parameterize the model in such a way that the coefficients are interpretable. Below, we'll fit a probit regression model for the outcome given the treatment and confounders. Coefficients in probit regression do not have a straightforward interpretation, but that's okay; our quantities of interest can be expressed as derived quantities--functions of the model parameters, such as predictions, counterfactual predictions, and averages and contrasts of them.
 
 ```{r}
 fit <- glm(re78_0 ~ treat + age + educ + race + married +
              nodegree + re74 + re75, data = lalonde,
            family = binomial("probit"))
 ```
-
-Coefficients in probit regression do not have a straightforward interpretation, but that's okay; our quantities of interest can be expressed as derived quantities--functions of the model parameters, such as predictions, counterfactual predictions, and averages and contrasts of them.
 
 ## 2. Drawing from the coefficient distribution
 
@@ -94,6 +92,8 @@ If your model is not supported by `clarify`, you can omit the `fit` argument and
 The output of the call to `sim()` is a `clarify_sim` object, which contains the sampled coefficients, the original model fit object if supplied, and the coefficients and covariance matrix used to sample.
 
 ```{r}
+set.seed(1234)
+
 # Drawing simulated coefficients using an HC2 robust
 # covariance matrix
 s <- sim(fit, vcov = "HC2")
@@ -154,7 +154,7 @@ est2 <- sim_apply(s, FUN = sim_fun2, verbose = FALSE)
 est2
 ```
 
-The function `FUN` can be arbitrarily complicated and return as many derived quantities as you want, though the slower each run of `FUN` is, the longer it will take to simulate the derived quantities. Using parallel processing by supplying an argument to `cl` can sometimes dramatically speed up evaluation.
+The function supplied to `FUN` can be arbitrarily complicated and return as many derived quantities as you want, though the slower each run of `FUN` is, the longer it will take to simulate the derived quantities. Using parallel processing by supplying an argument to `cl` can sometimes dramatically speed up evaluation.
 
 There are several functions in `clarify` that serve as convenience wrappers for `sim_apply()` to automate some common derived quantities of interest. These include
 
@@ -164,7 +164,7 @@ There are several functions in `clarify` that serve as convenience wrappers for 
 
 -   `sim_adrf()` -- computing average dose-response functions and average marginal effects functions
 
-These are described in their own sections below. In addition, there are functions that have methods for `simabsed_est` objects, including `cbind()` for combining two `clarify_est` objects together and `transform()` for computing quantities that are derived from the already-computed derived quantities. These are also described in their own sections below.
+These are described in their own sections below. In addition, there are functions that have methods for `clarify_est` objects, including `cbind()` for combining two `clarify_est` objects together and `transform()` for computing quantities that are derived from the already-computed derived quantities. These are also described in their own sections below.
 
 ## 4. Summarize and visualize the simulated distribution
 
@@ -210,7 +210,7 @@ summary(object = , parm = , level = , method = , null = )
 
 -   `null` -- an optional argument specifying the null value in a hypothesis test for the estimates. If specified, a p-value will be computed using either a standard Z-test (if `method` is `"quantile"`) or an inversion of the uncertainty interval. The default is not to display any p-values.
 
-We'll use `summary()` with the default arguments on our first `simabsed_est` object to view the point estimate and quantile-based uncertainty bounds.
+We'll use `summary()` with the default arguments on our first `clarify_est` object to view the point estimate and quantile-based uncertainty bounds.
 
 ```{r}
 summary(est1)
@@ -355,7 +355,7 @@ est6 <- sim_ame(s, var = "treat", subset = treat == 1,
 We can use `summary()` to display the estimates and their uncertainty intervals. Here, we'll also use `null` to include a test for the null hypothesis that the risk ratio is equal to 1 (but omit tests for the AMMs by setting their values to `NA` in the argument supplied to `null`).
 
 ```{r}
-summary(est6, null = c(NA, NA, 1))
+summary(est6, null = c(RR = 1))
 ```
 
 Here we see the estimates for the AMMs, `E[Y(0)]` for the expected value of the outcome setting `treat` to 0 and `E[Y(1)]` for the expected value of the outcome setting `treat` to 1, and the risk ratio `RR`. The p-value on the test for the risk ratio aligns with the uncertainty interval containing 1.
@@ -452,7 +452,7 @@ From the plot, we can see the AME of `age` increases slightly but is mostly cons
 
 # Transforming and combining estimates
 
-Often, our quantities of interest are not just the outputs of the functions above, but comparisons between them. For example, to test for moderation of a treatment effect, we may want to compare AMEs in multiple treatment groups. Or, it might be that we are interested in an effect described using a different effect measure than the one originally produced; for example, we may decide we want the risk difference AME after computing the risk ratio AME. The functions `transform()` and `cbind()` allow users to transform quantities in a single `simabsed_est` object and combine two `clarify_est` objects. These are essential for computing quantities that themselves are derived from the derived quantities computed by the `sim_*()` functions.
+Often, our quantities of interest are not just the outputs of the functions above, but comparisons between them. For example, to test for moderation of a treatment effect, we may want to compare AMEs in multiple treatment groups. Or, it might be that we are interested in an effect described using a different effect measure than the one originally produced; for example, we may decide we want the risk difference AME after computing the risk ratio AME. The functions `transform()` and `cbind()` allow users to transform quantities in a single `clarify_est` object and combine two `clarify_est` objects. These are essential for computing quantities that themselves are derived from the derived quantities computed by the `sim_*()` functions.
 
 ### `transform()`
 
@@ -462,7 +462,7 @@ Often, our quantities of interest are not just the outputs of the functions abov
 lalonde <- transform(lalonde, re78_0 = ifelse(re78 == 0, 1, 0))
 ```
 
-(Users familiar with the `tidyverse` will note the similarities between `transform()` and `dplyr::mutate()`; only `transform()` can be used with `simabsed_est` objects.)
+(Users familiar with the `tidyverse` will note the similarities between `transform()` and `dplyr::mutate()`; only `transform()` can be used with `clarify_est` objects.)
 
 Similarly, to compute a derived or transformed quantity from a `clarify_est` object, we can use `transform()`. Here, we'll compute the risk difference AME of `treat`; previously, we used `sim_ame()` to compute the AMMs and the risk ratio.
 
@@ -470,12 +470,12 @@ Similarly, to compute a derived or transformed quantity from a `clarify_est` obj
 est6 <- transform(est6, RD = `E[Y(1)]` - `E[Y(0)]`)
 ```
 
-Note that we used tics (\`\`\`) around the names of the AMMs; this is necessary when they contain special characters like parentheses or brackets.
+Note that we used tics (\`) around the names of the AMMs; this is necessary when they contain special characters like parentheses or brackets.
 
 When we run `summary()` on the output, the new quantity, which we named "RD", will be displayed along with the other estimates. We'll also set a null value for this quantity.
 
 ```{r}
-summary(est6, null = c(NA, NA, 1, 0))
+summary(est6, null = c(RR = 1, RD = 0))
 ```
 
 Something nice about using simulation-based inference with p-values computed from inverting the confidence intervals is that the p-values for the risk difference and risk ratio (and any other effect measure for comparing a pair of values) will always exactly align, thereby ensuring inference does not depend on the effect measure used.

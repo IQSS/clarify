@@ -2,7 +2,7 @@
 title: "Translating Zelig to clarify"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{"Translating Zelig to clarify"}
+  %\VignetteIndexEntry{Translating Zelig to clarify}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
