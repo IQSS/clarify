@@ -198,7 +198,7 @@ sim_ame <- function(sim,
         dat
       }))
       pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
-      p <- pred$predicted
+      p <- get_p(pred)
       vapply(seq_along(vals), function(i) {
         weighted.mean(p[seq_len(m) + (i - 1) * m], attr(fit, "weights"))
       }, numeric(1L))
@@ -243,7 +243,7 @@ sim_ame <- function(sim,
       dat2[[var]][-ind] <- dat2[[var]][-ind] + eps / 2
 
       pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
-      p <- pred$predicted
+      p <- get_p(pred)
 
       m0 <- weighted.mean(p[ind], attr(fit, "weights"))
       m1 <- weighted.mean(p[-ind], attr(fit, "weights"))

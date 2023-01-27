@@ -166,7 +166,7 @@ sim_adrf <- function(sim,
       vapply(at, function(x) {
         dat[[var]] <- x
         pred <- clarify_predict(fit, newdata = dat, group = outcome, type = type)
-        weighted.mean(pred$predicted, attr(fit, "weights"))
+        weighted.mean(get_p(pred), attr(fit, "weights"))
       }, numeric(1L))
     }
 
@@ -187,7 +187,7 @@ sim_adrf <- function(sim,
         dat2[[var]][ind] <- x - eps / 2
         dat2[[var]][-ind] <- x + eps / 2
         pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
-        p <- pred$predicted
+        p <- get_p(pred)
         m0 <- weighted.mean(p[ind], weights)
         m1 <- weighted.mean(p[-ind], weights)
         (m1 - m0) / eps
