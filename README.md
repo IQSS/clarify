@@ -36,7 +36,7 @@ remotes::install_github("iqss/clarify")
 
 Below is an example of performing g-computation for the average
 treatment effect on the treated (ATT) after logistic regression to
-compute the marginal log risk ratio and its confidence interval. First
+compute the average causal risk ratio and its confidence interval. First
 we load the data (in this case the `lalonde` dataset from `MatchIt`) and
 fit a logistic regression using functions outside of `clarify`:
 
@@ -95,39 +95,42 @@ other examples. For a complete vignette, see `vignette("clarify")`.
 Simulation-based inference is an alternative to the delta method and
 bootstrapping for performing inference on quantities that are functions
 of model parameters. The delta method involves multiple assumptions: 1)
-the regression coefficients are normally distributed, 2) the resulting
+the model coefficients are normally distributed, 2) the resulting
 quantity of interest is normally distributed, and 3) the first-order
 approximation to the variance of the desired estimator is equal to the
 true variance. When these assumptions are incorrect, which is especially
 likely when the quantity of interest is a complicated nonlinear function
 of the model coefficients, the resulting inferences can be inaccurate.
 Bootstrapping is one solution to this problem that does not require any
-of the above assumptions for valid nonparametric inference; however, it
-is computationally intensive because the original model needs to be fit
-many times, and any problems with the model that are only apparent in
-some bootstrap samples (e.g., failure to converge, perfect prediction)
-can make using bootstrapping challenging.
+of the above assumptions for valid nonparametric inference (though other
+assumptions are required); however, it is computationally intensive
+because the original model needs to be fit many times, and any problems
+with the model that are only apparent in some bootstrap samples (e.g.,
+failure to converge, perfect prediction) can make using bootstrapping
+challenging.
 
 Simulation-based inference provides a compromise to these two methods:
 it is more accurate than the delta method because it does not require
-assumptions 2) and 3), and it is faster and more stable than
-bootstrapping because the model only needs to be fit once.
-Simulation-based inference involves simulating model coefficients from
-their multivariate distribution using their estimated values and
-covariance from a single model fit to the original data, computing the
-quantities of interest from each set of model coefficients, and then
-performing inference using the resulting distribution of the estimates
-as their sampling distribution. Confidence intervals can be computed
-using the percentiles of the resulting sampling distribution, and
-p-values can be computed by inverting the confidence intervals.
-Alternatively, if the resulting sampling distribution is normally
-distributed, its standard error can be estimated as the standard
-deviation of the estimates and normal-theory confidence intervals and
-p-values can be computed. The methodology of simulation-based inference
-is explained in King, Tomz, and Wittenberg (2000).
+assumptions 2) and 3) (though it still relies on the central limit
+theorem to assume the coefficients are normally distributed), and it is
+faster and more stable than bootstrapping because the model only needs
+to be fit once. Simulation-based inference involves simulating model
+coefficients from their multivariate distribution using their estimated
+values and covariance from a single model fit to the original data,
+computing the quantities of interest from each set of model
+coefficients, and then performing inference using the resulting
+distribution of the estimates as their sampling distribution. Confidence
+intervals can be computed using the percentiles of the resulting
+sampling distribution, and p-values can be computed by inverting the
+confidence intervals. Alternatively, if the resulting sampling
+distribution is normally distributed, its standard error can be
+estimated as the standard deviation of the estimates and normal-theory
+Wald confidence intervals and p-values can be computed. The methodology
+of simulation-based inference is explained in King, Tomz, and Wittenberg
+(2000).
 
 `clarify` was designed to provide a simple, general interface for
-simulation-based inference, along with a few convenience functions to
+simulation-based inference and includes a few convenience functions to
 perform common tasks like computing average marginal effects. The
 primary functions of `clarify` are `sim()`, `sim_apply()`, `summary()`,
 and `plot()`. These work together to create a simple workflow for
@@ -178,7 +181,7 @@ sim_est
 
 # View the estimates, confidence intervals, and p-values;
 # they are the same as when using sim_ame() above
-summary(sim_est, null = c(`RR` = 1))
+summary(sim_est, null = c(NA, NA, 1))
 #>         Estimate 2.5 % 97.5 % P-value
 #> E[Y(0)]    0.294 0.220  0.384       .
 #> E[Y(1)]    0.243 0.199  0.360       .
@@ -202,7 +205,7 @@ If we want to compute the risk difference, we can do that using
 ``` r
 #Transform estimates into new quantities of interest
 sim_est <- transform(sim_est, `RD` = `E[Y(1)]` - `E[Y(0)]`)
-summary(sim_est, null = c(`RR` = 1, `RD` = 0))
+summary(sim_est, null = c(NA, NA, 1, 0))
 #>         Estimate   2.5 %  97.5 % P-value
 #> E[Y(0)]   0.2944  0.2199  0.3841       .
 #> E[Y(1)]   0.2432  0.1994  0.3602       .

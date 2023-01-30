@@ -355,7 +355,7 @@ est6 <- sim_ame(s, var = "treat", subset = treat == 1,
 We can use `summary()` to display the estimates and their uncertainty intervals. Here, we'll also use `null` to include a test for the null hypothesis that the risk ratio is equal to 1 (but omit tests for the AMMs by setting their values to `NA` in the argument supplied to `null`).
 
 ```{r}
-summary(est6, null = c(RR = 1))
+summary(est6, null = c(NA, NA, 1))
 ```
 
 Here we see the estimates for the AMMs, `E[Y(0)]` for the expected value of the outcome setting `treat` to 0 and `E[Y(1)]` for the expected value of the outcome setting `treat` to 1, and the risk ratio `RR`. The p-value on the test for the risk ratio aligns with the uncertainty interval containing 1.
@@ -475,7 +475,7 @@ Note that we used tics (\`) around the names of the AMMs; this is necessary when
 When we run `summary()` on the output, the new quantity, which we named "RD", will be displayed along with the other estimates. We'll also set a null value for this quantity.
 
 ```{r}
-summary(est6, null = c(RR = 1, RD = 0))
+summary(est6, null = c(NA, NA, 1, 0))
 ```
 
 Something nice about using simulation-based inference with p-values computed from inverting the confidence intervals is that the p-values for the risk difference and risk ratio (and any other effect measure for comparing a pair of values) will always exactly align, thereby ensuring inference does not depend on the effect measure used.
