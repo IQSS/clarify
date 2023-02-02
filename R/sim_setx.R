@@ -182,14 +182,14 @@ sim_setx <- function(sim,
   if (fd) {
     FUN <- function(fit) {
       pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
-      p <- setNames(pred$predicted, rownames(newdata))
+      p <- setNames(get_p(pred), rownames(newdata))
       c(p, "FD" = unname(diff(p)))
     }
   }
   else {
     FUN <- function(fit) {
       pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
-      setNames(pred$predicted, rownames(newdata))
+      setNames(get_p(pred), rownames(newdata))
     }
   }
 

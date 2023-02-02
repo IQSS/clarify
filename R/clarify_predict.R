@@ -15,3 +15,8 @@ subset_group <- function(pred, group = NULL) {
   if (is.null(group)) pred
   else pred[pred$group == group, , drop = FALSE]
 }
+
+get_p <- function(pred) {
+  if ("estimate" %in% names(pred)) pred[["estimate"]]
+  else pred[["predicted"]]
+}

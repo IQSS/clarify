@@ -237,6 +237,41 @@ process_parm <- function(object, parm) {
   parm
 }
 
+process_null <- function(null, object, parm) {
+  if (length(null) == 0 || (is.atomic(null) && all(is.na(null)))) {
+    null <- NA_real_
+  }
+  chk::chk_numeric(null)
+
+
+  if (!is.null(names(null))) {
+    null0 <- setNames(rep(NA_real_, length(parm)), names(object)[parm])
+
+    if (!all(names(null) %in% names(null0))) {
+      if (all(seq_len(ncol(object)) %in% parm)) {
+        .err("if `null` is named, its names must correspond to estimates in the supplied `clarify_est` object")
+      }
+      else {
+        .err("if `null` is named, its names must correspond to estimates specified in `parm`")
+      }
+    }
+
+    null0[names(null)] <- null
+  }
+  else if (length(null) == 1) {
+    null0 <- setNames(rep(null, length(parm)), names(object)[parm])
+  }
+  else if (length(null) == length(parm)) {
+    null0 <- setNames(null, names(object)[parm])
+  }
+  else {
+    .err(sprintf("`null` must have length 1 or length equal to the number of quantities estimated (%s)",
+                 length(parm)))
+  }
+
+  null0
+}
+
 #Edits to stats::.checkMFClasses
 check_classes <- function(olddata, newdata) {
   new <- vapply(newdata, stats::.MFclass, character(1L))
