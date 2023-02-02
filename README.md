@@ -181,7 +181,7 @@ sim_est
 
 # View the estimates, confidence intervals, and p-values;
 # they are the same as when using sim_ame() above
-summary(sim_est, null = c(NA, NA, 1))
+summary(sim_est, null = c(`RR` = 1))
 #>         Estimate 2.5 % 97.5 % P-value
 #> E[Y(0)]    0.294 0.220  0.384       .
 #> E[Y(1)]    0.243 0.199  0.360       .
@@ -205,7 +205,7 @@ If we want to compute the risk difference, we can do that using
 ``` r
 #Transform estimates into new quantities of interest
 sim_est <- transform(sim_est, `RD` = `E[Y(1)]` - `E[Y(0)]`)
-summary(sim_est, null = c(NA, NA, 1, 0))
+summary(sim_est, null = c(`RR` = 1, `RD` = 0))
 #>         Estimate   2.5 %  97.5 % P-value
 #> E[Y(0)]   0.2944  0.2199  0.3841       .
 #> E[Y(1)]   0.2432  0.1994  0.3602       .

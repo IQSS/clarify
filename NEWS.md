@@ -1,4 +1,4 @@
-# `clarify` (development version)
+# `clarify` 0.1.1
 
 * In `summary.clarify_est()`, `null` can now be supplied as a named vector to specify the quantities for which p-values should be computed.
 

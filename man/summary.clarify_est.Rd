@@ -25,7 +25,7 @@
 
 \item{object, x}{a \code{clarify_est} object; the output of a call to \code{\link[=sim_apply]{sim_apply()}} or its wrappers.}
 
-\item{null}{the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled. Set values to \code{NA} to omit p-values for those quantities. When all values are \code{NA}, the default, no p-values are produced.}
+\item{null}{the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled, or it can be a named vector with just the names of quantities for which null values are to be set. Set values to \code{NA} to omit p-values for those quantities. When all values are \code{NA}, the default, no p-values are produced.}
 }
 \value{
 For \code{summary()}, a \code{summary.clarify_est} object, which is a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to \code{summary()}.
@@ -63,9 +63,10 @@ est <- transform(est,
 
 # Compute confidence intervals and p-values,
 # using given null values for computing p-values
-summary(est, null = c(NA, NA, 0, 1))
+summary(est, null = c(`RD` = 0, `RR` = 1))
 
-# Same tests using normal approximation
+# Same tests using normal approximation and alternate
+# syntax for `null`
 summary(est, null = c(NA, NA, 0, 1),
         normal = TRUE)
 

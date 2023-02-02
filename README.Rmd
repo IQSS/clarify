@@ -108,7 +108,7 @@ sim_est
 
 # View the estimates, confidence intervals, and p-values;
 # they are the same as when using sim_ame() above
-summary(sim_est, null = c(NA, NA, 1))
+summary(sim_est, null = c(`RR` = 1))
 
 # Plot the resulting sampling distributions
 plot(sim_est)
@@ -121,7 +121,7 @@ If we want to compute the risk difference, we can do that using `transform()` on
 ```{r}
 #Transform estimates into new quantities of interest
 sim_est <- transform(sim_est, `RD` = `E[Y(1)]` - `E[Y(0)]`)
-summary(sim_est, null = c(NA, NA, 1, 0))
+summary(sim_est, null = c(`RR` = 1, `RD` = 0))
 ```
 
 We can also use `clarify` to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of `Zelig`'s `setx()` and `setx1()` functions, using `sim_setx()`:

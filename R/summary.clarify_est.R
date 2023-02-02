@@ -61,7 +61,6 @@ summary.clarify_est <- function(object,
                                 method = "quantile",
                                 null = NA,
                                 ...) {
-  ans <- list()
 
   if (is.null(attr(object, "original")) ||
       is.null(ncol(object)) ||
