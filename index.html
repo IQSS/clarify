@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,25 +75,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><code>clarify</code> implements simulation-based inference for computing functions of model parameters, such as average marginal effects. See the <code>clarify</code> <a href="https://iqss.github.io/clarify/" class="external-link">website</a> for documentation and other examples.</p>
-<div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h2>
-<p>Simulation-based inference is an alternative to the delta method and bootstrapping for performing inference on quantities that are functions of model parameters. The delta method involves multiple assumptions: 1) the regression coefficients are normally distributed, 2) the resulting quantity of interest is normally distributed, and 3) the first-order approximation to the variance of the desired estimator is equal to the true variance. When these assumptions are incorrect, which is especially likely when the quantity of interest is a complicated nonlinear function of the model coefficients, the resulting inferences can be inaccurate. Bootstrapping is one solution to this problem that does not require any of the above assumptions for valid nonparametric inference; however, it is computationally intensive because the original model needs to be fit many times, and any problems with the model that are only apparent in some bootstrap samples (e.g., failure to converge, perfect prediction) can make using bootstrapping challenging.</p>
-<p>Simulation-based inference provides a compromise to these two methods: it is more accurate than the delta method because it does not require assumptions 2) and 3), and it is faster and more stable than bootstrapping because the model only needs to be fit once. Simulation-based inference involves simulating model coefficients from their multivariate distribution using their estimated values and covariance from a single model fit to the original data, computing the quantities of interest from each set of model coefficients, and then performing inference using the resulting distribution of the estimates as their sampling distribution. Confidence intervals can be computed using the percentiles of the resulting sampling distribution, and p-values can be computed by inverting the confidence intervals. Alternatively, if the resulting sampling distribution is normally distributed, its standard error can be estimated as the standard deviation of the estimates and normal-theory confidence intervals and p-values can be computed.</p>
-<p>The <code>clarify</code> package was designed to provide a simple, general interface for simulation-based inference, along with a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of <code>clarify</code> are <code><a href="reference/sim.html">sim()</a></code>, <code><a href="reference/sim_apply.html">sim_apply()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. These work together to create a simple workflow for simulation-based inference.</p>
-<ul>
-<li>
-<code><a href="reference/sim.html">sim()</a></code> simulates model parameters from a fitted model</li>
-<li>
-<code><a href="reference/sim_apply.html">sim_apply()</a></code> applies an estimator to the simulated coefficients, or to the original object but with the new coefficients inserted</li>
-<li>
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> produces confidence intervals and p-values for the resulting estimates</li>
-<li>
-<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> produces plots of the simulated sampling distribution of the resulting estimates</li>
-</ul>
-<p>There are also some wrappers for <code><a href="reference/sim_apply.html">sim_apply()</a></code> for performing some common operations: <code><a href="reference/sim_ame.html">sim_ame()</a></code> computes the average marginal effect of a variable, mirroring <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons()</a></code> and <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>; <code><a href="reference/sim_setx.html">sim_setx()</a></code> computes predictions at typical values of the covariates and differences between them, mirroring <code><a href="https://rdrr.io/pkg/Zelig/man/setx.html" class="external-link">Zelig::setx()</a></code> and <code><a href="https://rdrr.io/pkg/Zelig/man/setx1.html" class="external-link">Zelig::setx1()</a></code>; and <code><a href="reference/sim_adrf.html">sim_adrf()</a></code> computes average dose-response functions. <code>clarify</code> also offers support for models fit to multiply imputed data with the <code><a href="reference/misim.html">misim()</a></code> function.</p>
-</div>
+<p><code>clarify</code> implements simulation-based inference for computing functions of model parameters, such as average marginal effects and predictions at representative values of the predictors. See the <code>clarify</code> <a href="https://iqss.github.io/clarify/" class="external-link">website</a> for documentation and other examples. <code>clarify</code> was designed to replicate and expand on functionality previously provided by the <code>Zelig</code> package.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -108,93 +90,109 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>Below is an example of performing g-computation for the ATT after logistic regression to compute the marginal log risk ratio and its confidence interval:</p>
+<p>Below is an example of performing g-computation for the average treatment effect on the treated (ATT) after logistic regression to compute the average causal risk ratio and its confidence interval. First we load the data (in this case the <code>lalonde</code> dataset from <code>MatchIt</code>) and fit a logistic regression using functions outside of <code>clarify</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/iqss/clarify" class="external-link">clarify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"MatchIt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Fit the model</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span></span>
-<span>                                   <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span><span class="op">)</span>,</span>
-<span>           data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="va">binomial</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Simulate coefficients from a multivariate normal distribution</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span></span>
+<span>                                     <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span><span class="op">)</span>,</span>
+<span>           data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="va">binomial</span><span class="op">)</span></span></code></pre></div>
+<p>Next, to estimate the ATT risk ratio, we simulate coefficients from their implied distribution and compute the effects of interest in each simulation, yielding a distribution of estimates that was can summarize and use for inference:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Simulate coefficients from a multivariate normal distribution</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">sim_coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Apply a function that computes the g-computation estimate for the ATT</span></span>
-<span><span class="co"># to models with the estimated coefficients replaced by the simulated ones</span></span>
-<span><span class="va">sim_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sim_apply.html">sim_apply</a></span><span class="op">(</span><span class="va">sim_coefs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span>
-<span>  <span class="va">d</span><span class="op">$</span><span class="va">treat</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span>  <span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">d</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">d</span><span class="op">$</span><span class="va">treat</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span>  <span class="va">p0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">d</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`E[Y(0)]` <span class="op">=</span> <span class="va">p0</span>, `E[Y(1)]` <span class="op">=</span> <span class="va">p1</span>, `log(RR)` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">p1</span> <span class="op">/</span> <span class="va">p0</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">sim_est</span></span>
-<span><span class="co">#&gt; A `clarify_est` object (from `sim_apply()`)</span></span>
-<span><span class="co">#&gt;  - 1000 simulated values</span></span>
-<span><span class="co">#&gt;  - 3 quantities estimated:                   </span></span>
-<span><span class="co">#&gt;  E[Y(0)]  0.2944381</span></span>
-<span><span class="co">#&gt;  E[Y(1)]  0.2432432</span></span>
-<span><span class="co">#&gt;  log(RR) -0.1910068</span></span>
-<span></span>
-<span><span class="co"># View the estimates, confidence intervals, and p-values</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim_est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         Estimate  2.5 % 97.5 % P-value</span></span>
-<span><span class="co">#&gt; E[Y(0)]    0.294  0.220  0.384       .</span></span>
-<span><span class="co">#&gt; E[Y(1)]    0.243  0.199  0.360       .</span></span>
-<span><span class="co">#&gt; log(RR)   -0.191 -0.479  0.330    0.79</span></span>
-<span></span>
-<span><span class="co"># Plot the resulting sampling distributions</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-example-1.png" width="80%"></p>
-<p><code>clarify</code> provides a shortcut for computing average marginal effects and comparisons between average adjusted predictions, <code><a href="reference/sim_ame.html">sim_ame()</a></code>, which is essentially a wrapper for <code><a href="reference/sim_apply.html">sim_apply()</a></code> with extra processing. We can compute the log marginal risk ratio below:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Marginal risk ratio ATT, simulation-based</span></span>
+<span><span class="co"># Marginal risk ratio ATT, simulation-based</span></span>
 <span><span class="va">sim_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">sim_coefs</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span>,</span>
-<span>                   contrast <span class="op">=</span> <span class="st">"log(RR)"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>                   contrast <span class="op">=</span> <span class="st">"RR"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sim_est</span></span>
 <span><span class="co">#&gt; A `clarify_est` object (from `sim_ame()`)</span></span>
 <span><span class="co">#&gt;  - Average marginal effect of `treat`</span></span>
 <span><span class="co">#&gt;  - 1000 simulated values</span></span>
-<span><span class="co">#&gt;  - 3 quantities estimated:                   </span></span>
-<span><span class="co">#&gt;  E[Y(0)]  0.2944381</span></span>
-<span><span class="co">#&gt;  E[Y(1)]  0.2432432</span></span>
-<span><span class="co">#&gt;  log(RR) -0.1910068</span></span>
+<span><span class="co">#&gt;  - 3 quantities estimated:                  </span></span>
+<span><span class="co">#&gt;  E[Y(0)] 0.2944381</span></span>
+<span><span class="co">#&gt;  E[Y(1)] 0.2432432</span></span>
+<span><span class="co">#&gt;  RR      0.8261270</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim_est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         Estimate  2.5 % 97.5 % P-value</span></span>
-<span><span class="co">#&gt; E[Y(0)]    0.294  0.220  0.384       .</span></span>
-<span><span class="co">#&gt; E[Y(1)]    0.243  0.199  0.360       .</span></span>
-<span><span class="co">#&gt; log(RR)   -0.191 -0.479  0.330    0.79</span></span></code></pre></div>
-<p>We could have used <code>marginaleffects</code>, which uses the delta method instead:</p>
+<span><span class="co"># View the estimates, confidence intervals, and p-values</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim_est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`RR` <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         Estimate 2.5 % 97.5 % P-value</span></span>
+<span><span class="co">#&gt; E[Y(0)]    0.294 0.220  0.384       .</span></span>
+<span><span class="co">#&gt; E[Y(1)]    0.243 0.199  0.360       .</span></span>
+<span><span class="co">#&gt; RR         0.826 0.619  1.391    0.79</span></span>
+<span></span>
+<span><span class="co"># Plot the resulting sampling distributions</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-1.png" width="80%"></p>
+<p>Below, we provide information on the framework <code>clarify</code> uses and some other examples. For a complete vignette, see <code><a href="articles/clarify.html">vignette("clarify")</a></code>.</p>
+</div>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>Simulation-based inference is an alternative to the delta method and bootstrapping for performing inference on quantities that are functions of model parameters. The delta method involves multiple assumptions: 1) the model coefficients are normally distributed, 2) the resulting quantity of interest is normally distributed, and 3) the first-order approximation to the variance of the desired estimator is equal to the true variance. When these assumptions are incorrect, which is especially likely when the quantity of interest is a complicated nonlinear function of the model coefficients, the resulting inferences can be inaccurate. Bootstrapping is one solution to this problem that does not require any of the above assumptions for valid nonparametric inference (though other assumptions are required); however, it is computationally intensive because the original model needs to be fit many times, and any problems with the model that are only apparent in some bootstrap samples (e.g., failure to converge, perfect prediction) can make using bootstrapping challenging.</p>
+<p>Simulation-based inference provides a compromise to these two methods: it is more accurate than the delta method because it does not require assumptions 2) and 3) (though it still relies on the central limit theorem to assume the coefficients are normally distributed), and it is faster and more stable than bootstrapping because the model only needs to be fit once. Simulation-based inference involves simulating model coefficients from their multivariate distribution using their estimated values and covariance from a single model fit to the original data, computing the quantities of interest from each set of model coefficients, and then performing inference using the resulting distribution of the estimates as their sampling distribution. Confidence intervals can be computed using the percentiles of the resulting sampling distribution, and p-values can be computed by inverting the confidence intervals. Alternatively, if the resulting sampling distribution is normally distributed, its standard error can be estimated as the standard deviation of the estimates and normal-theory Wald confidence intervals and p-values can be computed. The methodology of simulation-based inference is explained in King, Tomz, and Wittenberg (2000).</p>
+<p><code>clarify</code> was designed to provide a simple, general interface for simulation-based inference and includes a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of <code>clarify</code> are <code><a href="reference/sim.html">sim()</a></code>, <code><a href="reference/sim_apply.html">sim_apply()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. These work together to create a simple workflow for simulation-based inference.</p>
+<ul>
+<li>
+<code><a href="reference/sim.html">sim()</a></code> simulates model parameters from a fitted model</li>
+<li>
+<code><a href="reference/sim_apply.html">sim_apply()</a></code> applies an estimator to the simulated coefficients, or to the original object but with the new coefficients inserted</li>
+<li>
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> produces confidence intervals and p-values for the resulting estimates</li>
+<li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> produces plots of the simulated sampling distribution of the resulting estimates</li>
+</ul>
+<p>There are also some wrappers for <code><a href="reference/sim_apply.html">sim_apply()</a></code> for performing some common operations: <code><a href="reference/sim_ame.html">sim_ame()</a></code> computes the average marginal effect of a variable, mirroring <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons()</a></code> and <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>; <code><a href="reference/sim_setx.html">sim_setx()</a></code> computes predictions at typical values of the covariates and differences between them, mirroring <code><a href="https://rdrr.io/pkg/Zelig/man/setx.html" class="external-link">Zelig::setx()</a></code> and <code><a href="https://rdrr.io/pkg/Zelig/man/setx1.html" class="external-link">Zelig::setx1()</a></code>; and <code><a href="reference/sim_adrf.html">sim_adrf()</a></code> computes average dose-response functions. <code>clarify</code> also offers support for models fit to multiply imputed data with the <code><a href="reference/misim.html">misim()</a></code> function.</p>
+<p>In the example above, we used <code><a href="reference/sim_ame.html">sim_ame()</a></code> to compute the ATT, but we could have also done so manually using <code><a href="reference/sim_apply.html">sim_apply()</a></code>, as demonstrated below:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Marginal risk ratio ATT, delta method-based</span></span>
-<span><span class="fu">marginaleffects</span><span class="fu">::</span><span class="fu"><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">comparisons</a></span><span class="op">(</span><span class="va">fit</span>, variables <span class="op">=</span> <span class="st">"treat"</span>,</span>
-<span>                             newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>                             transform_pre <span class="op">=</span> <span class="st">"lnratioavg"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Term              Contrast Effect Std. Error z value Pr(&gt;|z|)   2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; 1 treat ln(mean(1) / mean(0)) -0.191     0.1925  -0.992  0.32119 -0.5684 0.1864</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model type:  glm </span></span>
-<span><span class="co">#&gt; Prediction type:  response</span></span></code></pre></div>
-<p>The plot of the simulated sampling distribution indicates that the sampling distribution for the log risk ratio is not normally distributed around the estimate, indicating that the delta method may be a poor approximation and the asymmetric confidence intervals produced using the simulation may be more valid.</p>
-<p>If we want to compute the marginal risk ratio, we can do that using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> on the already-produced output:</p>
+<code class="sourceCode R"><span><span class="co"># Write a function that computes the g-computation estimate for the ATT</span></span>
+<span><span class="va">ATT_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="va">d</span><span class="op">$</span><span class="va">treat</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span>  <span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">d</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">d</span><span class="op">$</span><span class="va">treat</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span>  <span class="va">p0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">d</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`E[Y(0)]` <span class="op">=</span> <span class="va">p0</span>, `E[Y(1)]` <span class="op">=</span> <span class="va">p1</span>, `RR` <span class="op">=</span> <span class="va">p1</span> <span class="op">/</span> <span class="va">p0</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Apply that function to the simulated coefficient</span></span>
+<span><span class="va">sim_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sim_apply.html">sim_apply</a></span><span class="op">(</span><span class="va">sim_coefs</span>, <span class="va">ATT_fun</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sim_est</span></span>
+<span><span class="co">#&gt; A `clarify_est` object (from `sim_apply()`)</span></span>
+<span><span class="co">#&gt;  - 1000 simulated values</span></span>
+<span><span class="co">#&gt;  - 3 quantities estimated:                  </span></span>
+<span><span class="co">#&gt;  E[Y(0)] 0.2944381</span></span>
+<span><span class="co">#&gt;  E[Y(1)] 0.2432432</span></span>
+<span><span class="co">#&gt;  RR      0.8261270</span></span>
+<span></span>
+<span><span class="co"># View the estimates, confidence intervals, and p-values;</span></span>
+<span><span class="co"># they are the same as when using sim_ame() above</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim_est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`RR` <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         Estimate 2.5 % 97.5 % P-value</span></span>
+<span><span class="co">#&gt; E[Y(0)]    0.294 0.220  0.384       .</span></span>
+<span><span class="co">#&gt; E[Y(1)]    0.243 0.199  0.360       .</span></span>
+<span><span class="co">#&gt; RR         0.826 0.619  1.391    0.79</span></span>
+<span></span>
+<span><span class="co"># Plot the resulting sampling distributions</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-example2-1.png" width="80%"></p>
+<p>The plot of the simulated sampling distribution indicates that the sampling distribution for the risk ratio is not normally distributed around the estimate, indicating that the delta method may be a poor approximation and the asymmetric confidence intervals produced using the simulation may be more valid.</p>
+<p>If we want to compute the risk difference, we can do that using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> on the already-produced output:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Transform estimates into new quantities of interest</span></span>
-<span><span class="va">sim_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">sim_est</span>, `RR` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">`log(RR)`</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim_est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         Estimate  2.5 % 97.5 % P-value</span></span>
-<span><span class="co">#&gt; E[Y(0)]    0.294  0.220  0.384       .</span></span>
-<span><span class="co">#&gt; E[Y(1)]    0.243  0.199  0.360       .</span></span>
-<span><span class="co">#&gt; log(RR)   -0.191 -0.479  0.330    0.79</span></span>
-<span><span class="co">#&gt; RR         0.826  0.619  1.391    0.79</span></span></code></pre></div>
+<span><span class="va">sim_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">sim_est</span>, `RD` <span class="op">=</span> <span class="va">`E[Y(1)]`</span> <span class="op">-</span> <span class="va">`E[Y(0)]`</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim_est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`RR` <span class="op">=</span> <span class="fl">1</span>, `RD` <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         Estimate   2.5 %  97.5 % P-value</span></span>
+<span><span class="co">#&gt; E[Y(0)]   0.2944  0.2199  0.3841       .</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.2432  0.1994  0.3602       .</span></span>
+<span><span class="co">#&gt; RR        0.8261  0.6192  1.3908    0.79</span></span>
+<span><span class="co">#&gt; RD       -0.0512 -0.1379  0.0927    0.79</span></span></code></pre></div>
 <p>We can also use <code>clarify</code> to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of <code>Zelig</code>’s <code>setx()</code> and <code>setx1()</code> functions, using <code><a href="reference/sim_setx.html">sim_setx()</a></code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Predictions across age and treat at typical values</span></span>
@@ -204,9 +202,13 @@
 <span></span>
 <span><span class="co">#Plot of predicted values across age for each value of treat</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="80%"></p>
-<p><code>clarify</code> offers parallel processing for all estimation functions to speed up computation.</p>
-<p>The methodology of simulation-based inference is described in King, Tomz, and Wittenberg (2000).</p>
+<p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="80%"></p>
+<p>See <code><a href="articles/Zelig.html">vignette("Zelig", package = "clarify")</a></code> for more examples of translating a <code>Zelig</code>-based workflow into one that uses <code>clarify</code> to estimate the same quantities of interest.</p>
+<p><code>clarify</code> offers parallel processing for all estimation functions to speed up computation. Functionality is also available for the analysis of models fit to multiply imputed data. See <code><a href="articles/clarify.html">vignette("clarify")</a></code> for more details.</p>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
 <p>King, G., Tomz, M., &amp; Wittenberg, J. (2000). Making the Most of Statistical Analyses: Improving Interpretation and Presentation. <em>American Journal of Political Science</em>, 44(2), 347–361. <a href="https://doi.org/10.2307/2669316" class="external-link uri">https://doi.org/10.2307/2669316</a></p>
 </div>
 </div>

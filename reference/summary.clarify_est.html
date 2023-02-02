@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,7 +97,7 @@
 
 
 <dt>null</dt>
-<dd><p>the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled. Set values to <code>NA</code> to omit p-values for those quantities. When all values are <code>NA</code>, the default, no p-values are produced.</p></dd>
+<dd><p>the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled, or it can be a named vector with just the names of quantities for which null values are to be set. Set values to <code>NA</code> to omit p-values for those quantities. When all values are <code>NA</code>, the default, no p-values are produced.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -147,14 +147,15 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compute confidence intervals and p-values,</span></span></span>
 <span class="r-in"><span><span class="co"># using given null values for computing p-values</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`RD` <span class="op">=</span> <span class="fl">0</span>, `RR` <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Estimate   2.5 %  97.5 % P-value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(0)]   0.7453  0.7051  0.7881       .</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(1)]   0.8176  0.7608  0.8900       .</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> RD        0.0722 -0.0069  0.1630    0.14</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> RR        1.0969  0.9913  1.2282    0.14</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Same tests using normal approximation</span></span></span>
+<span class="r-in"><span><span class="co"># Same tests using normal approximation and alternate</span></span></span>
+<span class="r-in"><span><span class="co"># syntax for `null`</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        normal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Estimate   2.5 %  97.5 % P-value</span>

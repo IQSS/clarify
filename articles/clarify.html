@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>clarify</h1>
             
-            <h4 data-toc-skip class="date">2023-01-25</h4>
+            <h4 data-toc-skip class="date">2023-02-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/iqss/clarify/blob/HEAD/vignettes/clarify.Rmd" class="external-link"><code>vignettes/clarify.Rmd</code></a></small>
       <div class="d-none name"><code>clarify.Rmd</code></div>
@@ -173,16 +173,15 @@ detail below).</p>
 <p>Because we are computing derived quantities, it is not critical to
 parameterize the model in such a way that the coefficients are
 interpretable. Below, we’ll fit a probit regression model for the
-outcome given the treatment and confounders.</p>
+outcome given the treatment and confounders. Coefficients in probit
+regression do not have a straightforward interpretation, but that’s
+okay; our quantities of interest can be expressed as derived
+quantities–functions of the model parameters, such as predictions,
+counterfactual predictions, and averages and contrasts of them.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">re78_0</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span></span>
 <span>             <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
 <span>           family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span><span class="st">"probit"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Coefficients in probit regression do not have a straightforward
-interpretation, but that’s okay; our quantities of interest can be
-expressed as derived quantities–functions of the model parameters, such
-as predictions, counterfactual predictions, and averages and contrasts
-of them.</p>
 </div>
 <div class="section level3">
 <h3 id="drawing-from-the-coefficient-distribution">2. Drawing from the coefficient distribution<a class="anchor" aria-label="anchor" href="#drawing-from-the-coefficient-distribution"></a>
@@ -236,7 +235,9 @@ sessions.</p>
 coefficients, the original model fit object if supplied, and the
 coefficients and covariance matrix used to sample.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Drawing simulated coefficients using an HC2 robust</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Drawing simulated coefficients using an HC2 robust</span></span>
 <span><span class="co"># covariance matrix</span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span>, vcov <span class="op">=</span> <span class="st">"HC2"</span><span class="op">)</span></span>
 <span></span>
@@ -333,11 +334,12 @@ them.</p>
 <span><span class="co">#&gt;  - 1000 simulated values</span></span>
 <span><span class="co">#&gt;  - 1 quantity estimated:                </span></span>
 <span><span class="co">#&gt;  w - h 0.1089068</span></span></code></pre></div>
-<p>The function <code>FUN</code> can be arbitrarily complicated and
-return as many derived quantities as you want, though the slower each
-run of <code>FUN</code> is, the longer it will take to simulate the
-derived quantities. Using parallel processing by supplying an argument
-to <code>cl</code> can sometimes dramatically speed up evaluation.</p>
+<p>The function supplied to <code>FUN</code> can be arbitrarily
+complicated and return as many derived quantities as you want, though
+the slower each run of <code>FUN</code> is, the longer it will take to
+simulate the derived quantities. Using parallel processing by supplying
+an argument to <code>cl</code> can sometimes dramatically speed up
+evaluation.</p>
 <p>There are several functions in <code>clarify</code> that serve as
 convenience wrappers for <code><a href="../reference/sim_apply.html">sim_apply()</a></code> to automate some
 common derived quantities of interest. These include</p>
@@ -352,7 +354,7 @@ effects</p></li>
 functions and average marginal effects functions</p></li>
 </ul>
 <p>These are described in their own sections below. In addition, there
-are functions that have methods for <code>simabsed_est</code> objects,
+are functions that have methods for <code>clarify_est</code> objects,
 including <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> for combining two
 <code>clarify_est</code> objects together and <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>
 for computing quantities that are derived from the already-computed
@@ -436,12 +438,12 @@ is <code>"quantile"</code>) or an inversion of the uncertainty interval.
 The default is not to display any p-values.</p></li>
 </ul>
 <p>We’ll use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> with the default arguments on our
-first <code>simabsed_est</code> object to view the point estimate and
+first <code>clarify_est</code> object to view the point estimate and
 quantile-based uncertainty bounds.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; PSID1  0.02377 0.00332 0.10349</span></span></code></pre></div>
+<span><span class="co">#&gt; PSID1  0.02377 0.00339 0.10539</span></span></code></pre></div>
 <p>Our second estimated quantity, the difference between two regression
 coefficients, is closer to Normally distributed, as the plot below
 demonstrates (and would be expected theoretically), so we’ll use the
@@ -454,7 +456,7 @@ Normal approximation to test the hypothesis that difference differs from
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est2</span>, method <span class="op">=</span> <span class="st">"wald"</span>, null <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       Estimate  2.5 % 97.5 % Std. Error Z value P-value</span></span>
-<span><span class="co">#&gt; w - h    0.109 -0.302  0.520      0.210    0.52     0.6</span></span></code></pre></div>
+<span><span class="co">#&gt; w - h    0.109 -0.307  0.525      0.212    0.51    0.61</span></span></code></pre></div>
 <p>The uncertainty intervals and p-values in the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 output are computed using the Normal approximation because we set
 <code>method = "wald"</code>, and the p-value for the test that our
@@ -606,9 +608,9 @@ predicted values and their first difference (“FD”):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est5</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; treat = 0   0.2316  0.1630  0.3116</span></span>
-<span><span class="co">#&gt; treat = 1   0.1667  0.0913  0.2773</span></span>
-<span><span class="co">#&gt; FD         -0.0649 -0.1398  0.0299</span></span></code></pre></div>
+<span><span class="co">#&gt; treat = 0   0.2316  0.1658  0.3117</span></span>
+<span><span class="co">#&gt; treat = 1   0.1667  0.0930  0.2728</span></span>
+<span><span class="co">#&gt; FD         -0.0649 -0.1346  0.0209</span></span></code></pre></div>
 <p>It is possible to compute first differences without using
 <code>x1</code> using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>, which we describe
 later.</p>
@@ -684,15 +686,13 @@ or ATT). We’ll request our estimate to be on the risk ratio scale.</p>
 <span>                contrast <span class="op">=</span> <span class="st">"rr"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We can use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to display the estimates and their
 uncertainty intervals. Here, we’ll also use <code>null</code> to include
-a test for the null hypothesis that the risk ratio is equal to 1 (but
-omit tests for the AMMs by setting their values to <code>NA</code> in
-the argument supplied to <code>null</code>).</p>
+a test for the null hypothesis that the risk ratio is equal to 1.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est6</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est6</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`RR` <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate 2.5 % 97.5 % P-value</span></span>
-<span><span class="co">#&gt; E[Y(0)]    0.319 0.243  0.397       .</span></span>
-<span><span class="co">#&gt; E[Y(1)]    0.244 0.189  0.320       .</span></span>
-<span><span class="co">#&gt; RR         0.765 0.551  1.115    0.15</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]    0.319 0.250  0.400       .</span></span>
+<span><span class="co">#&gt; E[Y(1)]    0.244 0.189  0.306       .</span></span>
+<span><span class="co">#&gt; RR         0.765 0.559  1.082    0.13</span></span></code></pre></div>
 <p>Here we see the estimates for the AMMs, <code>E[Y(0)]</code> for the
 expected value of the outcome setting <code>treat</code> to 0 and
 <code>E[Y(1)]</code> for the expected value of the outcome setting
@@ -714,7 +714,7 @@ uncertainty interval.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est7</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; dY/d(age)  0.00618 0.00253 0.00973</span></span></code></pre></div>
+<span><span class="co">#&gt; dY/d(age)  0.00618 0.00257 0.00965</span></span></code></pre></div>
 <p>The AME is named <code>dY/d(age)</code>, which signifies that a
 derivative has been computed (more precisely, the average of the
 unit-specific derivatives). This estimate can be interpreted like a
@@ -815,10 +815,10 @@ default, so we will request just the first 4 (<code>age</code>s 18 to
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est8</span>, parm <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          Estimate 2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(18)]    0.178 0.140  0.226</span></span>
-<span><span class="co">#&gt; E[Y(20)]    0.189 0.153  0.233</span></span>
-<span><span class="co">#&gt; E[Y(22)]    0.200 0.167  0.239</span></span>
-<span><span class="co">#&gt; E[Y(24)]    0.211 0.180  0.249</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(18)]    0.178 0.143  0.227</span></span>
+<span><span class="co">#&gt; E[Y(20)]    0.189 0.155  0.233</span></span>
+<span><span class="co">#&gt; E[Y(22)]    0.200 0.169  0.240</span></span>
+<span><span class="co">#&gt; E[Y(24)]    0.211 0.182  0.249</span></span></code></pre></div>
 <p>Next we’ll compute the AMEF, the effect of <code>age</code> at each
 level of <code>age</code>.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
@@ -845,7 +845,7 @@ effect described using a different effect measure than the one
 originally produced; for example, we may decide we want the risk
 difference AME after computing the risk ratio AME. The functions
 <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> and <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> allow users to
-transform quantities in a single <code>simabsed_est</code> object and
+transform quantities in a single <code>clarify_est</code> object and
 combine two <code>clarify_est</code> objects. These are essential for
 computing quantities that themselves are derived from the derived
 quantities computed by the <code>sim_*()</code> functions.</p>
@@ -862,7 +862,7 @@ model, we could have run the following:</p>
 <p>(Users familiar with the <code>tidyverse</code> will note the
 similarities between <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> and
 <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>; only <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> can be used
-with <code>simabsed_est</code> objects.)</p>
+with <code>clarify_est</code> objects.)</p>
 <p>Similarly, to compute a derived or transformed quantity from a
 <code>clarify_est</code> object, we can use <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>.
 Here, we’ll compute the risk difference AME of <code>treat</code>;
@@ -870,19 +870,19 @@ previously, we used <code><a href="../reference/sim_ame.html">sim_ame()</a></cod
 risk ratio.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">est6</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">est6</span>, RD <span class="op">=</span> <span class="va">`E[Y(1)]`</span> <span class="op">-</span> <span class="va">`E[Y(0)]`</span><span class="op">)</span></span></code></pre></div>
-<p>Note that we used tics (```) around the names of the AMMs; this is
+<p>Note that we used tics (`) around the names of the AMMs; this is
 necessary when they contain special characters like parentheses or
 brackets.</p>
 <p>When we run <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the output, the new quantity,
 which we named “RD”, will be displayed along with the other estimates.
 We’ll also set a null value for this quantity.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est6</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est6</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`RR` <span class="op">=</span> <span class="fl">1</span>, `RD` <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 % P-value</span></span>
-<span><span class="co">#&gt; E[Y(0)]   0.3195  0.2433  0.3967       .</span></span>
-<span><span class="co">#&gt; E[Y(1)]   0.2443  0.1886  0.3197       .</span></span>
-<span><span class="co">#&gt; RR        0.7646  0.5515  1.1150    0.15</span></span>
-<span><span class="co">#&gt; RD       -0.0752 -0.1675  0.0321    0.15</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]   0.3195  0.2501  0.4000       .</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.2443  0.1892  0.3062       .</span></span>
+<span><span class="co">#&gt; RR        0.7646  0.5592  1.0822    0.13</span></span>
+<span><span class="co">#&gt; RD       -0.0752 -0.1692  0.0216    0.13</span></span></code></pre></div>
 <p>Something nice about using simulation-based inference with p-values
 computed from inverting the confidence intervals is that the p-values
 for the risk difference and risk ratio (and any other effect measure for
@@ -912,18 +912,18 @@ for each subset:</p>
 <span>                  contrast <span class="op">=</span> <span class="st">"diff"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10b</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]   0.3370  0.2503  0.4249</span></span>
-<span><span class="co">#&gt; E[Y(1)]   0.2596  0.1987  0.3377</span></span>
-<span><span class="co">#&gt; Diff     -0.0774 -0.1725  0.0332</span></span>
+<span><span class="co">#&gt; E[Y(0)]   0.3370  0.2562  0.4279</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.2596  0.2004  0.3258</span></span>
+<span><span class="co">#&gt; Diff     -0.0774 -0.1743  0.0215</span></span>
 <span></span>
 <span><span class="co"># AME of treat with race = "hispan"</span></span>
 <span><span class="va">est10h</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">race</span> <span class="op">==</span> <span class="st">"hispan"</span>,</span>
 <span>                  contrast <span class="op">=</span> <span class="st">"diff"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10h</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]   0.1745  0.1015  0.2742</span></span>
-<span><span class="co">#&gt; E[Y(1)]   0.1225  0.0619  0.2152</span></span>
-<span><span class="co">#&gt; Diff     -0.0520 -0.1209  0.0258</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]   0.1745  0.1052  0.2875</span></span>
+<span><span class="co">#&gt; E[Y(1)]   0.1225  0.0602  0.2376</span></span>
+<span><span class="co">#&gt; Diff     -0.0520 -0.1161  0.0169</span></span></code></pre></div>
 <p>Here, we computed the risk difference for the subgroups
 <code>race == "black"</code> and <code>race == "hispan"</code>. If we
 wanted to compare the risk differences, we could combine them and
@@ -940,19 +940,19 @@ method for <code>clarify_est</code> objects.</p>
 <code class="sourceCode R"><span><span class="va">est10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">est10b</span>, <span class="va">est10h</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Estimate   2.5 %  97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]_b   0.3370  0.2503  0.4249</span></span>
-<span><span class="co">#&gt; E[Y(1)]_b   0.2596  0.1987  0.3377</span></span>
-<span><span class="co">#&gt; Diff_b     -0.0774 -0.1725  0.0332</span></span>
-<span><span class="co">#&gt; E[Y(0)]_h   0.1745  0.1015  0.2742</span></span>
-<span><span class="co">#&gt; E[Y(1)]_h   0.1225  0.0619  0.2152</span></span>
-<span><span class="co">#&gt; Diff_h     -0.0520 -0.1209  0.0258</span></span></code></pre></div>
+<span><span class="co">#&gt; E[Y(0)]_b   0.3370  0.2562  0.4279</span></span>
+<span><span class="co">#&gt; E[Y(1)]_b   0.2596  0.2004  0.3258</span></span>
+<span><span class="co">#&gt; Diff_b     -0.0774 -0.1743  0.0215</span></span>
+<span><span class="co">#&gt; E[Y(0)]_h   0.1745  0.1052  0.2875</span></span>
+<span><span class="co">#&gt; E[Y(1)]_h   0.1225  0.0602  0.2376</span></span>
+<span><span class="co">#&gt; Diff_h     -0.0520 -0.1161  0.0169</span></span></code></pre></div>
 <p>Finally, we can use <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> to compute the
 difference between the risk differences:</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">est10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">est10</span>, `Dh - Db` <span class="op">=</span> <span class="va">Diff_h</span> <span class="op">-</span> <span class="va">Diff_b</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est10</span>, parm <span class="op">=</span> <span class="st">"Dh - Db"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate    2.5 %   97.5 %</span></span>
-<span><span class="co">#&gt; Dh - Db  0.02540 -0.00897  0.07562</span></span></code></pre></div>
+<span><span class="co">#&gt; Dh - Db  0.02540 -0.00406  0.07855</span></span></code></pre></div>
 <p>Importantly, <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind()</a></code> can only be used to join together
 <code>clarify_est</code> objects computed using the same simulated
 coefficients (i.e., resulting from the same call to <code><a href="../reference/sim.html">sim()</a></code>).
@@ -1062,7 +1062,7 @@ run the same analysis afterward using <code><a href="../reference/sim_ame.html">
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est_mi</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     Estimate 2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; AME    -5.72 -9.23  -2.58</span></span></code></pre></div>
+<span><span class="co">#&gt; AME    -5.75 -8.91  -2.28</span></span></code></pre></div>
 <p>Note that <code><a href="../reference/sim_apply.html">sim_apply()</a></code> “knows” which imputation produced
 each set of simulated coefficients, so using
 <code><a href="https://easystats.github.io/insight/reference/get_predictors.html" class="external-link">insight::get_predictors()</a></code> on the <code>fit</code> supplied
@@ -1073,7 +1073,46 @@ imputations may not refer to a specific target population and mixing the
 draws may be invalid.</p>
 <p>Below, we can use <code><a href="../reference/sim_ame.html">sim_ame()</a></code>:</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est_mi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">si</span>, var <span class="op">=</span> <span class="st">"infl"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">est_mi2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">si</span>, var <span class="op">=</span> <span class="st">"infl"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning: Could not recover model data from environment. Please make sure your</span></span>
+<span><span class="co">#&gt;   data is available in your workspace.</span></span>
+<span><span class="co">#&gt;   Trying to retrieve data from the model frame now.</span></span></code></pre></div>
 <p>We get the same results, as expected.</p>
 </div>
 <div class="section level2">
