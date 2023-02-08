@@ -29,7 +29,7 @@ The \code{"dist"} attribute contains \code{"normal"} if the coefficients were sa
 \code{sim()} simulates model parameters from a multivariate normal or t distribution that are then used by \code{\link[=sim_apply]{sim_apply()}} to calculate quantities of interest.
 }
 \details{
-When \code{dist} is \code{NULL}, \code{sim()} samples from a multivariate normal or t distribution depending on whether \code{df.residual(fit)} is \code{NULL} or not. If \code{NULL} or \code{fit} is unspecified, a multivariate normal distribution is used. Otherwise (primarily for linear models fit with \code{lm()}), a multivariate t distribution is used, with \code{df.residual(fit)} used as the degrees of freedom.
+When \code{dist} is \code{NULL}, \code{sim()} samples from a multivariate normal or t distribution depending on the degrees of freedom extracted from \code{insight::get_df(., type = "wald")}. If \code{Inf}, a normal distribution will be used; otherwise, a t-distribution with the returned degrees of freedom will be used. Models not supported by \code{insight} will use a normal distribution.
 
 When a multivariate normal is used, it is sampled from with means equal to the estimated coefficients and the parameter covariance matrix as the covariance matrix using \code{\link[mvnfast:rmvn]{mvnfast::rmvn()}}. When a multivariate t distribution is used, it is sampled from with means equal to the estimated coefficients and scaling matrix equal to \code{cov*(df - 2)/df}, where \code{cov} is the parameter covariance matrix and \code{df} is the residual degrees of freedom for the model, using \code{\link[mvnfast:rmvt]{mvnfast::rmvt()}}.
 }
@@ -58,5 +58,6 @@ s
 \item \code{\link[=sim_apply]{sim_apply()}} for applying a function to each set of simulated coefficients
 \item \code{\link[=sim_ame]{sim_ame()}} for computing average marginal effects in each simulation draw
 \item \code{\link[=sim_setx]{sim_setx()}} for computing marginal predictions and first differences at typical values in each simulation draw
+\item \code{\link[=sim_adrf]{sim_adrf()}} for computing average dose-response functions in each simulation draw
 }
 }
