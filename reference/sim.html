@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,7 +106,7 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>When <code>dist</code> is <code>NULL</code>, <code>sim()</code> samples from a multivariate normal or t distribution depending on whether <code>df.residual(fit)</code> is <code>NULL</code> or not. If <code>NULL</code> or <code>fit</code> is unspecified, a multivariate normal distribution is used. Otherwise (primarily for linear models fit with <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm()</a></code>), a multivariate t distribution is used, with <code>df.residual(fit)</code> used as the degrees of freedom.</p>
+    <p>When <code>dist</code> is <code>NULL</code>, <code>sim()</code> samples from a multivariate normal or t distribution depending on the degrees of freedom extracted from <code>insight::get_df(., type = "wald")</code>. If <code>Inf</code>, a normal distribution will be used; otherwise, a t-distribution with the returned degrees of freedom will be used. Models not supported by <code>insight</code> will use a normal distribution.</p>
 <p>When a multivariate normal is used, it is sampled from with means equal to the estimated coefficients and the parameter covariance matrix as the covariance matrix using <code><a href="https://rdrr.io/pkg/mvnfast/man/rmvn.html" class="external-link">mvnfast::rmvn()</a></code>. When a multivariate t distribution is used, it is sampled from with means equal to the estimated coefficients and scaling matrix equal to <code>cov*(df - 2)/df</code>, where <code>cov</code> is the parameter covariance matrix and <code>df</code> is the residual degrees of freedom for the model, using <code><a href="https://rdrr.io/pkg/mvnfast/man/rmvt.html" class="external-link">mvnfast::rmvt()</a></code>.</p>
     </div>
     <div class="section level2">
@@ -116,6 +116,7 @@
 <li><p><code><a href="sim_apply.html">sim_apply()</a></code> for applying a function to each set of simulated coefficients</p></li>
 <li><p><code><a href="sim_ame.html">sim_ame()</a></code> for computing average marginal effects in each simulation draw</p></li>
 <li><p><code><a href="sim_setx.html">sim_setx()</a></code> for computing marginal predictions and first differences at typical values in each simulation draw</p></li>
+<li><p><code><a href="sim_adrf.html">sim_adrf()</a></code> for computing average dose-response functions in each simulation draw</p></li>
 </ul></div>
     </div>
 
