@@ -1,6 +1,6 @@
 # `clarify` (development version)
 
-* Fixed error in `sim()` documentation about how degrees of freedom are computed. Thanks to @wviechtb. (#1)
+* Fixed error in `sim()` documentation about how degrees of freedom are computed. Thanks to @wviechtb. (#8)
 
 # `clarify` 0.1.1
 
