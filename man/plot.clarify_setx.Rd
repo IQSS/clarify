@@ -4,7 +4,15 @@
 \alias{plot.clarify_setx}
 \title{Plot marginal predictions from \code{sim_setx()}}
 \usage{
-\method{plot}{clarify_setx}(x, var = NULL, ci = TRUE, level = 0.95, method = "quantile", ...)
+\method{plot}{clarify_setx}(
+  x,
+  var = NULL,
+  ci = TRUE,
+  level = 0.95,
+  method = "quantile",
+  reference = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{a \code{clarify_est} object resulting from a call to \code{\link[=sim_setx]{sim_setx()}}.}
@@ -16,6 +24,8 @@
 \item{level}{the confidence level desired. Default is .95 for 95\% confidence intervals.}
 
 \item{method}{the method used to compute confidence intervals or bands. Can be \code{"wald"} to use a Normal approximation or \code{"quantile"} to use the simulated sampling distribution (default). See \code{\link[=summary.clarify_est]{summary.clarify_est()}} for details. Abbreviations allowed.}
+
+\item{reference}{\code{logical}; whether to overlay a normal density reference distribution over the plots. Default is \code{FALSE}. Ignored when variables other than the focal varying predictor vary.}
 
 \item{...}{for \code{plot()}, further arguments passed to \code{\link[ggplot2:geom_density]{ggplot2::geom_density()}}.}
 }

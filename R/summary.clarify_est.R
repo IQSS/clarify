@@ -8,6 +8,7 @@
 #' @param method the method used to compute p-values and confidence intervals. Can be `"wald"` to use a Normal approximation or `"quantile"` to use the simulated sampling distribution (default). See Details. Abbreviations allowed.
 #' @param null the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled, or it can be a named vector with just the names of quantities for which null values are to be set. Set values to `NA` to omit p-values for those quantities. When all values are `NA`, the default, no p-values are produced.
 #' @param ci `logical`; whether to display confidence interval limits for the estimates. Default is `TRUE`.
+#' @param reference `logical`; whether to overlay a normal density reference distribution over the plots. Default is `FALSE`.
 #' @param ... for `plot()`, further arguments passed to [ggplot2::geom_density()].
 #'
 #' @return For `summary()`, a `summary.clarify_est` object, which is a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to `summary()`.
@@ -51,8 +52,12 @@
 #' summary(est, null = c(NA, NA, 0, 1),
 #'         normal = TRUE)
 #'
-#' # Plot the RD and RR
-#' plot(est, parm = c("RD", "RR"))
+#' # Plot the RD and RR with a reference distribution
+#' plot(est, parm = c("RD", "RR"), reference = TRUE,
+#'      ci = FALSE)
+#'
+#' # Plot the RD and RR with quantile confidence bounds
+#' plot(est, parm = c("RD", "RR"), ci = TRUE)
 #'
 #' @export
 summary.clarify_est <- function(object,
