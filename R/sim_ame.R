@@ -106,10 +106,10 @@ sim_ame <- function(sim,
   }
 
   if (is_misim) {
-    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors))
+    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors, verbose = FALSE))
   }
   else {
-    dat <- insight::get_predictors(sim$fit)
+    dat <- insight::get_predictors(sim$fit, verbose = FALSE)
   }
 
   if (!var %in% names(dat)) {
@@ -302,7 +302,7 @@ attach_pred_data_to_fit <- function(fit, index.sub = NULL, is_fitlist = FALSE) {
     fit <- lapply(fit, attach_pred_data_to_fit, index.sub)
   }
   else {
-    data <- insight::get_data(fit)
+    data <- insight::get_data(fit, verbose = FALSE)
     weights <- insight::get_weights(fit, null_as_ones = TRUE)
     vars <- insight::find_predictors(fit, effects = "fixed", component = "all",
                                      flatten = TRUE)
