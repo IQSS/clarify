@@ -1,7 +1,7 @@
 Package: clarify
 Type: Package
 Title: Simulation-Based Inference for Regression Models
-Version: 0.1.1.9000
+Version: 0.1.1.9001
 Authors@R: c(
   person("Noah", "Greifer", role = c("aut", "cre"), 
          email = "ngreifer@iq.harvard.edu",
@@ -25,7 +25,7 @@ Imports:
     pbapply,
     chk (>= 0.8.1),
     rlang,
-    insight (>= 0.18.8),
+    insight (>= 0.19.0),
     marginaleffects (>= 0.8.1),
     mvnfast
 Suggests: 
