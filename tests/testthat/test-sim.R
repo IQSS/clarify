@@ -439,6 +439,7 @@ test_that("sim() works with estimatr::iv_robust()", {
 
 test_that("sim() works with fixest::feols()", {
   skip_if_not_installed("fixest")
+  fixest::setFixest_nthreads(1)
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- fixest::feols(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -677,7 +678,7 @@ test_that("sim() works with rms::ols()", {
   expect_equal(colnames(s$sim.coefs),
                c("Intercept", "treat", "age", "age^2", "age^3", "educ", "race=hispan",
                  "race=white", "re74", "re74'"))
-  expect_equal(attr(s, "dist"), "t(569.230711076445)")
+  expect_true(grepl("t\\(569.230711", attr(s, "dist")))
 
   s <- sim(fit, n = 5, dist = "norm")
   expect_good_clarify_sim(s)

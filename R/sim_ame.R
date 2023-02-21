@@ -302,7 +302,7 @@ attach_pred_data_to_fit <- function(fit, index.sub = NULL, is_fitlist = FALSE) {
     fit <- lapply(fit, attach_pred_data_to_fit, index.sub)
   }
   else {
-    data <- insight::get_data(fit)
+    data <- insight::get_data(fit, verbose = FALSE)
     weights <- insight::get_weights(fit, null_as_ones = TRUE)
     vars <- insight::find_predictors(fit, effects = "fixed", component = "all",
                                      flatten = TRUE)

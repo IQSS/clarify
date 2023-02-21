@@ -560,6 +560,7 @@ test_that("sim_ame() works with estimatr::iv_robust()", {
 
 test_that("sim_ame() works with fixest::feols()", {
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
+  fixest::setFixest_nthreads(1)
 
   fit <- fixest::feols(re78 ~ treat + age + educ + race + re74, data = mdata,
                        weights = ~weights)
@@ -879,14 +880,14 @@ test_that("sim_ame() works with rms::ols()", {
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   suppressMessages(library(rms))
-
+  
   dd <<- suppressWarnings(datadist(mdata))
   op <- options(datadist = "dd")
 
   fit <- ols(re78 ~ treat + pol(age, 3) +
                educ + catg(race) + rcs(re74, 4), data = mdata,
              penalty = 3)
-
+  
   s <- sim(fit, n = 5)
 
   e <- sim_ame(s, "treat", verbose = FALSE)
