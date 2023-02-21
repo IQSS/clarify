@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -373,7 +373,7 @@ estimate (computed using the original coefficients) and, optionally,
 uncertainty bounds (which function like confidence or credible interval
 bounds). The arguments to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> are below:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> , parm <span class="op">=</span> , ci <span class="op">=</span> , level <span class="op">=</span> , method <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> , parm <span class="op">=</span> , ci <span class="op">=</span> , level <span class="op">=</span> , method <span class="op">=</span> , reference <span class="op">=</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li><p><code>x</code> – the <code>clarify_est</code> object (the output
 of a call to <code><a href="../reference/sim_apply.html">sim_apply()</a></code>).</p></li>
@@ -398,11 +398,14 @@ the point estimate. The default is <code>"quantile"</code> to instead
 use quantile-based bounds, which are more appropriate when the
 distribution is non-Normal. However, quantile-based bounds may require
 more simulations to stabilize.</p></li>
+<li><p><code>reference</code> – whether to display a normal density over
+the plot for each estimate, The default is <code>FALSE</code> to omit
+them.</p></li>
 </ul>
 <p>Below, we plot the first estimate we computed above, the predicted
 probability for participant PSID1:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est1</span>, reference <span class="op">=</span> <span class="cn">TRUE</span>, ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="clarify_files/figure-html/unnamed-chunk-8-1.png" width="624" style="display: block; margin: auto;"></p>
 <p>From the plot, we can see that the distribution of simulated values
 is non-Normal and asymmetrical, with no values falling below 0 because
@@ -450,7 +453,7 @@ demonstrates (and would be expected theoretically), so we’ll use the
 Normal approximation to test the hypothesis that difference differs from
 0.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est2</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est2</span>, reference <span class="op">=</span> <span class="cn">TRUE</span>, ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="clarify_files/figure-html/unnamed-chunk-10-1.png" width="624" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -544,9 +547,10 @@ from <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external
 of the outcome for control and treated units, at <code>re75</code> set
 to 0 and 20000, and <code>race</code> set to “black”.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>,</span>
-<span>                             re75 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20000</span><span class="op">)</span>,</span>
-<span>                             race <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">est3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>,</span>
+<span>                 x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>,</span>
+<span>                          re75 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20000</span><span class="op">)</span>,</span>
+<span>                          race <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span>,</span>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>When we use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the resulting output, we can
 see the estimates and their uncertainty intervals (calculated using
@@ -568,10 +572,11 @@ the object:</p>
 <span><span class="co">#&gt; treat = 1, re75 = 20000 20000</span></span></code></pre></div>
 <p>We can plot the distributions of the simulated values using
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>, which also separates the predictions by the
-predictor values (it’s often clearer without the uncertainty
-bounds):</p>
+predictor values (it’s often clearer without the uncertainty bounds).
+The <code>var</code> argument controls which variable is used for
+facetting the plots.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est3</span>, ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est3</span>, var <span class="op">=</span> <span class="st">"re75"</span>, ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="clarify_files/figure-html/unnamed-chunk-13-1.png" width="624" style="display: block; margin: auto;"></p>
 <p>We can see again how a delta method or Normal approximation may not
 have yielded valid uncertainty intervals given the non-Normality of the
@@ -581,9 +586,10 @@ the predictors, something like a dose-response function for a typical
 unit can be generated. Below, we set <code>re75</code> to vary from 0 to
 20000 in steps of 2000.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>,</span>
-<span>                             re75 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20000</span>, by <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>,</span>
-<span>                             race <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">est4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>,</span>
+<span>                 x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>,</span>
+<span>                          re75 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20000</span>, by <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>,</span>
+<span>                          race <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span>,</span>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>When we plot the output, we can see how the predictions varies across
 the levels of <code>re75</code>:</p>
@@ -600,7 +606,8 @@ difference. Below, we simulate first difference for a treated and
 control unit who have <code>re75</code> of 0 and typical values of all
 other covariates:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span>, re75 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">est5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_setx.html">sim_setx</a></span><span class="op">(</span><span class="va">s</span>,</span>
+<span>                 x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span>, re75 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                 x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">1</span>, re75 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>When we use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, we see the estimates for the
@@ -682,7 +689,8 @@ from <code><a href="https://rdrr.io/r/parallel/makeCluster.html" class="external
 inference, this is known as the average treatment effect in the treated,
 or ATT). We’ll request our estimate to be on the risk ratio scale.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">est6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span>,</span>
+<code class="sourceCode R"><span><span class="va">est6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span><span class="va">s</span>,</span>
+<span>                var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span>,</span>
 <span>                contrast <span class="op">=</span> <span class="st">"rr"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We can use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to display the estimates and their
 uncertainty intervals. Here, we’ll also use <code>null</code> to include
@@ -1054,7 +1062,7 @@ run the same analysis afterward using <code><a href="../reference/sim_ame.html">
 <span>  </span>
 <span>  <span class="co">#Perturb infl slightly</span></span>
 <span>  <span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">X</span>, infl <span class="op">=</span> <span class="va">infl</span> <span class="op">+</span> <span class="fl">1e-5</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
+<span>  </span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>AME <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">p1</span> <span class="op">-</span> <span class="va">p0</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1e-5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
