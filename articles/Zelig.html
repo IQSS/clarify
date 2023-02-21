@@ -142,7 +142,7 @@ values of <code>treat</code>:</p>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">setx1</span><span class="op">(</span><span class="va">fit</span>, treat <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>Next we simulate the values using <code><a href="../reference/sim.html">sim()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">Zelig</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Zelig/man/sim.html" class="external-link">sim</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">Zelig</span><span class="fu">::</span><span class="fu">sim</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, we can print and plot the predicted values and first
 differences:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -214,12 +214,12 @@ logistic regression in <code>Zelig</code> and in
 <span></span>
 <span><span class="va">fit</span></span></code></pre></div>
 <p>We can compute predicted values at representative values using
-<code>setx()</code> and <code><a href="https://rdrr.io/pkg/Zelig/man/sim.html" class="external-link">Zelig::sim()</a></code> as above.</p>
+<code>setx()</code> and <code>Zelig::sim()</code> as above.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">setx</span><span class="op">(</span><span class="va">fit</span>, treat <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">setx1</span><span class="op">(</span><span class="va">fit</span>, treat <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">Zelig</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Zelig/man/sim.html" class="external-link">sim</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">Zelig</span><span class="fu">::</span><span class="fu">sim</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit</span></span></code></pre></div>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -386,13 +386,13 @@ fit a model in each imputed dataset:</p>
 done using <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<p>We can use <code><a href="https://rdrr.io/pkg/Zelig/man/sim.html" class="external-link">Zelig::sim()</a></code> and <code>setx()</code> to
+<p>We can use <code>Zelig::sim()</code> and <code>setx()</code> to
 compute predictions at specified values of the predictors:</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">setx</span><span class="op">(</span><span class="va">fit</span>, infl <span class="op">=</span> <span class="fl">0</span>, trade <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">setx1</span><span class="op">(</span><span class="va">fit</span>, infl <span class="op">=</span> <span class="fl">0</span>, trade <span class="op">=</span> <span class="fl">60</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">Zelig</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Zelig/man/sim.html" class="external-link">sim</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">Zelig</span><span class="fu">::</span><span class="fu">sim</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <p><code>Zelig</code> does not allow you to combine predicted values
 across imputations.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
