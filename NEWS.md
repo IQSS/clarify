@@ -1,4 +1,4 @@
-# `clarify` (development version)
+# `clarify` 0.1.2
 
 * Added the argument `reference` to `plot.clarify_est()`, which adds a reference normal distribution to the density of the estimates.
 
