@@ -168,6 +168,7 @@ test_that("sim_ame() works with glm()", {
 })
 
 test_that("sim_ame() works with MASS::glm.nb()", {
+  skip_if_not_installed("MASS")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- MASS::glm.nb(countY ~ treat + age + educ + race + re74, data = mdata,
@@ -246,6 +247,7 @@ test_that("sim_ame() works with MASS::glm.nb()", {
 })
 
 test_that("sim_ame() works with betareg::betareg()", {
+  skip_if_not_installed("betareg")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- betareg::betareg(propY ~ treat + age + educ + race + re74 | treat + age,
@@ -324,6 +326,7 @@ test_that("sim_ame() works with betareg::betareg()", {
 })
 
 test_that("sim_ame() works with survey::svyglm()", {
+  skip_if_not_installed("survey")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- survey::svyglm(binY ~ treat + age + educ + race + re74, family = quasibinomial,
@@ -402,6 +405,7 @@ test_that("sim_ame() works with survey::svyglm()", {
 })
 
 test_that("sim_ame() works with estimatr::lm_robust()", {
+  skip_if_not_installed("estimatr")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- estimatr::lm_robust(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -480,6 +484,7 @@ test_that("sim_ame() works with estimatr::lm_robust()", {
 })
 
 test_that("sim_ame() works with estimatr::iv_robust()", {
+  skip_if_not_installed("estimatr")
   skip("'estimatr' has problems with model.frame.iv_robust(), which causes an error with insight::get_data().")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
@@ -559,6 +564,8 @@ test_that("sim_ame() works with estimatr::iv_robust()", {
 })
 
 test_that("sim_ame() works with fixest::feols()", {
+  skip_on_cran()
+  skip_if_not_installed("fixest")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
   fixest::setFixest_nthreads(1)
 
@@ -638,6 +645,8 @@ test_that("sim_ame() works with fixest::feols()", {
 })
 
 test_that("sim_ame() works with fixest::feglm()", {
+  skip_on_cran()
+  skip_if_not_installed("fixest")
   # skip("'fixest' has problems with scoping. Can't test until fixed.")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
@@ -717,6 +726,7 @@ test_that("sim_ame() works with fixest::feglm()", {
 })
 
 test_that("sim_ame() works with logistf::logistf()", {
+  skip_if_not_installed("logistf")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- logistf::logistf(binY ~ treat + age + educ + race + re74, data = mdata,
@@ -795,6 +805,7 @@ test_that("sim_ame() works with logistf::logistf()", {
 })
 
 test_that("sim_ame() works with geepack::geeglm()", {
+  skip_if_not_installed("geepack")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   suppressWarnings({
@@ -877,17 +888,18 @@ test_that("sim_ame() works with geepack::geeglm()", {
 })
 
 test_that("sim_ame() works with rms::ols()", {
+  skip_if_not_installed("rms")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   suppressMessages(library(rms))
-  
+
   dd <<- suppressWarnings(datadist(mdata))
   op <- options(datadist = "dd")
 
   fit <- ols(re78 ~ treat + pol(age, 3) +
                educ + catg(race) + rcs(re74, 4), data = mdata,
              penalty = 3)
-  
+
   s <- sim(fit, n = 5)
 
   e <- sim_ame(s, "treat", verbose = FALSE)
@@ -963,6 +975,7 @@ test_that("sim_ame() works with rms::ols()", {
 })
 
 test_that("sim_ame() works with rms::lrm()", {
+  skip_if_not_installed("rms")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   suppressMessages(library(rms))
@@ -1049,6 +1062,7 @@ test_that("sim_ame() works with rms::lrm()", {
 })
 
 test_that("sim_ame() works with robustbase::lmrob()", {
+  skip_if_not_installed("robustbase")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- robustbase::lmrob(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -1127,6 +1141,7 @@ test_that("sim_ame() works with robustbase::lmrob()", {
 })
 
 test_that("sim_ame() works with robustbase::glmrob()", {
+  skip_if_not_installed("robustbase")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- robustbase::glmrob(binY ~ treat + age + educ + race + re74, data = mdata,
@@ -1206,6 +1221,7 @@ test_that("sim_ame() works with robustbase::glmrob()", {
 })
 
 test_that("sim_ame() works with robust::lmRob()", {
+  skip_if_not_installed("robust")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- robust::lmRob(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -1284,6 +1300,7 @@ test_that("sim_ame() works with robust::lmRob()", {
 })
 
 test_that("sim_ame() works with robust::glmRob()", {
+  skip_if_not_installed("robust")
   skip("predict() is bugged for glmRob()")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
@@ -1365,6 +1382,7 @@ test_that("sim_ame() works with robust::glmRob()", {
 })
 
 test_that("sim_ame() works with AER::tobit()", {
+  skip_if_not_installed("AER")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- AER::tobit(re78 ~ treat + age + educ + race + re74, data = mdata,
@@ -1443,6 +1461,7 @@ test_that("sim_ame() works with AER::tobit()", {
 })
 
 test_that("sim_ame() works with ivreg::ivreg()", {
+  skip_if_not_installed("ivreg")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- ivreg::ivreg(re78 ~ treat + age + race | educ + age + race, data = mdata,
