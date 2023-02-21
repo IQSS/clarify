@@ -4,9 +4,17 @@
 \alias{plot.clarify_est}
 \alias{summary.clarify_est}
 \alias{confint.clarify_est}
-\title{Inference for \code{clarify_est} objects}
+\title{Plotting and inference for \code{clarify_est} objects}
 \usage{
-\method{plot}{clarify_est}(x, parm, ci = TRUE, level = 0.95, method = "quantile", ...)
+\method{plot}{clarify_est}(
+  x,
+  parm,
+  ci = TRUE,
+  level = 0.95,
+  method = "quantile",
+  reference = FALSE,
+  ...
+)
 
 \method{summary}{clarify_est}(object, parm, level = 0.95, method = "quantile", null = NA, ...)
 
@@ -20,6 +28,8 @@
 \item{level}{the confidence level desired. Default is .95 for 95\% confidence intervals.}
 
 \item{method}{the method used to compute p-values and confidence intervals. Can be \code{"wald"} to use a Normal approximation or \code{"quantile"} to use the simulated sampling distribution (default). See Details. Abbreviations allowed.}
+
+\item{reference}{\code{logical}; whether to overlay a normal density reference distribution over the plots. Default is \code{FALSE}.}
 
 \item{...}{for \code{plot()}, further arguments passed to \code{\link[ggplot2:geom_density]{ggplot2::geom_density()}}.}
 
@@ -35,7 +45,7 @@ For \code{confint()}, a matrix containing the confidence intervals for the reque
 For \code{plot()}, a \code{ggplot} object.
 }
 \description{
-\code{summary()} tabulates the estimates and confidence intervals and (optionally) p-values from a \code{clarify_est} object. \code{confint()} computes confidence intervals.
+\code{summary()} tabulates the estimates and confidence intervals and (optionally) p-values from a \code{clarify_est} object. \code{confint()} computes confidence intervals. \code{plot()} plots the "posterior" distribution of estimates.
 }
 \details{
 \code{summary()} uses the estimates computed from the original model as its estimates and uses the simulated parameters for inference only.
@@ -70,8 +80,12 @@ summary(est, null = c(`RD` = 0, `RR` = 1))
 summary(est, null = c(NA, NA, 0, 1),
         normal = TRUE)
 
-# Plot the RD and RR
-plot(est, parm = c("RD", "RR"))
+# Plot the RD and RR with a reference distribution
+plot(est, parm = c("RD", "RR"), reference = TRUE,
+     ci = FALSE)
+
+# Plot the RD and RR with quantile confidence bounds
+plot(est, parm = c("RD", "RR"), ci = TRUE)
 
 }
 \seealso{

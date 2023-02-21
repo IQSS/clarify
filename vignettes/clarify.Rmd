@@ -173,7 +173,7 @@ To examine the uncertainty around and perform inference on our estimated quantit
 `plot()` displays a density plot of the resulting estimates across the simulations, with markers identifying the point estimate (computed using the original coefficients) and, optionally, uncertainty bounds (which function like confidence or credible interval bounds). The arguments to `plot()` are below:
 
 ``` r
-plot(x = , parm = , ci = , level = , method = )
+plot(x = , parm = , ci = , level = , method = , reference =)
 ```
 
 -   `x` -- the `clarify_est` object (the output of a call to `sim_apply()`).
@@ -186,10 +186,12 @@ plot(x = , parm = , ci = , level = , method = )
 
 -   `method` -- if `ci` is `TRUE`, the method used to compute the bounds. Allowable methods include a Normal approximation (`"wald"`) or using the quantiles of the resulting distribution (`"quantile"`). The Normal approximation involves multiplying the standard deviation of the estimates (i.e., which functions like the standard error of the sampling distribution) by the critical Z-statistic computed using `(1-level)/2` to create a symmetric margin of error around the point estimate. The default is `"quantile"` to instead use quantile-based bounds, which are more appropriate when the distribution is non-Normal. However, quantile-based bounds may require more simulations to stabilize.
 
+-   `reference` -- whether to display a normal density over the plot for each estimate, The default is `FALSE` to omit them.
+
 Below, we plot the first estimate we computed above, the predicted probability for participant PSID1:
 
 ```{r}
-plot(est1)
+plot(est1, reference = TRUE, ci = FALSE)
 ```
 
 From the plot, we can see that the distribution of simulated values is non-Normal and asymmetrical, with no values falling below 0 because the outcome is a predicted probability. Given its non-Normality, the quantile-based bounds are clearly more appropriate, as the bounds computed from the Normal approximation would be outside the bounds of the estimate. The plot itself is a `ggplot` object that can be modified using `ggplot2` syntax.
@@ -219,7 +221,7 @@ summary(est1)
 Our second estimated quantity, the difference between two regression coefficients, is closer to Normally distributed, as the plot below demonstrates (and would be expected theoretically), so we'll use the Normal approximation to test the hypothesis that difference differs from 0.
 
 ```{r}
-plot(est2)
+plot(est2, reference = TRUE, ci = FALSE)
 
 summary(est2, method = "wald", null = 0)
 ```
@@ -261,9 +263,10 @@ sim_setx(sim = , x = , x1 = , outcome = , type = , verbose = , cl = )
 Here, we'll use `sim_setx()` to examine predicted values of the outcome for control and treated units, at `re75` set to 0 and 20000, and `race` set to "black".
 
 ```{r}
-est3 <- sim_setx(s, x = list(treat = 0:1,
-                             re75 = c(0, 20000),
-                             race = "black"),
+est3 <- sim_setx(s,
+                 x = list(treat = 0:1,
+                          re75 = c(0, 20000),
+                          race = "black"),
                  verbose = FALSE)
 ```
 
@@ -273,10 +276,10 @@ When we use `summary()` on the resulting output, we can see the estimates and th
 attr(est3, "setx")
 ```
 
-We can plot the distributions of the simulated values using `plot()`, which also separates the predictions by the predictor values (it's often clearer without the uncertainty bounds):
+We can plot the distributions of the simulated values using `plot()`, which also separates the predictions by the predictor values (it's often clearer without the uncertainty bounds). The `var` argument controls which variable is used for facetting the plots.
 
 ```{r}
-plot(est3, ci = FALSE)
+plot(est3, var = "re75", ci = FALSE)
 ```
 
 We can see again how a delta method or Normal approximation may not have yielded valid uncertainty intervals given the non-Normality of the distributions.
@@ -284,9 +287,10 @@ We can see again how a delta method or Normal approximation may not have yielded
 If a continuous variable with many levels is included in the grid of the predictors, something like a dose-response function for a typical unit can be generated. Below, we set `re75` to vary from 0 to 20000 in steps of 2000.
 
 ```{r}
-est4 <- sim_setx(s, x = list(treat = 0:1,
-                             re75 = seq(0, 20000, by = 2000),
-                             race = "black"),
+est4 <- sim_setx(s,
+                 x = list(treat = 0:1,
+                          re75 = seq(0, 20000, by = 2000),
+                          race = "black"),
                  verbose = FALSE)
 ```
 
@@ -301,7 +305,8 @@ We'll return to display average dose-response functions using `sim_adrf()` later
 Finally, we can use `sim_setx()` to compute first differences, the contrast between two covariate combinations. We supply one covariate profile to `x` and another to `x1`, and `sim_setx()` simulates the two predicted values and their difference. Below, we simulate first difference for a treated and control unit who have `re75` of 0 and typical values of all other covariates:
 
 ```{r}
-est5 <- sim_setx(s, x = list(treat = 0, re75 = 0),
+est5 <- sim_setx(s,
+                 x = list(treat = 0, re75 = 0),
                  x1 = list(treat = 1, re75 = 0),
                  verbose = FALSE)
 ```
@@ -348,7 +353,8 @@ sim_ame(sim = , var = , subset = , contrast = , outcome = ,
 Here, we'll use `sim_ame()` to compute the AME of `treat` just among those who were treated (in causal inference, this is known as the average treatment effect in the treated, or ATT). We'll request our estimate to be on the risk ratio scale.
 
 ```{r}
-est6 <- sim_ame(s, var = "treat", subset = treat == 1,
+est6 <- sim_ame(s,
+                var = "treat", subset = treat == 1,
                 contrast = "rr", verbose = FALSE)
 ```
 
@@ -527,7 +533,6 @@ Importantly, `cbind()` can only be used to join together `clarify_est` objects c
 
 ```{r, include=F}
 amelia_ok <- requireNamespace("Amelia", quietly = TRUE)
-
 ```
 
 Simulation-based inference in multiply imputed data is relatively straightforward. Simulated coefficients are drawn from the model estimated in each imputed dataset separately, and then the simulated coefficients are pooled into a single set of simulated coefficients. In Bayesian terms, this would be considered "mixing draws" and is the recommended approach for Bayesian analysis with multiply imputed data [@zhouNoteBayesianInference2010].
@@ -580,7 +585,7 @@ sim_fun <- function(fit) {
   
   #Perturb infl slightly
   p1 <- predict(fit, newdata = transform(X, infl = infl + 1e-5))
-
+  
   return(c(AME = mean((p1 - p0) / 1e-5)))
 }
 

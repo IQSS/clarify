@@ -111,7 +111,7 @@ sim_est
 summary(sim_est, null = c(`RR` = 1))
 
 # Plot the resulting sampling distributions
-plot(sim_est)
+plot(sim_est, reference = TRUE, ci = FALSE)
 ```
 
 The plot of the simulated sampling distribution indicates that the sampling distribution for the risk ratio is not normally distributed around the estimate, indicating that the delta method may be a poor approximation and the asymmetric confidence intervals produced using the simulation may be more valid.

@@ -7,6 +7,7 @@
 #' @param var the name of the focal varying predictor, i.e., the variable to be on the x-axis of the plot. All other variables with varying set values will be used to color the resulting plot. See Details. Ignored if no predictors vary or if only one predictor varies in the reference grid or if `x1` was specified in `sim_setx()`. If not set, will use the predictor with the greatest number of unique values specified in the reference grid.
 #' @param ci `logical`; whether to display confidence intervals or bands for the estimates. Default is `TRUE`.
 #' @param method the method used to compute confidence intervals or bands. Can be `"wald"` to use a Normal approximation or `"quantile"` to use the simulated sampling distribution (default). See [summary.clarify_est()] for details. Abbreviations allowed.
+#' @param reference `logical`; whether to overlay a normal density reference distribution over the plots. Default is `FALSE`. Ignored when variables other than the focal varying predictor vary.
 #'
 #' @return A `ggplot` object.
 #'
@@ -23,11 +24,12 @@
 #'
 #' @export
 plot.clarify_setx <- function(x,
-                               var = NULL,
-                               ci = TRUE,
-                               level = .95,
-                               method = "quantile",
-                               ...) {
+                              var = NULL,
+                              ci = TRUE,
+                              level = .95,
+                              method = "quantile",
+                              reference = FALSE,
+                              ...) {
 
   newdata <- attr(x, "setx")
 
@@ -35,13 +37,15 @@ plot.clarify_setx <- function(x,
     if (!is.null(var)) {
       chk::wrn("ignoring `var` because no variables vary over predictions")
     }
-    return(plot.clarify_est(x, parm = 1, ci = ci, level = level, method = method, ...))
+    return(plot.clarify_est(x, parm = 1, ci = ci, level = level,
+                            method = method, reference = reference, ...))
   }
   else if (isTRUE(attr(x, "fd"))) {
     if (!is.null(var)) {
       chk::wrn("ignoring `var`")
     }
-    return(plot.clarify_est(x, parm = 1:3, ci = ci, level = level, method = method, ...))
+    return(plot.clarify_est(x, parm = 1:3, ci = ci, level = level,
+                            method = method, reference = reference, ...))
   }
 
   len_unique_newdata <- vapply(newdata, function(v) length(unique(v)), integer(1L))
@@ -83,7 +87,10 @@ plot.clarify_setx <- function(x,
 }
 
 #sim_plot, but with grouping by non_var_varying if present
-setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95, method = "quantile", ...) {
+setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95,
+                          method = "quantile", ...) {
+
+  chk::chk_flag(ci)
 
   newdata <- attr(x, "setx")
   original_est <- coef(x)
@@ -124,9 +131,10 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
                  alpha = .3, ...) +
     geom_hline(yintercept = 0) +
     geom_vline(data = original_est_long, mapping = aes(xintercept = .data$val,
-                                                       color = non_var_varying_f_o))
+                                                       color = non_var_varying_f_o)) +
+    facet_wrap(vars(.data[[var]]), scales = "free")
 
-  chk::chk_flag(ci)
+
   if (ci) {
     ci <- confint(x, level = level, method = method)
     ci_long <- setNames(utils::stack(as.data.frame(t(ci))), c("val", "est"))
@@ -151,7 +159,7 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
                         linetype = 2)
   }
 
-  p <- p + facet_wrap(vars(.data[[var]]), scales = "free") +
+  p <- p +
     scale_color_brewer(palette = "Set1") +
     labs(x = "Estimate", y = "Density", color = NULL, fill = NULL) +
     theme(panel.background = element_rect(fill = "white", color = "black"),

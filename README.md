@@ -188,7 +188,7 @@ summary(sim_est, null = c(`RR` = 1))
 #> RR         0.826 0.619  1.391    0.79
 
 # Plot the resulting sampling distributions
-plot(sim_est)
+plot(sim_est, reference = TRUE, ci = FALSE)
 ```
 
 <img src="man/figures/README-example2-1.png" width="80%" />

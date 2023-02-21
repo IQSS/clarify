@@ -106,10 +106,10 @@ sim_ame <- function(sim,
   }
 
   if (is_misim) {
-    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors))
+    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors, verbose = FALSE))
   }
   else {
-    dat <- insight::get_predictors(sim$fit)
+    dat <- insight::get_predictors(sim$fit, verbose = FALSE)
   }
 
   if (!var %in% names(dat)) {

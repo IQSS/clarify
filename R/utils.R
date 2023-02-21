@@ -43,9 +43,18 @@ word_list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
 #Add quotation marks around a string.
 add_quotes <- function(x, quotes = 2L) {
   if (!isFALSE(quotes)) {
-    if (isTRUE(quotes) || as.integer(quotes) == 2L) x <- paste0("\"", x, "\"")
-    else if (as.integer(quotes) == 1L) x <- paste0("\'", x, "\'")
-    else if (as.integer(quotes) != 0L) stop("'quotes' must be boolean, 1, or 2.")
+    if (isTRUE(quotes)) quotes <- 2
+
+    if (chk::vld_string(quotes)) x <- paste0(quotes, x, quotes)
+    else if (chk::vld_whole_number(quotes)) {
+      if (as.integer(quotes) == 0) return(x)
+      else if (as.integer(quotes) == 1) x <- paste0("\'", x, "\'")
+      else if (as.integer(quotes) == 2) x <- paste0("\"", x, "\"")
+      else stop("`quotes` must be boolean, 1, 2, or a string.")
+    }
+    else {
+      stop("'quotes' must be boolean, 1, 2, or a string.")
+    }
   }
   x
 }
@@ -173,7 +182,7 @@ pkg_caller_call <- function(start = 1) {
   package.funs <- c(getNamespaceExports(utils::packageName()),
                     .getNamespaceInfo(asNamespace(utils::packageName()), "S3methods")[, 3])
   k <- start #skip checking pkg_caller_call()
-  e_max <- NULL
+  e_max <- start
   while (!is.null(e <- rlang::caller_call(k))) {
     if (!is.null(n <- rlang::call_name(e)) &&
         n %in% package.funs) e_max <- k

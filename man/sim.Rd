@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim.R
 \name{sim}
 \alias{sim}
-\title{Simulate model coefficients}
+\title{Simulate model parameters}
 \usage{
 sim(fit, n = 1000, vcov = NULL, coefs = NULL, dist = NULL)
 }

@@ -1,6 +1,10 @@
 # `clarify` (development version)
 
+* Added the argument `reference` to `plot.clarify_est()`, which adds a reference normal distribution to the density of the estimates.
+
 * Fixed error in `sim()` documentation about how degrees of freedom are computed. Thanks to @wviechtb. (#8)
+
+* Fixed a warning that can occur about recovering model data, from `insight`.
 
 # `clarify` 0.1.1
 

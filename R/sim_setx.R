@@ -94,10 +94,10 @@ sim_setx <- function(sim,
   is_misim <- inherits(sim, "clarify_misim")
 
   if (is_misim) {
-    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors))
+    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors, verbose = FALSE))
   }
   else {
-    dat <- insight::get_predictors(sim$fit)
+    dat <- insight::get_predictors(sim$fit, verbose = FALSE)
   }
 
   sim$fit <- attach_pred_data_to_fit(sim$fit, is_fitlist = is_misim)
