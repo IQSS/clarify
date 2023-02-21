@@ -1,6 +1,6 @@
-#' Inference for `clarify_est` objects
+#' Plotting and inference for `clarify_est` objects
 #'
-#' `summary()` tabulates the estimates and confidence intervals and (optionally) p-values from a `clarify_est` object. `confint()` computes confidence intervals.
+#' `summary()` tabulates the estimates and confidence intervals and (optionally) p-values from a `clarify_est` object. `confint()` computes confidence intervals. `plot()` plots the "posterior" distribution of estimates.
 #'
 #' @param object,x a `clarify_est` object; the output of a call to [sim_apply()] or its wrappers.
 #' @param parm a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be displayed.

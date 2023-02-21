@@ -1,4 +1,4 @@
-#' Simulate model coefficients
+#' Simulate model parameters
 #'
 #' @description `sim()` simulates model parameters from a multivariate normal or t distribution that are then used by [sim_apply()] to calculate quantities of interest.
 #'
