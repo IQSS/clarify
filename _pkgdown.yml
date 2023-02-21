@@ -2,3 +2,17 @@ url: https://ngreifer.github.io/clarify/
 template:
   bootstrap: 5
 
+reference:
+- title: Main Functions
+- contents:
+  - sim
+  - sim_apply
+  - summary.clarify_est
+- title: Wrappers
+- contents:
+  - sim_adrf
+  - plot.clarify_adrf
+  - sim_ame
+  - sim_setx
+  - plot.clarify_setx
+  - misim
