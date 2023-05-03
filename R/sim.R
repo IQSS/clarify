@@ -110,6 +110,8 @@ print.clarify_sim <- function(x, ...) {
     cat(" - original fitting function call:\n\n")
     print(insight::get_call(x$fit))
   }
+
+  invisible(x)
 }
 
 #Returns a function that generates random variates, with arguments
@@ -144,29 +146,29 @@ get_sampling_dist <- function(fit = NULL, dist = NULL) {
     else dist <- "normal"
   }
 
-  if (dist == "t") {
-    f <- function(n, mu, cov) {
-      sigma <- cov * (df - 2) / df
-      #Need pivoted cholesky for when cov isn't PSD (sometimes true for fixed effects models)
-      ch <- suppressWarnings(chol(sigma, pivot = TRUE))
-      piv <- attr(ch, "pivot")
-      x <- mvnfast::rmvt(n, mu = mu[piv], sigma = ch, isChol = TRUE, df = df, kpnames = TRUE)
-      x[, order(piv), drop = FALSE]
-    }
-  }
-  else {
-    f <- function(n, mu, cov) {
-      #Need pivoted cholesky for when cov isn't PSD (sometimes true for fixed effects models)
-      ch <- suppressWarnings(chol(cov, pivot = TRUE))
-      piv <- attr(ch, "pivot")
-      x <- mvnfast::rmvn(n, mu = mu[piv], sigma = ch, isChol = TRUE, kpnames = TRUE)
-      x[, order(piv), drop = FALSE]
-    }
+  f <- {
+    if (dist == "t")
+      function(n, mu, cov) {
+        sigma <- cov * (df - 2) / df
+        #Need pivoted cholesky for when cov isn't PSD (sometimes true for fixed effects models)
+        ch <- suppressWarnings(chol(sigma, pivot = TRUE))
+        piv <- attr(ch, "pivot")
+        x <- mvnfast::rmvt(n, mu = mu[piv], sigma = ch, isChol = TRUE, df = df, kpnames = TRUE)
+        x[, order(piv), drop = FALSE]
+      }
+    else
+      function(n, mu, cov) {
+        #Need pivoted cholesky for when cov isn't PSD (sometimes true for fixed effects models)
+        ch <- suppressWarnings(chol(cov, pivot = TRUE))
+        piv <- attr(ch, "pivot")
+        x <- mvnfast::rmvn(n, mu = mu[piv], sigma = ch, isChol = TRUE, kpnames = TRUE)
+        x[, order(piv), drop = FALSE]
+      }
   }
 
   attr(f, "dist") <- if (dist == "t") sprintf("t(%s)", df) else dist
 
-  return(f)
+  f
 }
 
 #Extracts coefs based on given inputs

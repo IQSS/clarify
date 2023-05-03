@@ -135,11 +135,11 @@ sim_apply <- function(sim,
     }
 
     ests <- sim$sim.coefs
-    if (inherits(sim, "clarify_misim")) {
-      attr(ests, "original") <- colMeans(sim$coefs)
-    }
-    else {
-      attr(ests, "original") <- sim$coefs
+    attr(ests, "original") <- {
+      if (inherits(sim, "clarify_misim"))
+        colMeans(sim$coefs)
+      else
+        sim$coefs
     }
     attr(ests, "sim_hash") <- attr(sim, "sim_hash")
     class(ests) <- c("clarify_est", class(ests))
@@ -204,7 +204,7 @@ sim_apply <- function(sim,
   attr(ests, "sim_hash") <- attr(sim, "sim_hash")
   class(ests) <- c("clarify_est", class(ests))
 
-  return(ests)
+  ests
 }
 
 #' @export
@@ -234,57 +234,53 @@ print.clarify_est <- function(x, digits = NULL, max.ests = 6, ...) {
 make_apply_FUN <- function(FUN) {
 
   if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
-    apply_FUN <- function(fit, coefs, ...) {
+    function(fit, coefs, ...) {
       fit <- marginaleffects::set_coef(fit, coefs)
       FUN(fit = fit, coefs = coefs, ...)
     }
   }
   else if (isTRUE(attr(FUN, "use_coefs"))) {
-    apply_FUN <- function(fit, coefs, ...) {
+    function(fit, coefs, ...) {
       FUN(coefs = coefs, ...)
     }
   }
   else if (isTRUE(attr(FUN, "use_fit"))) {
-    apply_FUN <- function(fit, coefs, ...) {
+    function(fit, coefs, ...) {
       fit <- marginaleffects::set_coef(fit, coefs)
       FUN(fit = fit, ...)
     }
   }
   else {
-    apply_FUN <- function(fit, coefs, ...) {
+    function(fit, coefs, ...) {
       fit <- marginaleffects::set_coef(fit, coefs)
       FUN(fit, ...)
     }
   }
-
-  return(apply_FUN)
 }
 
 make_apply_FUN_mi <- function(FUN) {
 
   if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
-    apply_FUN <- function(fit, coefs, imp, ...) {
+    function(fit, coefs, imp, ...) {
       fit <- marginaleffects::set_coef(fit[[imp]], coefs)
       FUN(fit = fit, coefs = coefs, ...)
     }
   }
   else if (isTRUE(attr(FUN, "use_coefs"))) {
-    apply_FUN <- function(fit, coefs, imp, ...) {
+    function(fit, coefs, imp, ...) {
       FUN(coefs = coefs, ...)
     }
   }
   else if (isTRUE(attr(FUN, "use_fit"))) {
-    apply_FUN <- function(fit, coefs, imp, ...) {
+    function(fit, coefs, imp, ...) {
       fit <- marginaleffects::set_coef(fit[[imp]], coefs)
       FUN(fit = fit, ...)
     }
   }
   else {
-    apply_FUN <- function(fit, coefs, imp, ...) {
+    function(fit, coefs, imp, ...) {
       fit <- marginaleffects::set_coef(fit[[imp]], coefs)
       FUN(fit, ...)
     }
   }
-
-  return(apply_FUN)
 }

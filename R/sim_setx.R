@@ -93,11 +93,11 @@ sim_setx <- function(sim,
   chk::chk_flag(verbose)
   is_misim <- inherits(sim, "clarify_misim")
 
-  if (is_misim) {
-    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors, verbose = FALSE))
-  }
-  else {
-    dat <- insight::get_predictors(sim$fit, verbose = FALSE)
+  dat <- {
+    if (is_misim)
+      do.call("rbind", lapply(sim$fit, insight::get_predictors, verbose = FALSE))
+    else
+      insight::get_predictors(sim$fit, verbose = FALSE)
   }
 
   sim$fit <- attach_pred_data_to_fit(sim$fit, is_fitlist = is_misim)
@@ -179,18 +179,18 @@ sim_setx <- function(sim,
   attr(newdata, "set_preds") <- set_preds
 
   #make FUN for sim_apply()
-  if (fd) {
-    FUN <- function(fit) {
-      pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
-      p <- setNames(get_p(pred), rownames(newdata))
-      c(p, "FD" = unname(diff(p)))
-    }
-  }
-  else {
-    FUN <- function(fit) {
-      pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
-      setNames(get_p(pred), rownames(newdata))
-    }
+  FUN <- {
+    if (fd)
+      function(fit) {
+        pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
+        p <- setNames(get_p(pred), rownames(newdata))
+        c(p, "FD" = unname(diff(p)))
+      }
+    else
+      function(fit) {
+        pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
+        setNames(get_p(pred), rownames(newdata))
+      }
   }
 
   out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
@@ -299,5 +299,5 @@ process_x <- function(x, dat, arg_name) {
   attr(x, "set_preds") <- set_preds
   attr(x, "auto_preds") <- auto_preds
 
-  return(x)
+  x
 }

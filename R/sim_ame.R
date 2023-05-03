@@ -97,6 +97,7 @@ sim_ame <- function(sim,
   if (missing(var)) {
     .err("`var` must be supplied, identifying the focal variable")
   }
+
   if (is.list(var) && chk::vld_named(var) && length(var) == 1) {
     vals <- var[[1]]
     var <- names(var)
@@ -105,16 +106,16 @@ sim_ame <- function(sim,
     .err("`var` must be the name of the desired focal variable or a named list of length 1 with its values")
   }
 
-  if (is_misim) {
-    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors, verbose = FALSE))
-  }
-  else {
-    dat <- insight::get_predictors(sim$fit, verbose = FALSE)
+  dat <- {
+    if (is_misim)
+      do.call("rbind", lapply(sim$fit, insight::get_predictors, verbose = FALSE))
+    else
+      insight::get_predictors(sim$fit, verbose = FALSE)
   }
 
   if (!var %in% names(dat)) {
     .err(sprintf("the variable \"%s\" named in `var` is not present in the original model",
-                     var))
+                 var))
   }
 
   var_val <- dat[[var]]
@@ -164,7 +165,7 @@ sim_ame <- function(sim,
   }
 
   if (nrow(test_predict) != nrow(test_dat)) {
-    .err("not all units received a predicted value, suggesting a bug.")
+    .err("not all units received a predicted value, suggesting a bug")
   }
 
   if (ame_type == "contrast") {
@@ -172,7 +173,10 @@ sim_ame <- function(sim,
       vals <- if (is.factor(var_val)) levels(var_val) else sort(unique(var_val))
     }
 
-    if (length(vals) == 2) {
+    if (length(vals) < 2) {
+      contrast <- NULL
+    }
+    else if (length(vals) == 2) {
       if (!is.null(contrast)) {
         chk::chk_string(contrast)
         contrast <- tolower(contrast)
@@ -180,13 +184,8 @@ sim_ame <- function(sim,
                                           "log(rr)", "or", "log(or)", "nnt"))
       }
     }
-    else if (length(vals) > 2) {
-      if (!is.null(contrast)) {
-        chk::wrn("`contrast` is ignored when the focal variable takes on more than two levels")
-        contrast <- NULL
-      }
-    }
-    else {
+    else if (!is.null(contrast)) {
+      chk::wrn("`contrast` is ignored when the focal variable takes on more than two levels")
       contrast <- NULL
     }
 
@@ -299,32 +298,32 @@ rename_contrast <- function(x) {
 
 attach_pred_data_to_fit <- function(fit, index.sub = NULL, is_fitlist = FALSE) {
   if (is_fitlist) {
-    fit <- lapply(fit, attach_pred_data_to_fit, index.sub)
+    return(lapply(fit, attach_pred_data_to_fit, index.sub))
   }
-  else {
-    data <- insight::get_data(fit, verbose = FALSE)
-    weights <- insight::get_weights(fit, null_as_ones = TRUE)
-    vars <- insight::find_predictors(fit, effects = "fixed", component = "all",
-                                     flatten = TRUE)
-    if (!is.null(index.sub)) {
-      subset <- eval(index.sub, data, parent.frame(2))
 
-      if (!chk::vld_atomic(subset)) {
-        .err("`subset` must evaluate to an atomic vector")
-      }
-      if (is.logical(subset) && length(subset) != nrow(data)) {
-        .err("when `subset` is logical, it must have the same length as the original dataset")
-      }
-      if (length(subset) > 0) {
-        data <- data[subset, ]
-        weights <- weights[subset]
-      }
+  data <- insight::get_data(fit, verbose = FALSE)
+  weights <- insight::get_weights(fit, null_as_ones = TRUE)
+  vars <- insight::find_predictors(fit, effects = "fixed", component = "all",
+                                   flatten = TRUE)
+  if (!is.null(index.sub)) {
+    subset <- eval(index.sub, data, parent.frame(2))
+
+    if (!chk::vld_atomic(subset)) {
+      .err("`subset` must evaluate to an atomic vector")
     }
-
-    attr(fit, "clarify_data") <- data[, intersect(vars, colnames(data)), drop = FALSE]
-    attr(fit, "weights") <- weights
+    if (is.logical(subset) && length(subset) != nrow(data)) {
+      .err("when `subset` is logical, it must have the same length as the original dataset")
+    }
+    if (length(subset) > 0) {
+      data <- data[subset, ]
+      weights <- weights[subset]
+    }
   }
-  return(fit)
+
+  attr(fit, "clarify_data") <- data[, intersect(vars, colnames(data)), drop = FALSE]
+  attr(fit, "weights") <- weights
+
+  fit
 }
 
 get_pred_data_from_fit <- function(fit) {

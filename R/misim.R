@@ -65,7 +65,8 @@ misim <- function(fitlist,
       .err("when `fitlist` is not supplied, at least one of `coefs` or `vcov` must be a list")
     }
     nimp <- if (!is.list(coefs)) length(vcov) else length(coefs)
-  } else {
+  }
+  else {
     check_fitlist(fitlist)
     nimp <- length(fitlist)
   }
@@ -178,4 +179,6 @@ print.clarify_misim <- function(x, ...) {
       cat("\n")
     }
   }
+
+  invisible(x)
 }

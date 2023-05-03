@@ -37,7 +37,8 @@ word_list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
     }
 
   }
-  return(out)
+
+  out
 }
 
 #Add quotation marks around a string.
@@ -111,8 +112,12 @@ all_the_same <- function(x) {
     for (i in x) if (!identical(i, x[[1]])) return(FALSE)
     return(TRUE)
   }
-  else if (is.numeric(x)) return(abs(max(x) - min(x)) < 1e-9)
-  return(length(unique(x)) == 1)
+
+  if (is.numeric(x)) {
+    return(abs(max(x) - min(x)) < 1e-9)
+  }
+
+  length(unique(x)) == 1
 }
 
 #Tidy tryCatching

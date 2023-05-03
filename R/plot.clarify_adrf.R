@@ -38,11 +38,11 @@ plot.clarify_adrf <- function(x,
     chk::chk_flag(baseline)
   }
 
-  if (ci) {
-    s <- as.data.frame(summary.clarify_est(x, level = level, method = method))
-  }
-  else {
-    s <- data.frame(Estimate = coef(x))
+  s <- {
+    if (ci)
+      as.data.frame(summary.clarify_est(x, level = level, method = method))
+    else
+      data.frame(Estimate = coef(x))
   }
 
   p <- ggplot(mapping = aes(x = at))

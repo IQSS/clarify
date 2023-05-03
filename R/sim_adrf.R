@@ -79,19 +79,20 @@ sim_adrf <- function(sim,
   if (missing(var)) {
     .err("`var` must be supplied, identifying the focal variable")
   }
+
   if (!chk::vld_string(var)) {
-    .err("`var` must be the name of the desired focal variable or a named list of length 1 with its values")
+    .err("`var` must be the name of the desired focal variable")
   }
 
   chk::chk_string(contrast)
   contrast <- tolower(contrast)
   contrast <- match_arg(contrast, c("adrf", "amef"))
 
-  if (is_misim) {
-    dat <- do.call("rbind", lapply(sim$fit, insight::get_predictors, verbose = FALSE))
-  }
-  else {
-    dat <- insight::get_predictors(sim$fit, verbose = FALSE)
+  dat <- {
+    if (is_misim)
+      do.call("rbind", lapply(sim$fit, insight::get_predictors, verbose = FALSE))
+    else
+      insight::get_predictors(sim$fit, verbose = FALSE)
   }
 
   if (!var %in% names(dat)) {
