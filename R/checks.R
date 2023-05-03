@@ -19,20 +19,22 @@ process_FUN <- function(FUN, use_fit = TRUE) {
     attr(FUN, "use_fit") <- FALSE
   }
 
-  return(FUN)
+  FUN
 }
 
 check_transform <- function(transform = NULL) {
   if (is.null(transform)) return(NULL)
 
-  if (is.character(transform)) transform_name <- transform
-  else transform_name <- "fn"
+  transform_name <- {
+    if (is.character(transform)) transform
+    else "fn"
+  }
 
   transform <- try(match.fun(transform))
   chk::chk_function(transform)
   attr(transform, "transform_name") <- transform_name
 
-  return(transform)
+  transform
 }
 
 check_valid_coef <- function(coef) {
@@ -55,7 +57,7 @@ check_symmetric_cov <- function(x) {
 
   r <- cov2cor(x)
 
-  return(all(abs(r - t(r)) < sqrt(.Machine$double.eps)))
+  all(abs(r - t(r)) < sqrt(.Machine$double.eps))
 }
 
 check_coefs_vcov_length <- function(vcov, coefs, vcov_supplied, coef_supplied) {
@@ -64,10 +66,10 @@ check_coefs_vcov_length <- function(vcov, coefs, vcov_supplied, coef_supplied) {
       if (vcov_supplied == "null") {
         .err("the covariance matrix extracted from the model has dimensions different from the number of coefficients extracted from the model. You may need to supply your own function to extract one or both of these")
       }
-      else if (vcov_supplied == "fun") {
+      if (vcov_supplied == "fun") {
         .err("the output of the function supplied to `vcov` must have dimensions equal to the number of coefficients extracted from the model (", length(coefs), ")")
       }
-      else if (vcov_supplied == "num") {
+      if (vcov_supplied == "num") {
         .err("when supplied as a matrix, `vcov` must have dimensions equal to the number of coefficients extracted from the model (", length(coefs), ")")
       }
     }
@@ -75,10 +77,10 @@ check_coefs_vcov_length <- function(vcov, coefs, vcov_supplied, coef_supplied) {
       if (vcov_supplied == "null") {
         .err("the output of the function supplied to `coefs` must have length equal to the dimensions of the covariance matrix extracted from the model (", nrow(vcov), ")")
       }
-      else if (vcov_supplied == "fun") {
+      if (vcov_supplied == "fun") {
         .err("the output of the function supplied to `vcov` must have dimensions equal to the length of the output of the function supplied to `coefs` (", length(coefs), ")")
       }
-      else if (vcov_supplied == "num") {
+      if (vcov_supplied == "num") {
         .err("when supplied as a matrix, `vcov` must have dimensions equal to the length of the output of the function supplied to `coefs` (", length(coefs), ")")
       }
     }
@@ -86,10 +88,10 @@ check_coefs_vcov_length <- function(vcov, coefs, vcov_supplied, coef_supplied) {
       if (vcov_supplied == "null") {
         .err("the coefficient vector supplied to `coefs` must have length equal to the dimensions of the covariance matrix extracted from the model (", nrow(vcov), ")")
       }
-      else if (vcov_supplied == "fun") {
+      if (vcov_supplied == "fun") {
         .err("the output of the function supplied to `vcov` must have dimensions equal to the length of the coefficient vector supplied to `coefs` (", length(coefs), ")")
       }
-      else if (vcov_supplied == "num") {
+      if (vcov_supplied == "num") {
         .err("when supplied as a matrix, `vcov` must have dimensions equal to the length of the coefficient vector supplied to `coefs` (", length(coefs), ")")
       }
     }
@@ -99,38 +101,32 @@ check_coefs_vcov_length <- function(vcov, coefs, vcov_supplied, coef_supplied) {
 check_coefs_vcov_length_mi <- function(vcov, coefs, vcov_supplied, coef_supplied) {
 
   if (!all_the_same(lengths(coefs))) {
-    if (coef_supplied == "null") {
-      .err("the coefficient vectors extracted from the models must all have the same length")
-    }
-    else if (coef_supplied == "fun") {
-      .err("the coefficient vectors returned by the function supplied to `coefs` must all have the same length")
-    }
-    else if (coef_supplied == "num") {
-      .err("the coefficient vectors supplied to `coefs` must all have the same length")
-    }
+    switch(
+      coef_supplied,
+      "null" = .err("the coefficient vectors extracted from the models must all have the same length"),
+      "fun" = .err("the coefficient vectors returned by the function supplied to `coefs` must all have the same length"),
+      "num" = .err("the coefficient vectors supplied to `coefs` must all have the same length")
+    )
   }
 
   if (!all_the_same(lapply(vcov, dim))) {
-    if (vcov_supplied == "null") {
-      .err("the covariance matrices extracted from the models must all have the same dimensions")
-    }
-    else if (vcov_supplied == "fun") {
-      .err("the covariance matrices returned by the function supplied to `vcov` must all have the same dimensions")
-    }
-    else if (vcov_supplied == "num") {
-      .err("the covariance matrices supplied to `vcov` must all have the same dimensions")
-    }
+    switch(
+      coef_supplied,
+      "null" = .err("the covariance matrices extracted from the models must all have the same dimensions"),
+      "fun" = .err("the covariance matrices returned by the function supplied to `vcov` must all have the same dimensions"),
+      "num" = .err("the covariance matrices supplied to `vcov` must all have the same dimensions")
+    )
   }
 
   bad_imps <- which(vapply(seq_along(vcov), function(i) {
     !all(dim(vcov[[i]]) == length(coefs[[i]]))
   }, logical(1L)))
 
-  if (length(bad_imps) == length(vcov)) {
-    in.imps <- "all imputations"
-  }
-  else {
-    in.imps <- paste0("imputation%s ", word_list(as.character(bad_imps)))
+  in.imps <- {
+    if (length(bad_imps) == length(vcov))
+      "all imputations"
+    else
+      paste0("imputation%s ", word_list(as.character(bad_imps)))
   }
 
   if (length(bad_imps) > 0) {
@@ -221,13 +217,12 @@ process_parm <- function(object, parm) {
   else if (is.numeric(parm)) {
     chk::chk_whole_numeric(parm)
     if (any(parm < 1) || any(parm > ncol(object))) {
-      if (ncol(object) == 1) {
-        chk::wrn("ignoring `parm` because only one estimate is available")
-        parm <- 1
-      }
-      else {
+      if (ncol(object) != 1) {
         .err(sprintf("all values in `parm` must be between 1 and %s", ncol(object)))
       }
+
+      chk::wrn("ignoring `parm` because only one estimate is available")
+      parm <- 1
     }
   }
   else {
@@ -283,17 +278,18 @@ check_classes <- function(olddata, newdata) {
   new[new == "ordered"] <- "factor"
   new[old == "factor" & new == "character"] <- "factor"
   new[old == "character" & new == "factor"] <- "character"
+
   if (!identical(old, new)) {
     wrong <- old != new
     if (sum(wrong) == 1)
       .err(sprintf("variable '%s' was fit with type \"%s\" but type \"%s\" was supplied",
                        names(old)[wrong], old[wrong], new[wrong]))
-    else .err(sprintf("variables %s were specified with different types from the original model fit",
-                          word_list(names(old)[wrong], quotes = TRUE)))
+    else
+      .err(sprintf("variables %s were specified with different types from the original model fit",
+                   word_list(names(old)[wrong], quotes = TRUE)))
   }
-  else {
-    invisible(NULL)
-  }
+
+  invisible(NULL)
 }
 
 check_sim_apply_wrapper_ready <- function(sim) {

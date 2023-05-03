@@ -50,12 +50,10 @@ plot.clarify_est <- function(x, parm, ci = TRUE, level = .95, method = "quantile
                    data = ref_means, color = "red")
   }
 
-  p <- p +
+  p +
     labs(x = "Estimate", y = "Density") +
     theme_bw() +
     theme(panel.grid = element_blank())
-
-  p
 }
 
 #Stat for normal reference density

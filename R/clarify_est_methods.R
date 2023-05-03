@@ -24,7 +24,7 @@ cbind.clarify_est <- function(..., deparse.level = 1) {
   attr(out, "sim_hash") <- hashes[[1]]
   class(out) <- c("clarify_est", class(out))
 
-  return(out)
+  out
 }
 
 #' @exportS3Method transform clarify_est
@@ -65,8 +65,8 @@ transform.clarify_est <- function(`_data`, ...) {
       return(cbind.clarify_est(`_data`, new_e))
     }
   }
-  return(`_data`)
 
+  `_data`
 }
 
 #' @exportS3Method names clarify_est
@@ -156,10 +156,9 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
     attr(e1, "original")[] <- eval(f)
     return(e1)
   }
-  else {
-    attr(e2, "original")[] <- eval(f)
-    return(e2)
-  }
+
+  attr(e2, "original")[] <- eval(f)
+  e2
 }
 
 #' @exportS3Method `[` clarify_est

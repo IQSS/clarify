@@ -9,7 +9,7 @@ get_coefs <- function(fit) {
     .err("`sim()` was unable to extract a valid set of coefficients from the model fit; please supply coefficients to the `coefs` argument and a covariance matrix to the `vcov` argument")
   }
 
-  return(b)
+  b
 }
 
 # Get the covariance from a model
@@ -20,7 +20,7 @@ get_vcov <- function(fit, vcov = NULL) {
     .err("`sim()` was unable to extract a valid covariance matrix from the model fit; please supply a covariance matrix to the `vcov` argument")
   }
 
-  return(v)
+  v
 }
 
 # Get the model degrees of freedom
@@ -28,18 +28,15 @@ get_vcov <- function(fit, vcov = NULL) {
 ## returns Inf. Linear models fit with MLE get Inf.
 get_df <- function(fit) {
 
-  if (insight::is_model_supported(fit)) {
-    statistic <- insight::find_statistic(fit)
-    if (statistic == "chi-squared statistic") {
-      df <- Inf
-    }
-    else {
-      df <- insight::get_df(fit, type = "wald", statistic = statistic)
-    }
-  }
-  else {
-    df <- Inf
+  if (!insight::is_model_supported(fit)) {
+    return(Inf)
   }
 
-  df
+  statistic <- insight::find_statistic(fit)
+
+  if (identical(statistic, "chi-squared statistic")) {
+    return(Inf)
+  }
+
+  insight::get_df(fit, type = "wald", statistic = statistic)
 }

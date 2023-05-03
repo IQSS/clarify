@@ -1,3 +1,7 @@
+# `clarify` 0.1.3
+
+* Documentation updates incorporating the work of Rainey (2023). `clarify` already implemented the recommendations in `Rainey (2023) so no functionality has changed.
+
 # `clarify` 0.1.2
 
 * Added the argument `reference` to `plot.clarify_est()`, which adds a reference normal distribution to the density of the estimates.

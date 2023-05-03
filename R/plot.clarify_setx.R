@@ -40,7 +40,8 @@ plot.clarify_setx <- function(x,
     return(plot.clarify_est(x, parm = 1, ci = ci, level = level,
                             method = method, reference = reference, ...))
   }
-  else if (isTRUE(attr(x, "fd"))) {
+
+  if (isTRUE(attr(x, "fd"))) {
     if (!is.null(var)) {
       chk::wrn("ignoring `var`")
     }
@@ -74,13 +75,13 @@ plot.clarify_setx <- function(x,
 
   non_var_varying <- setdiff(varying, var)
 
-  if (len_unique_newdata[var] == 2 || chk::vld_character_or_factor(newdata[[var]])) {
-    p <- setx_sim_plot(x, var, non_var_varying, ci = ci,
-                       level = level, method = method, ...)
-  }
-  else {
-    p <- setx_reg_plot(x, var, non_var_varying, ci = ci,
-                       level = level, method = method)
+  p <- {
+    if (len_unique_newdata[var] == 2 || chk::vld_character_or_factor(newdata[[var]]))
+      setx_sim_plot(x, var, non_var_varying, ci = ci,
+                    level = level, method = method, ...)
+    else
+      setx_reg_plot(x, var, non_var_varying, ci = ci,
+                    level = level, method = method)
   }
 
   p + theme_bw() + scale_fill_brewer(palette = "Set1")
@@ -159,14 +160,11 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
                         linetype = 2)
   }
 
-  p <- p +
+  p +
     scale_color_brewer(palette = "Set1") +
     labs(x = "Estimate", y = "Density", color = NULL, fill = NULL) +
     theme(panel.background = element_rect(fill = "white", color = "black"),
           panel.border = element_rect(color = "black", fill = NA))
-
-  p
-
 }
 
 #Line plot with confidence bands
@@ -184,12 +182,12 @@ setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
     non_var_varying_f <- NULL
   }
 
-  if (ci) {
-    s <- summary.clarify_est(x, level = level, method = method)[rownames(newdata), , drop = FALSE]
-  }
-  else {
-    s <- matrix(coef(x)[rownames(newdata)], ncol = 1,
-                dimnames = list(rownames(newdata), "Estimate"))
+  s <- {
+    if (ci)
+      summary.clarify_est(x, level = level, method = method)[rownames(newdata), , drop = FALSE]
+    else
+      matrix(coef(x)[rownames(newdata)], ncol = 1,
+             dimnames = list(rownames(newdata), "Estimate"))
   }
 
   s <- cbind(s, newdata)
@@ -206,6 +204,6 @@ setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
                       color = NULL),
                   alpha = .3)
   }
-  p
 
+  p
 }

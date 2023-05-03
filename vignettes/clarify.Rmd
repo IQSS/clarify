@@ -25,7 +25,9 @@ Although regression models are frequently used in empirical research to study re
 
 [^1]: In addition, most software that uses the delta method uses numerical differentiation, which also involves an approximation.
 
-The methodology `clarify` relies on is described in @kingMakingMostStatistical2000. Similar functionality exists in the `clarify` package in Stata [@tomzClarifySoftwareInterpreting2003] and used to be available in the `Zelig` R package [@imaiCommonFrameworkStatistical2008a] . `clarify` provides additional flexibility by allowing the user to request any derived quantity, in addition to providing shortcuts for common quantities, including predictions at representative values, average marginal effects, and average dose-response functions (described below). `clarify` relies on and can be seen as a companion to the `marginaleffects` package, which offers similar functionality but uses the delta method for its calculations.
+The methodology `clarify` relies on is described in @kingMakingMostStatistical2000 and @raineyCarefulConsiderationCLARIFY2023. Similar functionality exists in the `CLARIFY` package in Stata [@tomzClarifySoftwareInterpreting2003][^2] and used to be available in the `Zelig` R package [@imaiCommonFrameworkStatistical2008a], though there are differences in these implementations. `clarify` provides additional flexibility by allowing the user to request any derived quantity, in addition to providing shortcuts for common quantities, including predictions at representative values, average marginal effects, and average dose-response functions (described below). `clarify` relies on and can be seen as a companion to the `marginaleffects` package, which offers similar functionality but uses the delta method for calculating uncertainty.
+
+[^2]: Despite the similar name, the R package `clarify` and the Stata package `CLARIFY` differ in several ways, one of which is that the estimates reported by `clarify` in R are those computed using the original model coefficients, whereas those reported by `CLARIFY` in Stata are those computed as the average of the simulated distribution. The R implementation avoids the "simulation-induced bias" described by @raineyCarefulConsiderationCLARIFY2023.
 
 ## Using `clarify`
 
@@ -103,7 +105,7 @@ s
 
 ## 3. Computing derived quantities
 
-After sampling the coefficients, we will compute derived quantities on each set of sampled coefficient and store the result, which represents a "posterior" distribution of the derived quantity. The core functionality is provided by `sim_apply()`, which accepts a `clarify_sim` object from `sim()` and a function to compute and return one or more derived quantities, then applies that function to each set of simulated coefficients. The arguments to `sim_apply()` are below:
+After sampling the coefficients, we will compute derived quantities on each set of sampled coefficient and store the result, which represents a "posterior" distribution of the derived quantity, as well as on the original coefficients, which are used as the final estimates. The core functionality is provided by `sim_apply()`, which accepts a `clarify_sim` object from `sim()` and a function to compute and return one or more derived quantities, then applies that function to each set of simulated coefficients. The arguments to `sim_apply()` are below:
 
 ``` r
 sim_apply(sim = , FUN = , verbose = , cl = , ...)
@@ -170,7 +172,7 @@ These are described in their own sections below. In addition, there are function
 
 To examine the uncertainty around and perform inference on our estimated quantities, we can use `plot()` and `summary()` on the `clarify_est` object.
 
-`plot()` displays a density plot of the resulting estimates across the simulations, with markers identifying the point estimate (computed using the original coefficients) and, optionally, uncertainty bounds (which function like confidence or credible interval bounds). The arguments to `plot()` are below:
+`plot()` displays a density plot of the resulting estimates across the simulations, with markers identifying the point estimate (computed using the original model coefficients as recommended by @raineyCarefulConsiderationCLARIFY2023 ) and, optionally, uncertainty bounds (which function like confidence or credible interval bounds). The arguments to `plot()` are below:
 
 ``` r
 plot(x = , parm = , ci = , level = , method = , reference =)
@@ -194,7 +196,7 @@ Below, we plot the first estimate we computed above, the predicted probability f
 plot(est1, reference = TRUE, ci = FALSE)
 ```
 
-From the plot, we can see that the distribution of simulated values is non-Normal and asymmetrical, with no values falling below 0 because the outcome is a predicted probability. Given its non-Normality, the quantile-based bounds are clearly more appropriate, as the bounds computed from the Normal approximation would be outside the bounds of the estimate. The plot itself is a `ggplot` object that can be modified using `ggplot2` syntax.
+From the plot, we can see that the distribution of simulated values is non-Normal, asymmetrical, and not centered around the estimate, with no values falling below 0 because the outcome is a predicted probability. Given its non-Normality, the quantile-based bounds are clearly more appropriate, as the bounds computed from the Normal approximation would be outside the bounds of the estimate. The plot itself is a `ggplot` object that can be modified using `ggplot2` syntax.
 
 We can use `summary()` to display the value of the point estimate, the uncertainty bounds, and other statistics that describe the distribution of estimates. The arguments to `summary()` are below:
 
@@ -226,7 +228,7 @@ plot(est2, reference = TRUE, ci = FALSE)
 summary(est2, method = "wald", null = 0)
 ```
 
-The uncertainty intervals and p-values in the `summary()` output are computed using the Normal approximation because we set `method = "wald"`, and the p-value for the test that our estimate is equal to 0 is returned because we set `null = 0`. The computed bounds are very close to the quantile-based bound (displayed in the plot, and can be requested in `summary()` by setting `method = "quantile"`) because the simulated sampling distribution is close to Normal.
+The uncertainty intervals and p-values in the `summary()` output are computed using the Normal approximation because we set `method = "wald"`, and the p-value for the test that our estimate is equal to 0 is returned because we set `null = 0`. The computed bounds are very close to the quantile-based bound (displayed in the plot, and can be requested in `summary()` by setting `method = "quantile"`) because the simulated sampling distribution is close to Normal. Note that the Normal approximation should be used only when the simulated sampling distribution is both close to Normally distributed and centered around the estimate (i.e., when the mean of the simulated values [red vertical line] coincides with the estimate computed on the original coefficients [black vertical line]).
 
 # `sim_apply()` wrappers: `sim_setx()`, `sim_ame()`, `sim_adrf()`
 
@@ -321,9 +323,9 @@ It is possible to compute first differences without using `x1` using `transform(
 
 ## `sim_ame()`: average marginal means and effects
 
-Using predicted values and effects at representative values is one way to summarize regression models, but another way is to compute average marginal means (AMMs) and average marginal effects (AMEs). The definitions for these terms may vary and the names for these concepts differ across sources, but here we define AMMs as the average of the predicted values for all units after setting one predictor to a chosen value, and we define AMEs for binary predictors as the contrast of two AMMs and for continuous predictors as the average of instantaneous rate of change corresponding to a small change in the predictor from its observed values across all units[^2].
+Using predicted values and effects at representative values is one way to summarize regression models, but another way is to compute average marginal means (AMMs) and average marginal effects (AMEs). The definitions for these terms may vary and the names for these concepts differ across sources, but here we define AMMs as the average of the predicted values for all units after setting one predictor to a chosen value, and we define AMEs for binary predictors as the contrast of two AMMs and for continuous predictors as the average of instantaneous rate of change corresponding to a small change in the predictor from its observed values across all units[^3].
 
-[^2]: In `marginaleffects`, AMMs are computed using `predictions()` (not with `marginalmeans()`, which does something closer to `sim_setx()`), AMEs for binary variables are computed using `comparisons()`, and AMEs for continuous variables are computed using `marginaleffects()`. AMMs are sometimes known as average "adjusted" or "counterfactual" predictions.
+[^3]: In `marginaleffects`, AMMs are computed using `predictions()` (not with `marginalmeans()`, which does something closer to `sim_setx()`), AMEs for binary variables are computed using `comparisons()`, and AMEs for continuous variables are computed using `marginaleffects()`. AMMs are sometimes known as average "adjusted" or "counterfactual" predictions.
 
 The arguments to `sim_ame()` are as follows:
 
@@ -484,7 +486,7 @@ When we run `summary()` on the output, the new quantity, which we named "RD", wi
 summary(est6, null = c(`RR` = 1, `RD` = 0))
 ```
 
-Something nice about using simulation-based inference with p-values computed from inverting the confidence intervals is that the p-values for the risk difference and risk ratio (and any other effect measure for comparing a pair of values) will always exactly align, thereby ensuring inference does not depend on the effect measure used.
+One nice thing about using simulation-based inference with p-values computed from inverting the confidence intervals is that the p-values for the risk difference and risk ratio (and any other effect measure for comparing a pair of values) will always exactly align, thereby ensuring inference does not depend on the effect measure used.
 
 The same value would be computed if we were to have called `sim_ame()` on the same `clarify_sim` object and requested the risk difference using `contrast = "diff"`; using `transform()` saves time because the AMMs are already computed and stored in the `clarify_est` object.
 
@@ -539,7 +541,7 @@ Simulation-based inference in multiply imputed data is relatively straightforwar
 
 Using `clarify` with multiply imputed data is simple. Rather than using `sim()`, we use the function `misim()`. `misim()` functions just like `sim()` except that it takes in a list of model fits (i.e, containing a model fit to each imputed dataset) or an object containing such a list (e.g., a `mira` object from `mice::with()` or a `mimira` object from `MatchThem::with()`). `misim()` simulates coefficient distributions within each imputed dataset and then appends them together to a form a single combined set of coefficient draws.
 
-`sim_apply()` and its wrappers accept the output of `misim()` and compute the desired quantity using each set of coefficients. When these function rely on using a dataset (e.g., `sim_ame()`, which averages predicted outcomes across all units in the dataset used to fit the model), they automatically know to associate a given coefficient draw with the imputed dataset that was used to fit the model that produced that draw. In user-written functions supplied to the `FUN` argument if `sim_apply()`, it is important to extract the dataset from the model fit. This is demonstrated below.
+`sim_apply()` and its wrappers accept the output of `misim()` and compute the desired quantity using each set of coefficients. When these function rely on using a dataset (e.g., `sim_ame()`, which averages predicted outcomes across all units in the dataset used to fit the model), they automatically know to associate a given coefficient draw with the imputed dataset that was used to fit the model that produced that draw. In user-written functions supplied to the `FUN` argument of `sim_apply()`, it is important to extract the dataset from the model fit. This is demonstrated below.
 
 The final estimates of the quantity of interest is computed as the mean of the estimates computed in each imputed dataset (i.e., using the original coefficients, not the simulated ones), which is the same quantity that would be computed using standard pooling rules. This is not always valid for noncollapsible estimates, like ratios, and so care should be taken to ensure the mean of the resulting estimates has a valid interpretation.
 
