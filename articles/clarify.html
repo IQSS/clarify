@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>clarify</h1>
             
-            <h4 data-toc-skip class="date">2023-02-22</h4>
+            <h4 data-toc-skip class="date">2023-05-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/iqss/clarify/blob/HEAD/vignettes/clarify.Rmd" class="external-link"><code>vignettes/clarify.Rmd</code></a></small>
       <div class="d-none name"><code>clarify.Rmd</code></div>
@@ -102,16 +102,24 @@ models, these approximation can fail badly. <code>clarify</code>
 implements an alternative to the delta method—simulation-based
 inference—which involves simulating the sampling distributions of the
 derived quantities.</p>
-<p>The methodology <code>clarify</code> relies on is described in <span class="citation">King, Tomz, and Wittenberg (2000)</span>. Similar
-functionality exists in the <code>clarify</code> package in Stata <span class="citation">(Tomz, Wittenberg, and King 2003)</span> and used to be
-available in the <code>Zelig</code> R package <span class="citation">(Imai, King, and Lau 2008)</span> .
+<p>The methodology <code>clarify</code> relies on is described in <span class="citation">King, Tomz, and Wittenberg (2000)</span> and <span class="citation">Rainey (2023)</span>. Similar functionality exists in
+the <code>CLARIFY</code> package in Stata [<span class="citation">Tomz,
+Wittenberg, and King (2003)</span>]<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Despite the similar name, the R package
+&lt;code&gt;clarify&lt;/code&gt; and the Stata package &lt;code&gt;CLARIFY&lt;/code&gt; differ
+in several ways, one of which is that the estimates reported by
+&lt;code&gt;clarify&lt;/code&gt; in R are those computed using the original model
+coefficients, whereas those reported by &lt;code&gt;CLARIFY&lt;/code&gt; in Stata
+are those computed as the average of the simulated distribution. The R
+implementation avoids the “simulation-induced bias” described by &lt;span class="citation"&gt;Rainey (2023)&lt;/span&gt;.&lt;/p&gt;'><sup>2</sup></a> and used to be available in the
+<code>Zelig</code> R package <span class="citation">(Imai, King, and Lau
+2008)</span>, though there are differences in these implementations.
 <code>clarify</code> provides additional flexibility by allowing the
 user to request any derived quantity, in addition to providing shortcuts
 for common quantities, including predictions at representative values,
 average marginal effects, and average dose-response functions (described
 below). <code>clarify</code> relies on and can be seen as a companion to
 the <code>marginaleffects</code> package, which offers similar
-functionality but uses the delta method for its calculations.</p>
+functionality but uses the delta method for calculating uncertainty.</p>
 </div>
 <div class="section level3">
 <h3 id="using-clarify">Using <code>clarify</code><a class="anchor" aria-label="anchor" href="#using-clarify"></a>
@@ -255,12 +263,13 @@ coefficients and covariance matrix used to sample.</p>
 </h3>
 <p>After sampling the coefficients, we will compute derived quantities
 on each set of sampled coefficient and store the result, which
-represents a “posterior” distribution of the derived quantity. The core
-functionality is provided by <code><a href="../reference/sim_apply.html">sim_apply()</a></code>, which accepts a
-<code>clarify_sim</code> object from <code><a href="../reference/sim.html">sim()</a></code> and a function
-to compute and return one or more derived quantities, then applies that
-function to each set of simulated coefficients. The arguments to
-<code><a href="../reference/sim_apply.html">sim_apply()</a></code> are below:</p>
+represents a “posterior” distribution of the derived quantity, as well
+as on the original coefficients, which are used as the final estimates.
+The core functionality is provided by <code><a href="../reference/sim_apply.html">sim_apply()</a></code>, which
+accepts a <code>clarify_sim</code> object from <code><a href="../reference/sim.html">sim()</a></code> and a
+function to compute and return one or more derived quantities, then
+applies that function to each set of simulated coefficients. The
+arguments to <code><a href="../reference/sim_apply.html">sim_apply()</a></code> are below:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sim_apply.html">sim_apply</a></span><span class="op">(</span>sim <span class="op">=</span> , FUN <span class="op">=</span> , verbose <span class="op">=</span> , cl <span class="op">=</span> , <span class="va">...</span><span class="op">)</span></span></code></pre></div>
 <ul>
@@ -369,7 +378,8 @@ estimated quantities, we can use <code><a href="https://rdrr.io/r/graphics/plot.
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on the <code>clarify_est</code> object.</p>
 <p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> displays a density plot of the resulting
 estimates across the simulations, with markers identifying the point
-estimate (computed using the original coefficients) and, optionally,
+estimate (computed using the original model coefficients as recommended
+by <span class="citation">Rainey (2023)</span> ) and, optionally,
 uncertainty bounds (which function like confidence or credible interval
 bounds). The arguments to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> are below:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -408,12 +418,13 @@ probability for participant PSID1:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est1</span>, reference <span class="op">=</span> <span class="cn">TRUE</span>, ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="clarify_files/figure-html/unnamed-chunk-8-1.png" width="624" style="display: block; margin: auto;"></p>
 <p>From the plot, we can see that the distribution of simulated values
-is non-Normal and asymmetrical, with no values falling below 0 because
-the outcome is a predicted probability. Given its non-Normality, the
-quantile-based bounds are clearly more appropriate, as the bounds
-computed from the Normal approximation would be outside the bounds of
-the estimate. The plot itself is a <code>ggplot</code> object that can
-be modified using <code>ggplot2</code> syntax.</p>
+is non-Normal, asymmetrical, and not centered around the estimate, with
+no values falling below 0 because the outcome is a predicted
+probability. Given its non-Normality, the quantile-based bounds are
+clearly more appropriate, as the bounds computed from the Normal
+approximation would be outside the bounds of the estimate. The plot
+itself is a <code>ggplot</code> object that can be modified using
+<code>ggplot2</code> syntax.</p>
 <p>We can use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to display the value of the point
 estimate, the uncertainty bounds, and other statistics that describe the
 distribution of estimates. The arguments to <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> are
@@ -467,7 +478,12 @@ estimate is equal to 0 is returned because we set <code>null = 0</code>.
 The computed bounds are very close to the quantile-based bound
 (displayed in the plot, and can be requested in <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 by setting <code>method = "quantile"</code>) because the simulated
-sampling distribution is close to Normal.</p>
+sampling distribution is close to Normal. Note that the Normal
+approximation should be used only when the simulated sampling
+distribution is both close to Normally distributed and centered around
+the estimate (i.e., when the mean of the simulated values [red vertical
+line] coincides with the estimate computed on the original coefficients
+[black vertical line]).</p>
 </div>
 <div class="section level2">
 <h2 id="sim_apply-wrappers-sim_setx-sim_ame-sim_adrf">
@@ -641,7 +657,7 @@ does something closer to &lt;code&gt;&lt;a href="../reference/sim_setx.html"&gt;
 variables are computed using &lt;code&gt;comparisons()&lt;/code&gt;, and AMEs for
 continuous variables are computed using &lt;code&gt;marginaleffects()&lt;/code&gt;.
 AMMs are sometimes known as average “adjusted” or “counterfactual”
-predictions.&lt;/p&gt;'><sup>2</sup></a>.</p>
+predictions.&lt;/p&gt;'><sup>3</sup></a>.</p>
 <p>The arguments to <code><a href="../reference/sim_ame.html">sim_ame()</a></code> are as follows:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sim_ame.html">sim_ame</a></span><span class="op">(</span>sim <span class="op">=</span> , var <span class="op">=</span> , subset <span class="op">=</span> , contrast <span class="op">=</span> , outcome <span class="op">=</span> ,</span>
@@ -891,7 +907,7 @@ We’ll also set a null value for this quantity.</p>
 <span><span class="co">#&gt; E[Y(1)]   0.2443  0.1892  0.3062       .</span></span>
 <span><span class="co">#&gt; RR        0.7646  0.5592  1.0822    0.13</span></span>
 <span><span class="co">#&gt; RD       -0.0752 -0.1692  0.0216    0.13</span></span></code></pre></div>
-<p>Something nice about using simulation-based inference with p-values
+<p>One nice thing about using simulation-based inference with p-values
 computed from inverting the confidence intervals is that the p-values
 for the risk difference and risk ratio (and any other effect measure for
 comparing a pair of values) will always exactly align, thereby ensuring
@@ -997,7 +1013,7 @@ coefficients. When these function rely on using a dataset (e.g.,
 units in the dataset used to fit the model), they automatically know to
 associate a given coefficient draw with the imputed dataset that was
 used to fit the model that produced that draw. In user-written functions
-supplied to the <code>FUN</code> argument if <code><a href="../reference/sim_apply.html">sim_apply()</a></code>,
+supplied to the <code>FUN</code> argument of <code><a href="../reference/sim_apply.html">sim_apply()</a></code>,
 it is important to extract the dataset from the model fit. This is
 demonstrated below.</p>
 <p>The final estimates of the quantity of interest is computed as the
@@ -1098,6 +1114,12 @@ King, Gary, Michael Tomz, and Jason Wittenberg. 2000. <span>“Making the
 Most of Statistical Analyses: Improving Interpretation and
 Presentation.”</span> <em>American Journal of Political Science</em> 44
 (2): 347–61. <a href="https://doi.org/10.2307/2669316" class="external-link">https://doi.org/10.2307/2669316</a>.
+</div>
+<div id="ref-raineyCarefulConsiderationCLARIFY2023" class="csl-entry">
+Rainey, Carlisle. 2023. <span>“A Careful Consideration of
+<span>CLARIFY</span>: Simulation-Induced Bias in Point Estimates of
+Quantities of Interest.”</span> <em>Political Science Research and
+Methods</em>, April, 1–10. <a href="https://doi.org/10.1017/psrm.2023.8" class="external-link">https://doi.org/10.1017/psrm.2023.8</a>.
 </div>
 <div id="ref-tomzClarifySoftwareInterpreting2003" class="csl-entry">
 Tomz, Michael, Jason Wittenberg, and Gary King. 2003. <span>“Clarify:

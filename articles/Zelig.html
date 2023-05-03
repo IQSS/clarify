@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,12 +101,15 @@ simulate those quantities using <code><a href="../reference/sim.html">sim()</a><
 uses a similar approach, except that the model is fit outside
 <code>clarify</code> using functions in a different R package. In
 addition, <code>clarify</code>’s <code><a href="../reference/sim_apply.html">sim_apply()</a></code> allows for the
-computation of any arbitrary quantity of interest. We’ll demonstrate how
-to replicate a standard <code>Zelig</code> analysis using
-<code>clarify</code> step-by-step. Because simulation-based inference
-involves randomness and some of the algorithms may not perfectly align,
-one shouldn’t expect results to be identical, though in most cases, they
-should be similar.</p>
+computation of any arbitrary quantity of interest. Unlike
+<code>Zelig</code>, <code>clarify</code> follows the recommendations of
+<span class="citation">Rainey (2023)</span> to use the estimates
+computed from the original model coefficients rather than the average of
+the simulated draws. We’ll demonstrate how to replicate a standard
+<code>Zelig</code> analysis using <code>clarify</code> step-by-step.
+Because simulation-based inference involves randomness and some of the
+algorithms may not perfectly align, one shouldn’t expect results to be
+identical, though in most cases, they should be similar.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## library("Zelig")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/iqss/clarify" class="external-link">"clarify"</a></span><span class="op">)</span></span>
@@ -348,9 +351,9 @@ effect of <code>treat</code> within the subset of treated units:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate 2.5 % 97.5 %</span></span>
-<span><span class="co">#&gt; E[Y(0)]     5228  4060   6355</span></span>
-<span><span class="co">#&gt; E[Y(1)]     6349  5226   7468</span></span>
-<span><span class="co">#&gt; Diff        1121  -474   2635</span></span>
+<span><span class="co">#&gt; E[Y(0)]     5188  4047   6271</span></span>
+<span><span class="co">#&gt; E[Y(1)]     6349  5225   7480</span></span>
+<span><span class="co">#&gt; Diff        1162  -374   2647</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Zelig_files/figure-html/unnamed-chunk-28-1.png" width="624"></p>
@@ -461,6 +464,12 @@ Puhr, Rainer, Georg Heinze, Mariana Nold, Lara Lusa, and Angelika
 Geroldinger. 2017. <span>“Firth’s Logistic Regression with Rare Events:
 Accurate Effect Estimates and Predictions?”</span> <em>Statistics in
 Medicine</em> 36 (14): 2302–17. <a href="https://doi.org/10.1002/sim.7273" class="external-link">https://doi.org/10.1002/sim.7273</a>.
+</div>
+<div id="ref-raineyCarefulConsiderationCLARIFY2023" class="csl-entry">
+Rainey, Carlisle. 2023. <span>“A Careful Consideration of
+<span>CLARIFY</span>: Simulation-Induced Bias in Point Estimates of
+Quantities of Interest.”</span> <em>Political Science Research and
+Methods</em>, April, 1–10. <a href="https://doi.org/10.1017/psrm.2023.8" class="external-link">https://doi.org/10.1017/psrm.2023.8</a>.
 </div>
 </div>
 </div>

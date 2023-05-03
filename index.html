@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -182,7 +182,7 @@
 <span><span class="co"># Plot the resulting sampling distributions</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span>, reference <span class="op">=</span> <span class="cn">TRUE</span>, ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-example2-1.png" width="80%"></p>
-<p>The plot of the simulated sampling distribution indicates that the sampling distribution for the risk ratio is not normally distributed around the estimate, indicating that the delta method may be a poor approximation and the asymmetric confidence intervals produced using the simulation may be more valid.</p>
+<p>The plot of the simulated sampling distribution indicates that the sampling distribution for the risk ratio is not normally distributed around the estimate, indicating that the delta method may be a poor approximation and the asymmetric confidence intervals produced using the simulation may be more valid. Note that the estimates are those computed from the original model coefficients; the distribution is used only for computing confidence intervals, in line with recommendations by Rainey (2023).</p>
 <p>If we want to compute the risk difference, we can do that using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> on the already-produced output:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Transform estimates into new quantities of interest</span></span>
@@ -210,6 +210,7 @@
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <p>King, G., Tomz, M., &amp; Wittenberg, J. (2000). Making the Most of Statistical Analyses: Improving Interpretation and Presentation. <em>American Journal of Political Science</em>, 44(2), 347–361. <a href="https://doi.org/10.2307/2669316" class="external-link uri">https://doi.org/10.2307/2669316</a></p>
+<p>Rainey, C. (2023). A careful consideration of CLARIFY: Simulation-induced bias in point estimates of quantities of interest. <em>Political Science Research and Methods</em>, 1–10. <a href="https://doi.org/10.1017/psrm.2023.8" class="external-link uri">https://doi.org/10.1017/psrm.2023.8</a></p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
