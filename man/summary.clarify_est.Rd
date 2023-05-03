@@ -48,7 +48,7 @@ For \code{plot()}, a \code{ggplot} object.
 \code{summary()} tabulates the estimates and confidence intervals and (optionally) p-values from a \code{clarify_est} object. \code{confint()} computes confidence intervals. \code{plot()} plots the "posterior" distribution of estimates.
 }
 \details{
-\code{summary()} uses the estimates computed from the original model as its estimates and uses the simulated parameters for inference only.
+\code{summary()} uses the estimates computed from the original model as its estimates and uses the simulated parameters for inference only, in line with the recommendations of Rainey (2023).
 
 When \code{method = "wald"}, the standard deviation of the simulation estimates is used as the standard error, which is used in the z-statistics and the confidence intervals. The p-values and confidence intervals are valid only when the sampling distribution of the resulting statistic is normal (which can be assessed using \code{plot()}). When \code{method = "quantile"}, the confidence interval is calculated using the quantiles of the simulation estimates corresponding to \code{level}, and the p-value is calculated as twice the proportion of simulation estimates less than or greater than \code{null}, whichever is smaller; this is equivalent to inverting the confidence interval but is only truly valid when the true sampling distribution is only a location shift from the sampling distribution under the null hypothesis and should therefore be interpreted with caution. Using \verb{"method = "quantile"} (the default) is recommended because the confidence intervals will be valid even if the sampling distribution is not Normally distributed. The precision of the p-values and confidence intervals depends on the number of simulations requested (the value of \code{n} supplied to \code{\link[=sim]{sim()}}).
 
@@ -87,6 +87,9 @@ plot(est, parm = c("RD", "RR"), reference = TRUE,
 # Plot the RD and RR with quantile confidence bounds
 plot(est, parm = c("RD", "RR"), ci = TRUE)
 
+}
+\references{
+Rainey, C. (2023). A careful consideration of CLARIFY: Simulation-induced bias in point estimates of quantities of interest. \emph{Political Science Research and Methods}, 1–10. \doi{doi.org/10.1017/psrm.2023.8}
 }
 \seealso{
 \itemize{

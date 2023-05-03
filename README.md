@@ -197,7 +197,10 @@ The plot of the simulated sampling distribution indicates that the
 sampling distribution for the risk ratio is not normally distributed
 around the estimate, indicating that the delta method may be a poor
 approximation and the asymmetric confidence intervals produced using the
-simulation may be more valid.
+simulation may be more valid. Note that the estimates are those computed
+from the original model coefficients; the distribution is used only for
+computing confidence intervals, in line with recommendations by Rainey
+(2023).
 
 If we want to compute the risk difference, we can do that using
 `transform()` on the already-produced output:
@@ -244,3 +247,8 @@ King, G., Tomz, M., & Wittenberg, J. (2000). Making the Most of
 Statistical Analyses: Improving Interpretation and Presentation.
 *American Journal of Political Science*, 44(2), 347–361.
 <https://doi.org/10.2307/2669316>
+
+Rainey, C. (2023). A careful consideration of CLARIFY:
+Simulation-induced bias in point estimates of quantities of interest.
+*Political Science Research and Methods*, 1–10.
+<https://doi.org/10.1017/psrm.2023.8>
