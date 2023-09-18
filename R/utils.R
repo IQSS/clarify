@@ -158,24 +158,14 @@ list.search <- function(x, key) {
     if (identical(x[[i]], key)) {
       return(i)
     }
-    else if (is.list(x[[i]])) {
+
+    if (is.list(x[[i]])) {
       l <- list.search(x[[i]], key)
       if (!is.null(l)) return(c(i, l))
     }
   }
 
   NULL
-}
-
-#Checks if object inherits from any of the supplied classes
-inherits_any <- function(x, what) {
-  chk::chk_character(what)
-
-  for (i in what) {
-    if (inherits(x, i)) return(TRUE)
-  }
-
-  FALSE
 }
 
 #Checks if input is "try-error", i.e., failure of try()
@@ -198,6 +188,14 @@ pkg_caller_call <- function(start = 1) {
 
 .err <- function(...) {
   chk::err(..., call = pkg_caller_call(start = 2))
+}
+
+.wrn <- function(..., immediate = TRUE) {
+  if (immediate && !isTRUE(all.equal(getOption("warn"), 1))) {
+    op <- options(warn = 1)
+    on.exit(options(op))
+  }
+  chk::wrn(...)
 }
 
 drop_sim_class <- function(x) {

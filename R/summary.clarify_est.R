@@ -88,8 +88,8 @@ summary.clarify_est <- function(object,
 
   test <- !all(is.na(null))
 
-  nas <- anyNA(object[, parm])
-  if (nas) chk::wrn("NA values present among the estimates")
+  nas <- anyNA(object[parm])
+  if (nas) .wrn("NA values present among the estimates")
 
   ans <- cbind(Estimate = original_est[parm],
                confint(object, parm = parm, level = level,
@@ -170,8 +170,8 @@ confint.clarify_est <- function(object,
   ci <- array(NA, dim = c(length(parm), 2L),
               dimnames = list(est_names, pct))
 
-  nas <- anyNA(object[, parm])
-  if (nas) chk::wrn("`NA` values present among the estimates")
+  nas <- anyNA(object[parm])
+  if (nas) .wrn("`NA` values present among the estimates")
 
   if (method == "wald") {
     cf <- coef(object)
@@ -180,6 +180,7 @@ confint.clarify_est <- function(object,
     ci[] <- cf[parm] + outer(ses, fac, "*")
   }
   else if (method == "quantile") {
+    object <- drop_sim_class(object)
     ci[] <- t(apply(object[, parm, drop = FALSE], 2, quantile, probs = a,
                     na.rm = nas))
   }
