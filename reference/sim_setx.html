@@ -22,7 +22,7 @@ predictions.'><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,15 +100,15 @@ predictions.</p>
 
 
 <dt>x</dt>
-<dd><p>a named list of values each predictor should take defining a
-reference grid of predictor values, e.g., <code>list(v1 = 1:4, v2 = c("A", "B"))</code>.
+<dd><p>a data.frame containing a reference grid of predictor values or a named list of values each predictor should take defining such a
+reference grid, e.g., <code>list(v1 = 1:4, v2 = c("A", "B"))</code>.
 Any omitted predictors are fixed at a "typical" value. See Details.
 When <code>x1</code> is specified, <code>x</code> should identify a single reference unit.</p>
 <p>For <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, a <code>clarify_setx</code> object.</p></dd>
 
 
 <dt>x1</dt>
-<dd><p>a named list of the value each predictor should take to compute the
+<dd><p>a data.frame or named list of the value each predictor should take to compute the
 first difference from the predictor combination specified in <code>x</code>. <code>x1</code> can
 only identify a single unit. See Details.</p></dd>
 
@@ -118,7 +118,7 @@ only identify a single unit. See Details.</p></dd>
 
 
 <dt>type</dt>
-<dd><p>a string containing the type of predicted values (e.g., the link or the response). Passed to <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/get_predict.html" class="external-link">marginaleffects::get_predict()</a></code> and eventually to <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).</p></dd>
+<dd><p>a string containing the type of predicted values (e.g., the link or the response). Passed to <code><a href="https://rdrr.io/pkg/marginaleffects/man/get_predict.html" class="external-link">marginaleffects::get_predict()</a></code> and eventually to <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).</p></dd>
 
 
 <dt>verbose</dt>
@@ -154,7 +154,7 @@ details. If <code>NULL</code>, no parallelization will take place.</p></dd>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>x</code> should be a named list of predictor values that will be crossed
+    <p>When <code>x</code> is a named list of predictor values, they will be crossed
 to form a reference grid for the marginal predictions. Any predictors not
 set in <code>x</code> are assigned their "typical" value, which, for factor,
 character, logical, and binary variables is the mode, for numeric variables
@@ -187,7 +187,7 @@ p-values and confidence intervals for the estimated quantities.</p></div>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span>, n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Predicted values at specified values of treat, typical</span></span></span>
+<span class="r-in"><span><span class="co"># Predicted values at specified values of values, typical</span></span></span>
 <span class="r-in"><span><span class="co"># values for other predictors</span></span></span>
 <span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_setx</span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>,</span></span>
 <span class="r-in"><span>                            re74 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10000</span><span class="op">)</span><span class="op">)</span>,</span></span>
@@ -221,8 +221,8 @@ p-values and confidence intervals for the estimated quantities.</p></div>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># First differences of treat at specified value of</span></span></span>
 <span class="r-in"><span><span class="co"># race, typical values for other predictors</span></span></span>
-<span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_setx</span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span>, race <span class="op">=</span> <span class="st">"hispan"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">1</span>, race <span class="op">=</span> <span class="st">"hispan"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_setx</span><span class="op">(</span><span class="va">s</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">0</span>, race <span class="op">=</span> <span class="st">"hispan"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fl">1</span>, race <span class="op">=</span> <span class="st">"hispan"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           Estimate 2.5 % 97.5 %</span>

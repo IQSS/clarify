@@ -16,7 +16,7 @@ quantities of interest. Capabilities are available for parallelization."><!-- ma
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,7 +107,7 @@ details. If <code>NULL</code>, no parallelization will take place.</p></dd>
 <p>A <code>clarify_est</code> object, which is a matrix with a column for each
 estimated quantity and a row for each simulation. The original estimates
 (<code>FUN</code> applied to the original coefficients or model fit object) are stored
-in the attribute <code>"original"</code>. The <code>"sim_hash"</code> attributes contained the
+in the attribute <code>"original"</code>. The <code>"sim_hash"</code> attribute contains the
 simulation hash produced by <code><a href="sim.html">sim()</a></code>.</p>
     </div>
     <div class="section level2">
@@ -138,14 +138,15 @@ argument to <code><a href="sim.html">sim()</a></code> is not left at its default
 argument. This is because <code>sim_apply()</code> does not know how to reconstruct
 the original fit object with the new coefficients inserted. The quantities
 computed by <code>sim_apply()</code> must therefore be computed directly from the
-coefficients.</p><div class="section">
+coefficients.</p>
+<p>If <code>FUN</code> is not supplied at all, the simulated values of the coefficients will be returned in the output with a warning. Set <code>FUN</code> to <code>NULL</code> or <code>verbose</code> to <code>FALSE</code> to suppress this warning.</p><div class="section">
 <h3 id="sim-apply-with-multiply-imputed-data"><code>sim_apply()</code> with multiply imputed data<a class="anchor" aria-label="anchor" href="#sim-apply-with-multiply-imputed-data"></a></h3>
 
 
 <p>When using <code><a href="misim.html">misim()</a></code> and <code>sim_apply()</code> with multiply imputed data, the
 coefficients are supplied to the model fit corresponding to the imputation
 identifier associated with each set of coefficients, which means if <code>FUN</code>
-uses a dataset extracted from a model, it will do so from the model fit in
+uses a dataset extracted from a model (e.g., using <code><a href="https://easystats.github.io/insight/reference/get_data.html" class="external-link">insight::get_data()</a></code>), it will do so from the model fit in
 the corresponding imputation.</p>
 <p>The original estimates (see Value below) are computed as the mean of the
 estimates across the imputations using the original coefficients averaged
@@ -186,7 +187,7 @@ quantities and their simulated posterior sampling distribution.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -1174.9861400     0.3855893 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span>, n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="sim.html">sim</a></span><span class="op">(</span><span class="va">fit</span>, n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Function to compare predicted values for two units</span></span></span>
 <span class="r-in"><span><span class="co"># using `fit` argument</span></span></span>
@@ -205,22 +206,32 @@ quantities and their simulated posterior sampling distribution.</p></li>
 <span class="r-in"><span><span class="co"># Examine estimates and confidence intervals</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate 2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> pred1        4899  3692   6116</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> pred2        6603  4972   8739</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> diff 1-2    -1704 -3802    297</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pred1        4899  3547   6122</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pred2        6603  4476   8679</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> diff 1-2    -1704 -3813    403</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Function to compare coefficients using `coefs`</span></span></span>
 <span class="r-in"><span><span class="co"># argument</span></span></span>
 <span class="r-in"><span><span class="va">sim_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">coefs</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`wh - his` <span class="op">=</span> <span class="va">coefs</span><span class="op">[</span><span class="st">"racewhite"</span><span class="op">]</span> <span class="op">-</span> <span class="va">coefs</span><span class="op">[</span><span class="st">"racehispan"</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">coefs</span><span class="op">[</span><span class="st">"racewhite"</span><span class="op">]</span> <span class="op">-</span> <span class="va">coefs</span><span class="op">[</span><span class="st">"racehispan"</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>           <span class="st">"wh - his"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_apply</span><span class="op">(</span><span class="va">s</span>, <span class="va">sim_fun</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Examine estimates and confidence intervals</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate 2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wh - his.racewhite     -267 -1745   1740</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate 2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wh - his     -267 -1981   1676</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Another way to do the above:</span></span></span>
+<span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_apply</span><span class="op">(</span><span class="va">s</span>, FUN <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">est</span>,</span></span>
+<span class="r-in"><span>                 `wh - his` <span class="op">=</span> <span class="va">`racewhite`</span> <span class="op">-</span> <span class="va">`racehispan`</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span>, parm <span class="op">=</span> <span class="st">"wh - his"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate 2.5 % 97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wh - his     -267 -1981   1676</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

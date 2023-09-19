@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,6 +64,7 @@
 <span>  <span class="va">sim</span>,</span>
 <span>  <span class="va">var</span>,</span>
 <span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  contrast <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  outcome <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -91,8 +92,12 @@
 <dd><p>optional; a vector used to subset the data used to compute the marginal effects. This will be evaluated within the original dataset used to fit the model using <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code>, so nonstandard evaluation is allowed.</p></dd>
 
 
+<dt>by</dt>
+<dd><p>a one-sided formula or character vector containing the names of variables for which to stratify the estimates. Each quantity will be computed within each level of the complete cross of the variables specified in <code>by</code>.</p></dd>
+
+
 <dt>contrast</dt>
-<dd><p>a string containing the name of a contrast between the average marginal means when the variable named in <code>var</code> is categorical and takes on two values. Allowed options include <code>"diff"</code> for the difference in means (also <code>"rd"</code>), <code>"rr"</code> for the risk ratio (also <code>"irr"</code>), <code>"log(rr):</code> for the log risk ratio (also <code>"log(irr)"</code>), <code>"or"</code> for the odds ratio, <code>"log(or)"</code> for the log odds ratio, and <code>"nnt"</code> for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.</p></dd>
+<dd><p>a string containing the name of a contrast between the average marginal means when the variable named in <code>var</code> is categorical and takes on two values. Allowed options include <code>"diff"</code> for the difference in means (also <code>"rd"</code>), <code>"rr"</code> for the risk ratio (also <code>"irr"</code>), <code>"log(rr):</code> for the log risk ratio (also <code>"log(irr)"</code>), <code>"sr"</code> for the survival ratio, <code>"log(sr):</code> for the log survival ratio, <code>"srr"</code> for the switch relative risk (also <code>"grrr"</code>), <code>"or"</code> for the odds ratio, <code>"log(or)"</code> for the log odds ratio, and <code>"nnt"</code> for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.</p></dd>
 
 
 <dt>outcome</dt>
@@ -100,7 +105,7 @@
 
 
 <dt>type</dt>
-<dd><p>a string containing the type of predicted values (e.g., the link or the response). Passed to <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/get_predict.html" class="external-link">marginaleffects::get_predict()</a></code> and eventually to <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).</p></dd>
+<dd><p>a string containing the type of predicted values (e.g., the link or the response). Passed to <code><a href="https://rdrr.io/pkg/marginaleffects/man/get_predict.html" class="external-link">marginaleffects::get_predict()</a></code> and eventually to <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).</p></dd>
 
 
 <dt>eps</dt>
@@ -140,11 +145,11 @@ details. If <code>NULL</code>, no parallelization will take place.</p></dd>
     
 
 <p>A <code>clarify_ame</code> object, which inherits from <code>clarify_est</code> and is similar to
-the output of <code><a href="sim_apply.html">sim_apply()</a></code>, with the additional attribute <code>"var"</code> containing
-the variable named in <code>var</code>. The average marginal means will be named
+the output of <code><a href="sim_apply.html">sim_apply()</a></code>, with the additional attributes <code>"var"</code> containing
+the variable named in <code>var</code> and <code>"by"</code> containing the names of the variables specified in <code>by</code> (if any). The average adjusted predictions will be named
 <code>E[Y({v})]</code>, where <code>{v}</code> is replaced with the values the focal variable
 (<code>var</code>) takes on. The average marginal effect for a continuous <code>var</code> will be
-named <code>dY/d({x})</code> where <code>{x}</code> is replaced with <code>var</code>.</p>
+named <code>E[dY/d({x})]</code> where <code>{x}</code> is replaced with <code>var</code>. When <code>by</code> is specified, the average adjusted predictions will be named <code>E[Y({v})|{b}]</code> and the average marginel effect <code>E[dY/d({x})|{b}]</code> where <code>{b}</code> is a comma-separated list of of values of the <code>by</code> variables at which the quantity is computed. See examples.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -155,7 +160,7 @@ named <code>dY/d({x})</code> where <code>{x}</code> is replaced with <code>var</
 <h3 id="effect-measures">Effect measures<a class="anchor" aria-label="anchor" href="#effect-measures"></a></h3>
 
 
-<p>The effect measures specified in <code>contrast</code> are defined below. Typically only <code>"diff"</code> is appropriate for continuous outcomes and <code>"diff"</code> or <code>"irr"</code> are appropriate for count outcomes; the rest are appropriate for binary outcomes. For a focal variable with two levels, <code>0</code> and <code>1</code>, and an outcome <code>Y</code>, the average marginal means will be denoted in the below formulas as <code>E[Y(0)]</code> and <code>E[Y(1)]</code>, respectively.</p><table class="table table"><tr><td><code>contrast</code></td><td>Formula</td></tr><tr><td><code>"diff"</code></td><td><code>E[Y(1)] - E[Y(0)]</code></td></tr><tr><td><code>"rr"</code></td><td><code>E[Y(1)] / E[Y(0)]</code></td></tr><tr><td><code>"or"</code></td><td><code>O[Y(1)] / O[Y(0)]</code>, where <code>O[Y(.)]</code> = <code>E[Y(.)] / (1 - E[Y(.)])</code></td></tr><tr><td><code>"nnt"</code></td><td><code>1 / (E[Y(1)] - E[Y(0)])</code></td></tr></table><p>The <code>log(.)</code> versions are defined by taking the <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">log()</a></code> (natural log) of the corresponding effect measure.</p>
+<p>The effect measures specified in <code>contrast</code> are defined below. Typically only <code>"diff"</code> is appropriate for continuous outcomes and <code>"diff"</code> or <code>"irr"</code> are appropriate for count outcomes; the rest are appropriate for binary outcomes. For a focal variable with two levels, <code>0</code> and <code>1</code>, and an outcome <code>Y</code>, the average marginal means will be denoted in the below formulas as <code>E[Y(0)]</code> and <code>E[Y(1)]</code>, respectively.</p><table class="table table"><tr><td><code>contrast</code></td><td>Formula</td></tr><tr><td><code>"diff"</code></td><td><code>E[Y(1)] - E[Y(0)]</code></td></tr><tr><td><code>"rr"</code></td><td><code>E[Y(1)] / E[Y(0)]</code></td></tr><tr><td><code>"sr"</code></td><td><code>(1 - E[Y(1)]) / (1 - E[Y(0)])</code></td></tr><tr><td><code>"srr"</code></td><td><code>1 - sr</code> if  <code>E[Y(1)] &gt; E[Y(0)]</code></td></tr><tr><td></td><td><code>rr - 1</code> if <code>E[Y(1)] &lt; E[Y(0)]</code></td></tr><tr><td></td><td><code>0</code> otherwise</td></tr><tr><td><code>"or"</code></td><td><code>O[Y(1)] / O[Y(0)]</code></td></tr><tr><td></td><td>where <code>O[Y(.)]</code> = <code>E[Y(.)] / (1 - E[Y(.)])</code></td></tr><tr><td><code>"nnt"</code></td><td><code>1 / (E[Y(1)] - E[Y(0)])</code></td></tr></table><p>The <code>log(.)</code> versions are defined by taking the <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">log()</a></code> (natural log) of the corresponding effect measure.</p>
 </div>
 
     </div>
@@ -165,7 +170,7 @@ named <code>dY/d({x})</code> where <code>{x}</code> is replaced with <code>var</
 quantities for simulation-based inference; <code><a href="summary.clarify_est.html">plot.clarify_est()</a></code> for plotting the
 output of a call to <code>sim_ame()</code>; <code><a href="summary.clarify_est.html">summary.clarify_est()</a></code> for computing
 p-values and confidence intervals for the estimated quantities.</p>
-<p><code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>, <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons()</a></code>, and <code>margins::margins()</code> for delta method-based implementations of computing average marginal effects.</p></div>
+<p><code><a href="https://rdrr.io/pkg/marginaleffects/man/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>, <code><a href="https://rdrr.io/pkg/marginaleffects/man/comparisons.html" class="external-link">marginaleffects::comparisons()</a></code>, and <code>margins::margins()</code> for delta method-based implementations of computing average marginal effects.</p></div>
     </div>
 
     <div class="section level2">
@@ -173,7 +178,8 @@ p-values and confidence intervals for the estimated quantities.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"MatchIt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the model</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span>,</span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>             <span class="va">married</span> <span class="op">+</span> <span class="va">re74</span>,</span></span>
 <span class="r-in"><span>           data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="va">binomial</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simulate coefficients</span></span></span>
@@ -183,19 +189,20 @@ p-values and confidence intervals for the estimated quantities.</p>
 <span class="r-in"><span><span class="co"># Average marginal effect of `age`</span></span></span>
 <span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Estimate    2.5 %   97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age) -0.00678 -0.00981 -0.00403</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Estimate    2.5 %   97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)] -0.00695 -0.01013 -0.00442</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Contrast between average marginal means for `treat`</span></span></span>
+<span class="r-in"><span><span class="co"># Contrast between average adjusted predictions</span></span></span>
+<span class="r-in"><span><span class="co"># for `treat`</span></span></span>
 <span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, contrast <span class="op">=</span> <span class="st">"rr"</span>,</span></span>
 <span class="r-in"><span>               verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Estimate 2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(0)]    0.744 0.698  0.784</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(1)]    0.809 0.758  0.851</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RR         1.088 0.987  1.198</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(0)]    0.743 0.701  0.781</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(1)]    0.810 0.758  0.858</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RR         1.090 1.000  1.185</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Average marginal means for `race`; need to follow up</span></span></span>
+<span class="r-in"><span><span class="co"># Average adjusted predictions for `race`; need to follow up</span></span></span>
 <span class="r-in"><span><span class="co"># with contrasts for specific levels</span></span></span>
 <span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"race"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -204,10 +211,89 @@ p-values and confidence intervals for the estimated quantities.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              Estimate 2.5 % 97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(black)]     0.704 0.637  0.764</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(hispan)]    0.832 0.734  0.899</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(white)]     0.800 0.753  0.843</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RR(h,b)         1.181 1.026  1.360</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(black)]     0.706 0.646  0.758</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(hispan)]    0.832 0.741  0.898</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(white)]     0.800 0.751  0.847</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RR(h,b)         1.178 1.029  1.331</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Average adjusted predictions for `treat` within levels of</span></span></span>
+<span class="r-in"><span><span class="co"># `married`, first using `subset` and then using `by`</span></span></span>
+<span class="r-in"><span><span class="va">est0</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">married</span> <span class="op">==</span> <span class="fl">0</span>,</span></span>
+<span class="r-in"><span>                contrast <span class="op">=</span> <span class="st">"rd"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">est0</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">est0</span><span class="op">)</span>, <span class="st">"|married=0"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">est1</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, subset <span class="op">=</span> <span class="va">married</span> <span class="op">==</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                contrast <span class="op">=</span> <span class="st">"rd"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">est1</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">est1</span><span class="op">)</span>, <span class="st">"|married=1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">est0</span>, <span class="va">est1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate     2.5 %    97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(0)]|married=0  7.24e-01  6.58e-01  7.79e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(1)]|married=0  7.95e-01  7.42e-01  8.43e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RD|married=0       7.11e-02 -2.65e-04  1.47e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(0)]|married=1  7.70e-01  7.21e-01  8.17e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(1)]|married=1  8.31e-01  7.55e-01  8.94e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RD|married=1       6.10e-02 -4.39e-05  1.16e-01</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"treat"</span>, by <span class="op">=</span> <span class="op">~</span><span class="va">married</span>,</span></span>
+<span class="r-in"><span>               contrast <span class="op">=</span> <span class="st">"rd"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">est</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A `clarify_est` object (from `sim_ame()`)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Average marginal effect of `treat`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - within levels of `married`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 100 simulated values</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 6 quantities estimated:                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(0)|0] 0.72405662</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(1)|0] 0.79518774</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  RD[0]     0.07113112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(0)|1] 0.76974375</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(1)|1] 0.83078255</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  RD[1]     0.06103880</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Estimate     2.5 %    97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(0)|0]  7.24e-01  6.58e-01  7.79e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(1)|0]  7.95e-01  7.42e-01  8.43e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RD[0]      7.11e-02 -2.65e-04  1.47e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(0)|1]  7.70e-01  7.21e-01  8.17e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[Y(1)|1]  8.31e-01  7.55e-01  8.94e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RD[1]      6.10e-02 -4.39e-05  1.16e-01</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Average marginal effect of `re74` within levels of</span></span></span>
+<span class="r-in"><span><span class="co"># married*race</span></span></span>
+<span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_ame</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>, by <span class="op">=</span> <span class="op">~</span><span class="va">married</span> <span class="op">+</span> <span class="va">race</span>,</span></span>
+<span class="r-in"><span>               verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">est</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A `clarify_est` object (from `sim_ame()`)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Average marginal effect of `age`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - within levels of `married` and `race`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 100 simulated values</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 6 quantities estimated:                                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|0,black]  -0.007950175</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|0,hispan] -0.005599656</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|0,white]  -0.006626402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|1,black]  -0.008058486</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|1,hispan] -0.005497813</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|1,white]  -0.006303652</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span>, null <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       Estimate    2.5 %   97.5 % P-value    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|0,black]  -0.00795 -0.01171 -0.00530  &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|0,hispan] -0.00560 -0.00988 -0.00281  &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|0,white]  -0.00663 -0.00951 -0.00398  &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|1,black]  -0.00806 -0.01194 -0.00499  &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|1,hispan] -0.00550 -0.00938 -0.00290  &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|1,white]  -0.00630 -0.00942 -0.00380  &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Comparing AMEs between married and unmarried for</span></span></span>
+<span class="r-in"><span><span class="co"># each level of `race`</span></span></span>
+<span class="r-in"><span><span class="va">est_diff</span> <span class="op">&lt;-</span> <span class="va">est</span><span class="op">[</span><span class="fl">4</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span> <span class="op">-</span> <span class="va">est</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">est_diff</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"AME_diff|"</span>, <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">race</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est_diff</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  Estimate     2.5 %    97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AME_diff|black  -0.000108 -0.001290  0.001062</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AME_diff|hispan  0.000102 -0.001386  0.001438</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AME_diff|white   0.000323 -0.001384  0.001580</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

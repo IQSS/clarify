@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -147,7 +147,7 @@
 <li>
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> produces plots of the simulated sampling distribution of the resulting estimates</li>
 </ul>
-<p>There are also some wrappers for <code><a href="reference/sim_apply.html">sim_apply()</a></code> for performing some common operations: <code><a href="reference/sim_ame.html">sim_ame()</a></code> computes the average marginal effect of a variable, mirroring <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/comparisons.html" class="external-link">marginaleffects::comparisons()</a></code> and <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>; <code><a href="reference/sim_setx.html">sim_setx()</a></code> computes predictions at typical values of the covariates and differences between them, mirroring <code>Zelig::setx()</code> and <code>Zelig::setx1()</code>; and <code><a href="reference/sim_adrf.html">sim_adrf()</a></code> computes average dose-response functions. <code>clarify</code> also offers support for models fit to multiply imputed data with the <code><a href="reference/misim.html">misim()</a></code> function.</p>
+<p>There are also some wrappers for <code><a href="reference/sim_apply.html">sim_apply()</a></code> for performing some common operations: <code><a href="reference/sim_ame.html">sim_ame()</a></code> computes the average marginal effect of a variable, mirroring <code><a href="https://rdrr.io/pkg/marginaleffects/man/comparisons.html" class="external-link">marginaleffects::comparisons()</a></code> and <code><a href="https://rdrr.io/pkg/marginaleffects/man/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code>; <code><a href="reference/sim_setx.html">sim_setx()</a></code> computes predictions at typical values of the covariates and differences between them, mirroring <code>Zelig::setx()</code> and <code>Zelig::setx1()</code>; and <code><a href="reference/sim_adrf.html">sim_adrf()</a></code> computes average dose-response functions. <code>clarify</code> also offers support for models fit to multiply imputed data with the <code><a href="reference/misim.html">misim()</a></code> function.</p>
 <p>In the example above, we used <code><a href="reference/sim_ame.html">sim_ame()</a></code> to compute the ATT, but we could have also done so manually using <code><a href="reference/sim_apply.html">sim_apply()</a></code>, as demonstrated below:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Write a function that computes the g-computation estimate for the ATT</span></span>

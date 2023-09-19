@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">clarify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,6 +64,7 @@
 <span>  <span class="va">sim</span>,</span>
 <span>  <span class="va">var</span>,</span>
 <span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  contrast <span class="op">=</span> <span class="st">"adrf"</span>,</span>
 <span>  at <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n <span class="op">=</span> <span class="fl">21</span>,</span>
@@ -93,6 +94,10 @@
 <dd><p>optional; a vector used to subset the data used to compute the ADRF or AMEF. This will be evaluated within the original dataset used to fit the model using <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code>, so nonstandard evaluation is allowed.</p></dd>
 
 
+<dt>by</dt>
+<dd><p>a one-sided formula or character vector containing the names of variables for which to stratify the estimates. Each quantity will be computed within each level of the complete cross of the variables specified in <code>by</code>.</p></dd>
+
+
 <dt>contrast</dt>
 <dd><p>a string naming the type of quantity to be produced: <code>"adrf"</code> for the ADRF (the default) or <code>"amef"</code> for the AMEF.</p></dd>
 
@@ -110,7 +115,7 @@
 
 
 <dt>type</dt>
-<dd><p>a string containing the type of predicted values (e.g., the link or the response). Passed to <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/get_predict.html" class="external-link">marginaleffects::get_predict()</a></code> and eventually to <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).</p></dd>
+<dd><p>a string containing the type of predicted values (e.g., the link or the response). Passed to <code><a href="https://rdrr.io/pkg/marginaleffects/man/get_predict.html" class="external-link">marginaleffects::get_predict()</a></code> and eventually to <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).</p></dd>
 
 
 <dt>eps</dt>
@@ -151,7 +156,7 @@ details. If <code>NULL</code>, no parallelization will take place.</p></dd>
 
 <p>A <code>clarify_adrf</code> object, which inherits from <code>clarify_est</code> and is similar to
 the output of <code><a href="sim_apply.html">sim_apply()</a></code>, with the additional attributes <code>"var"</code> containing
-the variable named in <code>var</code>, <code>"at"</code> containing values at which the ADRF or AMEF is evaluated, and <code>"contrast"</code> containing the argument supplied to <code>contrast</code>. For an ADRF, the average marginal means will be named
+the variable named in <code>var</code>, <code>"by"</code> containing the names of the variables specified in <code>by</code> (if any), <code>"at"</code> containing values at which the ADRF or AMEF is evaluated, and <code>"contrast"</code> containing the argument supplied to <code>contrast</code>. For an ADRF, the average marginal means will be named
 <code>E[Y({v})]</code>, where <code>{v}</code> is replaced with the values in <code>at</code>. For an AMEF, the average marginal effects will be
 named <code>dY/d({x})|{a}</code> where <code>{x}</code> is replaced with <code>var</code> and <code>{a}</code> is replaced by the values in <code>at</code>.</p>
     </div>
@@ -166,7 +171,7 @@ named <code>dY/d({x})|{a}</code> where <code>{x}</code> is replaced with <code>v
     <div class="dont-index"><p><code><a href="plot.clarify_adrf.html">plot.clarify_adrf()</a></code> for plotting the ADRF or AMEF; <code><a href="sim_ame.html">sim_ame()</a></code> for computing average marginal effects; <code><a href="sim_apply.html">sim_apply()</a></code>, which provides a general interface to computing any
 quantities for simulation-based inference; <code><a href="summary.clarify_est.html">summary.clarify_est()</a></code> for computing
 p-values and confidence intervals for the estimated quantities.</p>
-<p><code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code> and <code><a href="https://vincentarelbundock.github.io/marginaleffects/reference/predictions.html" class="external-link">marginaleffects::predictions()</a></code> for delta method-based implementations of computing average marginal effects and average marginal means.</p></div>
+<p><code><a href="https://rdrr.io/pkg/marginaleffects/man/marginaleffects.html" class="external-link">marginaleffects::marginaleffects()</a></code> and <code><a href="https://rdrr.io/pkg/marginaleffects/man/predictions.html" class="external-link">marginaleffects::predictions()</a></code> for delta method-based implementations of computing average marginal effects and average marginal means.</p></div>
     </div>
 
     <div class="section level2">
@@ -174,7 +179,8 @@ p-values and confidence intervals for the estimated quantities.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"MatchIt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit the model</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span>,</span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>             <span class="va">married</span> <span class="op">+</span> <span class="va">re74</span>,</span></span>
 <span class="r-in"><span>           data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="va">binomial</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simulate coefficients</span></span></span>
@@ -187,15 +193,15 @@ p-values and confidence intervals for the estimated quantities.</p>
 <span class="r-in"><span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">est</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A `clarify_est` object (from `sim_adrf()`)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - Average does-response function of `age`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Average dose-response function of `age`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - 100 simulated values</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - 6 quantities estimated:                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(15)] 0.8428184</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(23)] 0.7970814</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(31)] 0.7424782</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(39)] 0.6795296</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(47)] 0.6097376</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(55)] 0.5355393</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(15)] 0.8442653</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(23)] 0.7976053</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(31)] 0.7416462</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(39)] 0.6769538</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(47)] 0.6051724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(55)] 0.5289639</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sim_adrf-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -207,23 +213,50 @@ p-values and confidence intervals for the estimated quantities.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A `clarify_est` object (from `sim_adrf()`)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - Average marginal effect function of `age`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - 100 simulated values</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - 6 quantities estimated:                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|15 -0.005168501</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|23 -0.006272573</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|31 -0.007367736</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|39 -0.008338032</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|47 -0.009058567</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  dY/d(age)|55 -0.009425810</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 6 quantities estimated:                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|15] -0.005257610</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|23] -0.006414989</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|31] -0.007563408</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|39] -0.008575326</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|47] -0.009313833</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[dY/d(age)|55] -0.009667596</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Estimate    2.5 %   97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|15 -0.00517 -0.00666 -0.00342</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|23 -0.00627 -0.00877 -0.00383</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|31 -0.00737 -0.01135 -0.00424</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|39 -0.00834 -0.01353 -0.00462</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|47 -0.00906 -0.01440 -0.00498</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dY/d(age)|55 -0.00943 -0.01387 -0.00527</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 Estimate    2.5 %   97.5 %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|15] -0.00526 -0.00687 -0.00369</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|23] -0.00641 -0.00923 -0.00418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|31] -0.00756 -0.01180 -0.00464</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|39] -0.00858 -0.01361 -0.00507</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|47] -0.00931 -0.01416 -0.00545</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> E[dY/d(age)|55] -0.00967 -0.01349 -0.00576</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sim_adrf-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># ADRF for `age` within levels of `married`</span></span></span>
+<span class="r-in"><span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu">sim_adrf</span><span class="op">(</span><span class="va">s</span>, var <span class="op">=</span> <span class="st">"age"</span>,</span></span>
+<span class="r-in"><span>                at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">55</span>, length.out <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                by <span class="op">=</span> <span class="op">~</span><span class="va">married</span>,</span></span>
+<span class="r-in"><span>                verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">est</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A `clarify_est` object (from `sim_adrf()`)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - Average dose-response function of `age`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - within levels of `married`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 100 simulated values</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - 12 quantities estimated:                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(15)|0] 0.8215270</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(23)|0] 0.7693888</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(31)|0] 0.7077038</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # ... and 6 more                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(31)|1] 0.7894319</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(39)|1] 0.7323935</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(47)|1] 0.6669311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  E[Y(55)|1] 0.5948027</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="sim_adrf-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Difference between ADRFs</span></span></span>
+<span class="r-in"><span><span class="va">est_diff</span> <span class="op">&lt;-</span> <span class="va">est</span><span class="op">[</span><span class="fl">7</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span> <span class="op">-</span> <span class="va">est</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est_diff</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Diff"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="sim_adrf-4.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
