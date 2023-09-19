@@ -1,6 +1,6 @@
 #' @exportS3Method plot clarify_est
 #' @rdname summary.clarify_est
-plot.clarify_est <- function(x, parm, ci = TRUE, level = .95, method = "quantile", reference = FALSE, ...) {
+plot.clarify_est <- function(x, parm, ci = TRUE, level = .95, method = "quantile", reference = FALSE, ncol = 3, ...) {
 
   chk::chk_flag(ci)
   chk::chk_flag(reference)
@@ -26,7 +26,7 @@ plot.clarify_est <- function(x, parm, ci = TRUE, level = .95, method = "quantile
                  ...) +
     geom_hline(yintercept = 0) +
     geom_vline(data = original_est_long, mapping = aes(xintercept = .data$val)) +
-    facet_wrap(vars(.data$est), scales = "free")
+    facet_wrap(vars(.data$est), scales = "free", ncol = min(ncol, nlevels(original_est_long$est)))
 
   if (ci) {
     ci <- confint(x, parm = parm, level = level,

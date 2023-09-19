@@ -9,6 +9,7 @@
 #' @param null the values of the parameters under the null hypothesis for the p-value calculations. Should have length equal to the number of quantities estimated, or one, in which case it will be recycled, or it can be a named vector with just the names of quantities for which null values are to be set. Set values to `NA` to omit p-values for those quantities. When all values are `NA`, the default, no p-values are produced.
 #' @param ci `logical`; whether to display confidence interval limits for the estimates. Default is `TRUE`.
 #' @param reference `logical`; whether to overlay a normal density reference distribution over the plots. Default is `FALSE`.
+#' @param ncol the number of columns used when wrapping multiple plots; default is 3.
 #' @param ... for `plot()`, further arguments passed to [ggplot2::geom_density()].
 #'
 #' @return For `summary()`, a `summary.clarify_est` object, which is a matrix containing the coefficient estimates, standard errors, test statistics, p-values, and confidence intervals. Not all columns will be present depending on the arguments supplied to `summary()`.
