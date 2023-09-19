@@ -224,7 +224,7 @@ test_that("sim_ame() works with misim() and glm()", {
   expect_equal(nrow(e), nrow(s$sim.coefs))
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
-  expect_identical(names(e), "dY/d(age)")
+  expect_identical(names(e), "E[dY/d(age)]")
   expect_identical(attr(e, "var"), "age")
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
