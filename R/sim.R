@@ -56,10 +56,10 @@ sim <- function(fit,
 
   if (!is.null(fit)) {
     if (!insight::is_regression_model(fit)) {
-      chk::wrn("`fit` was not detected to be a regression model; proceed with caution")
+      .wrn("`fit` was not detected to be a regression model; proceed with caution")
     }
     # if (insight::is_mixed_model(fit)) {
-    #   chk::wrn("`sim()` may not fully support models with random effects; proceed with caution")
+    #   .wrn("`sim()` may not fully support models with random effects; proceed with caution")
     # }
   }
 
@@ -175,7 +175,7 @@ get_sampling_dist <- function(fit = NULL, dist = NULL) {
 process_coefs <- function(coefs, fit = NULL, coef_supplied) {
   if (coef_supplied == "null") {
     if (is.null(fit)) {
-      .err("`fit` must be supplied when `coefs` is `NULL`")
+      .err("`coefs` must be supplied when `fit` is not specified")
     }
     coefs <- marginaleffects::get_coef(fit)
     if (!check_valid_coef(coefs)) {
@@ -207,7 +207,7 @@ process_coefs <- function(coefs, fit = NULL, coef_supplied) {
 process_vcov <- function(vcov, fit = NULL, vcov_supplied) {
   if (vcov_supplied == "null") {
     if (is.null(fit)) {
-      .err("`fit` must be supplied when `vcov` is `NULL`")
+      .err("`vcov` must be supplied when `fit` is not specified")
     }
     vcov <- marginaleffects::get_vcov(fit)
     if (!check_valid_vcov(vcov)) {

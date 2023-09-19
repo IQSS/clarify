@@ -21,14 +21,14 @@ sim_setx(
 \item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or
 \code{\link[=misim]{misim()}}.}
 
-\item{x}{a named list of values each predictor should take defining a
-reference grid of predictor values, e.g., \code{list(v1 = 1:4, v2 = c("A", "B"))}.
+\item{x}{a data.frame containing a reference grid of predictor values or a named list of values each predictor should take defining such a
+reference grid, e.g., \code{list(v1 = 1:4, v2 = c("A", "B"))}.
 Any omitted predictors are fixed at a "typical" value. See Details.
 When \code{x1} is specified, \code{x} should identify a single reference unit.
 
 For \code{print()}, a \code{clarify_setx} object.}
 
-\item{x1}{a named list of the value each predictor should take to compute the
+\item{x1}{a data.frame or named list of the value each predictor should take to compute the
 first difference from the predictor combination specified in \code{x}. \code{x1} can
 only identify a single unit. See Details.}
 
@@ -67,7 +67,7 @@ special plotting function, \code{\link[=plot.clarify_setx]{plot.clarify_setx()}}
 predictions.
 }
 \details{
-\code{x} should be a named list of predictor values that will be crossed
+When \code{x} is a named list of predictor values, they will be crossed
 to form a reference grid for the marginal predictions. Any predictors not
 set in \code{x} are assigned their "typical" value, which, for factor,
 character, logical, and binary variables is the mode, for numeric variables
@@ -92,7 +92,7 @@ fit <- lm(re78 ~ treat + age + educ + married + race + re74,
 set.seed(123)
 s <- sim(fit, n = 100)
 
-# Predicted values at specified values of treat, typical
+# Predicted values at specified values of values, typical
 # values for other predictors
 est <- sim_setx(s, x = list(treat = 0:1,
                             re74 = c(0, 10000)),
@@ -110,8 +110,8 @@ plot(est)
 
 # First differences of treat at specified value of
 # race, typical values for other predictors
-est <- sim_setx(s, x = list(treat = 0, race = "hispan"),
-                x1 = list(treat = 1, race = "hispan"),
+est <- sim_setx(s, x = data.frame(treat = 0, race = "hispan"),
+                x1 = data.frame(treat = 1, race = "hispan"),
                 verbose = FALSE)
 summary(est)
 plot(est)

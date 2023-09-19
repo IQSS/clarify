@@ -9,13 +9,13 @@
 #' predictions.
 #'
 #' @inheritParams sim_apply
-#' @param x a named list of values each predictor should take defining a
-#'   reference grid of predictor values, e.g., `list(v1 = 1:4, v2 = c("A", "B"))`.
+#' @param x a data.frame containing a reference grid of predictor values or a named list of values each predictor should take defining such a
+#'   reference grid, e.g., `list(v1 = 1:4, v2 = c("A", "B"))`.
 #'   Any omitted predictors are fixed at a "typical" value. See Details.
 #'   When `x1` is specified, `x` should identify a single reference unit.
 #'
 #'   For `print()`, a `clarify_setx` object.
-#' @param x1 a named list of the value each predictor should take to compute the
+#' @param x1 a data.frame or named list of the value each predictor should take to compute the
 #'   first difference from the predictor combination specified in `x`. `x1` can
 #'   only identify a single unit. See Details.
 #' @param outcome a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.
@@ -25,7 +25,7 @@
 #' * `"setx"` - a data frame containing the values at which predictions are to be made
 #' * `"fd"` - whether or not the first difference is to be computed; set to `TRUE` if `x1` is specified and `FALSE` otherwise
 #'
-#' @details `x` should be a named list of predictor values that will be crossed
+#' @details When `x` is a named list of predictor values, they will be crossed
 #'   to form a reference grid for the marginal predictions. Any predictors not
 #'   set in `x` are assigned their "typical" value, which, for factor,
 #'   character, logical, and binary variables is the mode, for numeric variables
@@ -55,7 +55,7 @@
 #' set.seed(123)
 #' s <- sim(fit, n = 100)
 #'
-#' # Predicted values at specified values of treat, typical
+#' # Predicted values at specified values of values, typical
 #' # values for other predictors
 #' est <- sim_setx(s, x = list(treat = 0:1,
 #'                             re74 = c(0, 10000)),
@@ -73,8 +73,8 @@
 #'
 #' # First differences of treat at specified value of
 #' # race, typical values for other predictors
-#' est <- sim_setx(s, x = list(treat = 0, race = "hispan"),
-#'                 x1 = list(treat = 1, race = "hispan"),
+#' est <- sim_setx(s, x = data.frame(treat = 0, race = "hispan"),
+#'                 x1 = data.frame(treat = 1, race = "hispan"),
 #'                 verbose = FALSE)
 #' summary(est)
 #' plot(est)
@@ -100,17 +100,17 @@ sim_setx <- function(sim,
       insight::get_predictors(sim$fit, verbose = FALSE)
   }
 
-  sim$fit <- attach_pred_data_to_fit(sim$fit, is_fitlist = is_misim)
+  sim$fit <- .attach_pred_data_to_fit(sim$fit, is_fitlist = is_misim)
 
-  x <- process_x(x, dat, "x")
+  newdata <- process_x(x, dat, "x")
 
   #Test to make sure compatible
   if (is_misim) {
-    test_dat <- get_pred_data_from_fit(sim$fit[[1]])[1, , drop = FALSE]
+    test_dat <- .get_pred_data_from_fit(sim$fit[[1]])[1, , drop = FALSE]
     test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
   }
   else {
-    test_dat <- get_pred_data_from_fit(sim$fit)[1, , drop = FALSE]
+    test_dat <- .get_pred_data_from_fit(sim$fit)[1, , drop = FALSE]
     test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
   }
 
@@ -125,45 +125,38 @@ sim_setx <- function(sim,
   }
   else {
     if (!is.null(outcome)) {
-      chk::wrn("`outcome` is ignored for univariate models")
+      .wrn("`outcome` is ignored for univariate models")
     }
     outcome <- NULL
   }
 
-  #Create list of manually set predictors
-  newdata <- do.call("expand.grid", c(x, list(KEEP.OUT.ATTRS = FALSE,
-                                              stringsAsFactors = FALSE)))
-
   fd <- length(x1) > 0
   if (fd) {
-    if (length(attr(x, "set_preds")) == 0) {
+    if (length(attr(newdata, "set_preds")) == 0) {
       .err("when `x1` is specified, `x` must be specified")
     }
-    if (!all(lengths(x) == 1)) {
+    if (nrow(newdata) != 1) {
       .err("when `x1` is specified, `x` must identify a single reference unit")
     }
 
-    x1 <- process_x(x1, dat, "x1")
+    newdata_x1 <- process_x(x1, dat, "x1")
 
-    if (!all(lengths(x1) == 1)) {
+    if (nrow(newdata_x1) != 1) {
       .err("`x1` must identify a single unit")
     }
 
-    if (!setequal(attr(x, "set_preds"), attr(x1, "set_preds"))) {
+    if (!setequal(attr(newdata, "set_preds"), attr(newdata_x1, "set_preds"))) {
       .err("when `x1` is specified, the same variables must be specified in `x` and `x1`")
     }
 
-    if (all(vapply(names(x), function(i) identical(x[[i]], x1[[i]]), logical(1L)))) {
+    if (all(vapply(names(newdata), function(i) identical(newdata[[i]], newdata_x1[[i]]), logical(1L)))) {
       .err("`x` and `x1` must be different")
     }
-
-    newdata_x1 <- do.call("expand.grid", c(x1, list(KEEP.OUT.ATTRS = FALSE,
-                                                    stringsAsFactors = FALSE)))
 
     newdata <- rbind(newdata, newdata_x1)
   }
 
-  set_preds <- attr(x, "set_preds")
+  set_preds <- attr(newdata, "set_preds")
   if (length(set_preds) > 0) {
     set_pred_lengths <- vapply(newdata[set_preds], function(i) length(unique(i)), integer(1L))
 
@@ -183,13 +176,13 @@ sim_setx <- function(sim,
     if (fd)
       function(fit) {
         pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
-        p <- setNames(get_p(pred), rownames(newdata))
+        p <- setNames(.get_p(pred), rownames(newdata))
         c(p, "FD" = unname(diff(p)))
       }
     else
       function(fit) {
         pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
-        setNames(get_p(pred), rownames(newdata))
+        setNames(.get_p(pred), rownames(newdata))
       }
   }
 
@@ -198,6 +191,7 @@ sim_setx <- function(sim,
   attr(out, "setx") <- newdata
   attr(out, "fd") <- fd
   class(out) <- c("clarify_setx", class(out))
+
   out
 }
 
@@ -243,19 +237,27 @@ print.clarify_setx <- function(x, digits = NULL, max.ests = 6, ...) {
 
 process_x <- function(x, dat, arg_name) {
   x_okay <- TRUE
+
   if (length(x) == 0) {
     set_preds <- NULL
     auto_preds <- names(dat)
   }
+  else if (is.data.frame(x)) {
+    set_preds <- names(x)[names(x) %in% names(dat)]
+    auto_preds <- setdiff(names(dat), set_preds)
+
+    if (length(set_preds) == 0) {
+      .wrn(sprintf("the data data.frame supplied to %s does not contain any variables that correspond to variables used in the original model", arg_name))
+    }
+  }
   else if (is.list(x)) {
     if (is.null(names(x)) || any(names(x) == "")) x_okay <- FALSE
-    else if (any(!names(x) %in% names(dat))) {
+    else if (!all(names(x) %in% names(dat))) {
       vars_not_in_model <- setdiff(names(x), names(dat))
-      .err(sprintf("the %s %s named in `%s` %s not present in the original model",
-                       ngettext(length(vars_not_in_model), "variable", "variables"),
-                       word_list(vars_not_in_model, quotes = TRUE),
-                       arg_name,
-                       ngettext(length(vars_not_in_model), "is", "are")))
+      .err(sprintf("the variable%%s %s named in `%s` %%r not present in the original model",
+                   word_list(vars_not_in_model, quotes = TRUE),
+                   arg_name),
+           n = length(vars_not_in_model))
     }
     else if (!chk::vld_all(x, is.atomic)) {
       x_okay <- FALSE
@@ -270,8 +272,16 @@ process_x <- function(x, dat, arg_name) {
   }
 
   if (!x_okay) {
-    .err(sprintf("the argument to `%s` must be a named list of values for variables to be set to",
-                     arg_name))
+    .err(sprintf("the argument to `%s` must be a grid data.frame or a named list of values for variables to be set to",
+                 arg_name))
+  }
+
+  #Check to make sure inputs are the right type
+  check_classes(dat, x)
+
+  if (!is.data.frame(x)) {
+    x <- do.call("expand.grid", c(x, list(KEEP.OUT.ATTRS = FALSE,
+                                          stringsAsFactors = FALSE)))
   }
 
   if (length(auto_preds) > 0) {
@@ -288,13 +298,10 @@ process_x <- function(x, dat, arg_name) {
       }
     }), auto_preds)
 
-    x <- c(x, x_auto)
+    x <- do.call("cbind", c(list(x), x_auto))
   }
 
   x <- x[names(dat)]
-
-  #Check to make sure inputs are the right type
-  check_classes(dat, x)
 
   attr(x, "set_preds") <- set_preds
   attr(x, "auto_preds") <- auto_preds

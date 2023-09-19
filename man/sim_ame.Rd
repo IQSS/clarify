@@ -9,6 +9,7 @@ sim_ame(
   sim,
   var,
   subset = NULL,
+  by = NULL,
   contrast = NULL,
   outcome = NULL,
   type = NULL,
@@ -27,7 +28,9 @@ sim_ame(
 
 \item{subset}{optional; a vector used to subset the data used to compute the marginal effects. This will be evaluated within the original dataset used to fit the model using \code{\link[=subset]{subset()}}, so nonstandard evaluation is allowed.}
 
-\item{contrast}{a string containing the name of a contrast between the average marginal means when the variable named in \code{var} is categorical and takes on two values. Allowed options include \code{"diff"} for the difference in means (also \code{"rd"}), \code{"rr"} for the risk ratio (also \code{"irr"}), \verb{"log(rr):} for the log risk ratio (also \code{"log(irr)"}), \code{"or"} for the odds ratio, \code{"log(or)"} for the log odds ratio, and \code{"nnt"} for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.}
+\item{by}{a one-sided formula or character vector containing the names of variables for which to stratify the estimates. Each quantity will be computed within each level of the complete cross of the variables specified in \code{by}.}
+
+\item{contrast}{a string containing the name of a contrast between the average marginal means when the variable named in \code{var} is categorical and takes on two values. Allowed options include \code{"diff"} for the difference in means (also \code{"rd"}), \code{"rr"} for the risk ratio (also \code{"irr"}), \verb{"log(rr):} for the log risk ratio (also \code{"log(irr)"}), \code{"sr"} for the survival ratio, \verb{"log(sr):} for the log survival ratio, \code{"srr"} for the switch relative risk (also \code{"grrr"}), \code{"or"} for the odds ratio, \code{"log(or)"} for the log odds ratio, and \code{"nnt"} for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.}
 
 \item{outcome}{a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.}
 
@@ -53,11 +56,11 @@ details. If \code{NULL}, no parallelization will take place.}
 }
 \value{
 A \code{clarify_ame} object, which inherits from \code{clarify_est} and is similar to
-the output of \code{sim_apply()}, with the additional attribute \code{"var"} containing
-the variable named in \code{var}. The average marginal means will be named
+the output of \code{sim_apply()}, with the additional attributes \code{"var"} containing
+the variable named in \code{var} and \code{"by"} containing the names of the variables specified in \code{by} (if any). The average adjusted predictions will be named
 \code{E[Y({v})]}, where \code{{v}} is replaced with the values the focal variable
 (\code{var}) takes on. The average marginal effect for a continuous \code{var} will be
-named \code{dY/d({x})} where \code{{x}} is replaced with \code{var}.
+named \code{E[dY/d({x})]} where \code{{x}} is replaced with \code{var}. When \code{by} is specified, the average adjusted predictions will be named \code{E[Y({v})|{b}]} and the average marginel effect \code{E[dY/d({x})|{b}]} where \code{{b}} is a comma-separated list of of values of the \code{by} variables at which the quantity is computed. See examples.
 }
 \description{
 \code{sim_ame()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes average marginal effects, the average effect of changing a single variable from one value to another (i.e., from one category to another for categorical variables or a tiny change for continuous variables).
@@ -76,7 +79,12 @@ The effect measures specified in \code{contrast} are defined below. Typically on
    \code{contrast} \tab Formula \cr
    \code{"diff"} \tab \code{E[Y(1)] - E[Y(0)]} \cr
    \code{"rr"} \tab \code{E[Y(1)] / E[Y(0)]} \cr
-   \code{"or"} \tab \code{O[Y(1)] / O[Y(0)]}, where \code{O[Y(.)]} = \code{E[Y(.)] / (1 - E[Y(.)])} \cr
+   \code{"sr"} \tab \code{(1 - E[Y(1)]) / (1 - E[Y(0)])} \cr
+   \code{"srr"} \tab \code{1 - sr} if  \code{E[Y(1)] > E[Y(0)]} \cr
+    \tab \code{rr - 1} if \code{E[Y(1)] < E[Y(0)]} \cr
+    \tab \code{0} otherwise \cr
+   \code{"or"} \tab \code{O[Y(1)] / O[Y(0)]} \cr
+    \tab where \code{O[Y(.)]} = \code{E[Y(.)] / (1 - E[Y(.)])} \cr
    \code{"nnt"} \tab \code{1 / (E[Y(1)] - E[Y(0)])} \cr
 }
 
@@ -88,7 +96,8 @@ The \code{log(.)} versions are defined by taking the \code{\link[=log]{log()}} (
 data("lalonde", package = "MatchIt")
 
 # Fit the model
-fit <- glm(I(re78 > 0) ~ treat + age + race + re74,
+fit <- glm(I(re78 > 0) ~ treat + age + race +
+             married + re74,
            data = lalonde, family = binomial)
 
 # Simulate coefficients
@@ -99,12 +108,13 @@ s <- sim(fit, n = 100)
 est <- sim_ame(s, var = "age", verbose = FALSE)
 summary(est)
 
-# Contrast between average marginal means for `treat`
+# Contrast between average adjusted predictions
+# for `treat`
 est <- sim_ame(s, var = "treat", contrast = "rr",
                verbose = FALSE)
 summary(est)
 
-# Average marginal means for `race`; need to follow up
+# Average adjusted predictions for `race`; need to follow up
 # with contrasts for specific levels
 est <- sim_ame(s, var = "race", verbose = FALSE)
 
@@ -112,6 +122,36 @@ est <- transform(est,
                  `RR(h,b)` = `E[Y(hispan)]` / `E[Y(black)]`)
 
 summary(est)
+
+# Average adjusted predictions for `treat` within levels of
+# `married`, first using `subset` and then using `by`
+est0 <- sim_ame(s, var = "treat", subset = married == 0,
+                contrast = "rd", verbose = FALSE)
+names(est0) <- paste0(names(est0), "|married=0")
+est1 <- sim_ame(s, var = "treat", subset = married == 1,
+                contrast = "rd", verbose = FALSE)
+names(est1) <- paste0(names(est1), "|married=1")
+
+summary(cbind(est0, est1))
+
+est <- sim_ame(s, var = "treat", by = ~married,
+               contrast = "rd", verbose = FALSE)
+
+est
+summary(est)
+
+# Average marginal effect of `re74` within levels of
+# married*race
+est <- sim_ame(s, var = "age", by = ~married + race,
+               verbose = FALSE)
+est
+summary(est, null = 0)
+
+# Comparing AMEs between married and unmarried for
+# each level of `race`
+est_diff <- est[4:6] - est[1:3]
+names(est_diff) <- paste0("AME_diff|", levels(lalonde$race))
+summary(est_diff)
 
 }
 \seealso{

@@ -15,7 +15,7 @@ process_FUN <- function(FUN, use_fit = TRUE) {
   attr(FUN, "use_fit") <- any(FUN_arg_names == "fit")
 
   if (!use_fit && attr(FUN, "use_fit")) {
-    chk::wrn("the `fit` argument to `FUN` will be ignored. See help(\"sim_apply\") for details")
+    .wrn("the `fit` argument to `FUN` will be ignored. See help(\"sim_apply\") for details")
     attr(FUN, "use_fit") <- FALSE
   }
 
@@ -48,6 +48,7 @@ check_valid_vcov <- function(vcov) {
     is.numeric(vcov) &&
     is.matrix(vcov) &&
     length(dim(vcov)) == 2L &&
+    all(diag(vcov) > 0) &&
     check_symmetric_cov(vcov)
 }
 
@@ -57,7 +58,9 @@ check_symmetric_cov <- function(x) {
 
   r <- cov2cor(x)
 
-  all(abs(r - t(r)) < sqrt(.Machine$double.eps))
+  check <- abs(r - t(r)) < sqrt(.Machine$double.eps)
+
+  !anyNA(check) && all(check)
 }
 
 check_coefs_vcov_length <- function(vcov, coefs, vcov_supplied, coef_supplied) {
@@ -180,14 +183,16 @@ check_ests.list <- function(est, test) {
   l <- lengths(est)
 
   if (any(l == 0)) {
-    chk::wrn("some simulations produced no estimates; these estimates have been replaced by `NA`")
+    .wrn("some simulations produced no estimates; these estimates have been replaced by `NA`",
+         immediate = FALSE)
     est[l == 0] <- lapply(which(l == 0), function(i) {
       rep(NA_real_, length(test))
     })
   }
 
   if (any(l != length(test))) {
-    .err("not all simulations produced estimates with the same length as the number of estimates computed from the original coefficients, indicating a problem in `FUN`")
+    .err("not all simulations produced estimates with the same length as the number of estimates computed from the original coefficients, indicating a problem in `FUN`",
+         immediate = FALSE)
   }
 }
 
@@ -197,7 +202,8 @@ check_ests <- function(ests) {
     .err("no finite estimates were produced")
   }
   if (length(non_finites) > 0) {
-    chk::wrn("some non-finite values were found among the estimates, which can invalidate inferences")
+    .wrn("some non-finite values were found among the estimates, which can invalidate inferences",
+         immediate = FALSE)
   }
 }
 
@@ -208,9 +214,9 @@ process_parm <- function(object, parm) {
   if (is.character(parm)) {
     ind <- match(parm, names(object))
     if (anyNA(ind)) {
-      .err(sprintf("%s not the %s of any estimated quantities.",
-                   word_list(parm[is.na(ind)], is.are = TRUE, quotes = TRUE),
-                   ngettext(sum(is.na(ind)), "name", "names")))
+      .err(sprintf("%s %%r not the name%%s of any estimated quantities.",
+                   word_list(parm[is.na(ind)], quotes = TRUE)),
+           n = sum(is.na(ind)))
     }
     parm <- ind
   }
@@ -221,7 +227,7 @@ process_parm <- function(object, parm) {
         .err(sprintf("all values in `parm` must be between 1 and %s", ncol(object)))
       }
 
-      chk::wrn("ignoring `parm` because only one estimate is available")
+      .wrn("ignoring `parm` because only one estimate is available")
       parm <- 1
     }
   }
@@ -279,17 +285,17 @@ check_classes <- function(olddata, newdata) {
   new[old == "factor" & new == "character"] <- "factor"
   new[old == "character" & new == "factor"] <- "character"
 
-  if (!identical(old, new)) {
-    wrong <- old != new
-    if (sum(wrong) == 1)
-      .err(sprintf("variable '%s' was fit with type \"%s\" but type \"%s\" was supplied",
-                       names(old)[wrong], old[wrong], new[wrong]))
-    else
-      .err(sprintf("variables %s were specified with different types from the original model fit",
-                   word_list(names(old)[wrong], quotes = TRUE)))
+  if (identical(old, new)) {
+    return(invisible(NULL))
   }
 
-  invisible(NULL)
+  wrong <- old != new
+  if (sum(wrong) == 1)
+    .err(sprintf("variable '%s' was fit with type \"%s\" but type \"%s\" was supplied",
+                 names(old)[wrong], old[wrong], new[wrong]))
+  else
+    .err(sprintf("variables %s were specified with different types from the original model fit",
+                 word_list(names(old)[wrong], quotes = TRUE)))
 }
 
 check_sim_apply_wrapper_ready <- function(sim) {
@@ -302,15 +308,15 @@ check_sim_apply_wrapper_ready <- function(sim) {
                  fun))
   }
   if (inherits(sim, "clarify_misim")) {
-    if (any(!vapply(sim$fit, insight::is_regression_model, logical(1L)))) {
+    if (!all(vapply(sim$fit, insight::is_regression_model, logical(1L)))) {
       .err(sprintf("`%s()` can only be used with regression models",
                    fun))
     }
   }
-  else {
-    if (!insight::is_regression_model(sim$fit)) {
-      .err(sprintf("`%s()` can only be used with regression models",
-                   fun))
-    }
+  else if (!insight::is_regression_model(sim$fit)) {
+    .err(sprintf("`%s()` can only be used with regression models",
+                 fun))
   }
+
+  invisible(NULL)
 }

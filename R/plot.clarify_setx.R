@@ -35,7 +35,7 @@ plot.clarify_setx <- function(x,
 
   if (nrow(newdata) == 1) {
     if (!is.null(var)) {
-      chk::wrn("ignoring `var` because no variables vary over predictions")
+      .wrn("ignoring `var` because no variables vary over predictions")
     }
     return(plot.clarify_est(x, parm = 1, ci = ci, level = level,
                             method = method, reference = reference, ...))
@@ -43,7 +43,7 @@ plot.clarify_setx <- function(x,
 
   if (isTRUE(attr(x, "fd"))) {
     if (!is.null(var)) {
-      chk::wrn("ignoring `var`")
+      .wrn("ignoring `var`")
     }
     return(plot.clarify_est(x, parm = 1:3, ci = ci, level = level,
                             method = method, reference = reference, ...))
@@ -54,7 +54,7 @@ plot.clarify_setx <- function(x,
 
   if (length(varying) == 1) {
     if (!is.null(var) && !identical(var, varying)) {
-      chk::wrn("ignoring `var` because only one variable varies over predictions")
+      .wrn("ignoring `var` because only one variable varies over predictions")
     }
     var <- varying
   }

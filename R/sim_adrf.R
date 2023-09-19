@@ -6,6 +6,7 @@
 #' @inheritParams sim_apply
 #' @param var the name of a variable for which the ADRF or AMEF is to be computed. This variable must be present in the model supplied to `sim()` and must be a numeric variable taking on more than two unique values.
 #' @param subset optional; a vector used to subset the data used to compute the ADRF or AMEF. This will be evaluated within the original dataset used to fit the model using [subset()], so nonstandard evaluation is allowed.
+#' @param by a one-sided formula or character vector containing the names of variables for which to stratify the estimates. Each quantity will be computed within each level of the complete cross of the variables specified in `by`.
 #' @param contrast a string naming the type of quantity to be produced: `"adrf"` for the ADRF (the default) or `"amef"` for the AMEF.
 #' @param at the levels of the variable named in `var` at which to evaluate the ADRF or AMEF. Should be a vector of numeric values corresponding to possible levels of `var`. If `NULL`, will be set to a range from slightly below the lowest observed value of `var` to slightly above the largest value.
 #' @param n when `at = NULL`, the number of points to evaluate the ADRF or AMEF. Default is 21. Ignored when `at` is not `NULL`.
@@ -23,7 +24,7 @@
 #' @return
 #' A `clarify_adrf` object, which inherits from `clarify_est` and is similar to
 #' the output of `sim_apply()`, with the additional attributes `"var"` containing
-#' the variable named in `var`, `"at"` containing values at which the ADRF or AMEF is evaluated, and `"contrast"` containing the argument supplied to `contrast`. For an ADRF, the average marginal means will be named
+#' the variable named in `var`, `"by"` containing the names of the variables specified in `by` (if any), `"at"` containing values at which the ADRF or AMEF is evaluated, and `"contrast"` containing the argument supplied to `contrast`. For an ADRF, the average marginal means will be named
 #' `E[Y({v})]`, where `{v}` is replaced with the values in `at`. For an AMEF, the average marginal effects will be
 #' named `dY/d({x})|{a}` where `{x}` is replaced with `var` and `{a}` is replaced by the values in `at`.
 #'
@@ -37,7 +38,8 @@
 #' data("lalonde", package = "MatchIt")
 #'
 #' # Fit the model
-#' fit <- glm(I(re78 > 0) ~ treat + age + race + re74,
+#' fit <- glm(I(re78 > 0) ~ treat + age + race +
+#'              married + re74,
 #'            data = lalonde, family = binomial)
 #'
 #' # Simulate coefficients
@@ -58,10 +60,23 @@
 #' est
 #' summary(est)
 #' plot(est)
+#'
+#' # ADRF for `age` within levels of `married`
+#' est <- sim_adrf(s, var = "age",
+#'                 at = seq(15, 55, length.out = 6),
+#'                 by = ~married,
+#'                 verbose = FALSE)
+#' est
+#' plot(est)
+#'
+#' ## Difference between ADRFs
+#' est_diff <- est[7:12] - est[1:6]
+#' plot(est_diff) + ggplot2::labs(y = "Diff")
 #' @export
 sim_adrf <- function(sim,
                      var,
                      subset = NULL,
+                     by = NULL,
                      contrast = "adrf",
                      at = NULL,
                      n = 21,
@@ -100,6 +115,15 @@ sim_adrf <- function(sim,
                  var))
   }
 
+  if (!is.null(by)) {
+    if (is.character(by)) {
+      by <- reformulate(by)
+    }
+    else if (!inherits(by, "formula")) {
+      .err("`by` must be a one-sided formula or character vector")
+    }
+  }
+
   var_val <- dat[[var]]
   rm(dat)
 
@@ -109,16 +133,16 @@ sim_adrf <- function(sim,
   }
 
   index.sub <- substitute(subset)
-  sim$fit <- attach_pred_data_to_fit(sim$fit, index.sub = index.sub,
-                                     is_fitlist = is_misim)
+  sim$fit <- .attach_pred_data_to_fit(sim$fit, by = by, index.sub = index.sub,
+                                      is_fitlist = is_misim)
 
   #Test to make sure compatible
   if (is_misim) {
-    test_dat <- get_pred_data_from_fit(sim$fit[[1]])
+    test_dat <- .get_pred_data_from_fit(sim$fit[[1]])
     test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
   }
   else {
-    test_dat <- get_pred_data_from_fit(sim$fit)
+    test_dat <- .get_pred_data_from_fit(sim$fit)
     test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
   }
 
@@ -130,11 +154,11 @@ sim_adrf <- function(sim,
     if (!outcome %in% unique_group) {
       .err("only the following values of `outcome` are allowed: ", paste(add_quotes(unique_group), collapse = ", "))
     }
-    test_predict <- subset_group(test_predict, outcome)
+    test_predict <- .subset_group(test_predict, outcome)
   }
   else {
     if (!is.null(outcome)) {
-      chk::wrn("`outcome` is ignored for univariate models")
+      .wrn("`outcome` is ignored for univariate models")
     }
     outcome <- NULL
   }
@@ -155,54 +179,124 @@ sim_adrf <- function(sim,
   else {
     chk::chk_numeric(at)
     if (min(at) > max_var || max(at) < min_var) {
-      chk::wrn("the values supplied to `at` are outside the range of ", var, "; proceed with caution")
+      .wrn("the values supplied to `at` are outside the range of ", var, "; proceed with caution")
     }
     at <- sort(at)
   }
 
   if (contrast == "adrf") {
+    if (is.null(by)) {
+      FUN <- function(fit) {
+        dat <- .get_pred_data_from_fit(fit)
+        vapply(at, function(x) {
+          dat[[var]][] <- x
+          pred <- clarify_predict(fit, newdata = dat, group = outcome, type = type)
+          weighted.mean(.get_p(pred), attr(fit, "weights"))
+        }, numeric(1L))
+      }
 
-    FUN <- function(fit) {
-      dat <- get_pred_data_from_fit(fit)
-      vapply(at, function(x) {
-        dat[[var]] <- x
-        pred <- clarify_predict(fit, newdata = dat, group = outcome, type = type)
-        weighted.mean(get_p(pred), attr(fit, "weights"))
-      }, numeric(1L))
+      out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
+      names(out) <- sprintf("E[Y(%s)]", at)
+      attr(out, "at") <- at
     }
+    else {
+      FUN <- function(fit) {
+        dat <- .get_pred_data_from_fit(fit)
+        by_var <- .get_by_from_fit(fit)
 
-    out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
-    names(out) <- sprintf("E[Y(%s)]", at)
+        unlist(lapply(levels(by_var), function(b) {
+          in_b <- by_var == b
+          w_b <- attr(fit, "weights")[in_b]
+
+          vapply(at, function(x) {
+            dat[[var]][] <- x
+            pred <- clarify_predict(fit, newdata = dat[in_b,, drop = FALSE],
+                                    group = outcome, type = type)
+            weighted.mean(.get_p(pred), w_b)
+          }, numeric(1L))
+        }))
+      }
+
+      out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
+
+      by_levels <- levels(.get_by_from_fit(sim$fit))
+
+      names(out) <- unlist(lapply(by_levels, function(b) sprintf("E[Y(%s)|%s]", at, b)))
+
+      attr(out, "by") <- attr(sim$fit, "by_name")
+      attr(out, "at") <- rep(at, length(by_levels))
+    }
   }
   else if (contrast == "amef") {
     chk::chk_number(eps)
     chk::chk_gt(eps)
     eps <- eps * sd(var_val)
 
-    FUN <- function(fit) {
-      dat <- get_pred_data_from_fit(fit)
-      ind <- seq_len(nrow(dat))
-      dat2 <- rbind(dat, dat)
-      weights <- attr(fit, "weights")
-      vapply(at, function(x) {
-        dat2[[var]][ind] <- x - eps / 2
-        dat2[[var]][-ind] <- x + eps / 2
-        pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
-        p <- get_p(pred)
-        m0 <- weighted.mean(p[ind], weights)
-        m1 <- weighted.mean(p[-ind], weights)
-        (m1 - m0) / eps
-      }, numeric(1L))
-    }
+    if (is.null(by)) {
+      FUN <- function(fit) {
+        dat <- .get_pred_data_from_fit(fit)
+        ind <- seq_len(nrow(dat))
+        dat2 <- dat[c(ind, ind),, drop = FALSE]
 
-    out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
-    names(out) <- sprintf("dY/d(%s)|%s", var, at)
+        weights <- attr(fit, "weights")
+
+        vapply(at, function(x) {
+          dat2[[var]][ind] <- x - eps / 2
+          dat2[[var]][-ind] <- x + eps / 2
+          pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
+          p <- .get_p(pred)
+          m0 <- weighted.mean(p[ind], weights)
+          m1 <- weighted.mean(p[-ind], weights)
+          (m1 - m0) / eps
+        }, numeric(1L))
+      }
+
+      out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
+      names(out) <- sprintf("E[dY/d(%s)|%s]", var, at)
+
+      attr(out, "at") <- at
+    }
+    else {
+      FUN <- function(fit) {
+        dat <- .get_pred_data_from_fit(fit)
+        by_var <- .get_by_from_fit(fit)
+        ind <- seq_len(nrow(dat))
+        dat2 <- dat[c(ind, ind),, drop = FALSE]
+
+        weights <- attr(fit, "weights")
+
+        unlist(lapply(levels(by_var), function(b) {
+          in_b <- by_var == b
+          w_b <- attr(fit, "weights")[in_b]
+
+          vapply(at, function(x) {
+            dat2[[var]][ind] <- x - eps / 2
+            dat2[[var]][-ind] <- x + eps / 2
+            pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
+            p <- .get_p(pred)
+            m0 <- weighted.mean(p[ind][in_b], w_b)
+            m1 <- weighted.mean(p[-ind][in_b], w_b)
+            (m1 - m0) / eps
+          }, numeric(1L))
+        }))
+
+      }
+
+      out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
+
+      by_levels <- levels(.get_by_from_fit(sim$fit))
+
+      names(out) <- unlist(lapply(by_levels, function(b) sprintf("E[dY/d(%s)|%s,%s]", var, at, b)))
+
+      attr(out, "by") <- attr(sim$fit, "by_name")
+      attr(out, "at") <- rep(at, length(by_levels))
+    }
   }
 
   attr(out, "var") <- var
-  attr(out, "at") <- at
   attr(out, "contrast") <- contrast
   class(out) <- c("clarify_adrf", class(out))
+
   out
 }
 
@@ -218,9 +312,12 @@ print.clarify_adrf <- function(x, digits = NULL, max.ests = 6, ...) {
 
   cat("A `clarify_est` object (from `sim_adrf()`)\n")
 
-  cat(sprintf(" - %s of `%s`\n", switch(attr(x, "contrast"), "adrf" = "Average does-response function",
+  cat(sprintf(" - %s of `%s`\n", switch(attr(x, "contrast"), "adrf" = "Average dose-response function",
                                         "amef" = "Average marginal effect function"),
               attr(x, "var")))
+  if (!is.null(attr(x, "by"))) {
+    cat(sprintf("   - within levels of %s\n", word_list(attr(x, "by"), quotes = "`")))
+  }
   cat(sprintf(" - %s simulated values\n", nrow(x)))
   cat(sprintf(" - %s %s estimated:", n.ests,
               ngettext(n.ests, "quantity", "quantities")))

@@ -47,12 +47,14 @@
 #'   computed by `sim_apply()` must therefore be computed directly from the
 #'   coefficients.
 #'
+#'   If `FUN` is not supplied at all, the simulated values of the coefficients will be returned in the output with a warning. Set `FUN` to `NULL` or `verbose` to `FALSE` to suppress this warning.
+#'
 #'   ## `sim_apply()` with multiply imputed data
 #'
 #'   When using [misim()] and `sim_apply()` with multiply imputed data, the
 #'   coefficients are supplied to the model fit corresponding to the imputation
 #'   identifier associated with each set of coefficients, which means if `FUN`
-#'   uses a dataset extracted from a model, it will do so from the model fit in
+#'   uses a dataset extracted from a model (e.g., using [insight::get_data()]), it will do so from the model fit in
 #'   the corresponding imputation.
 #'
 #'   The original estimates (see Value below) are computed as the mean of the
@@ -71,7 +73,7 @@
 #' @return A `clarify_est` object, which is a matrix with a column for each
 #'   estimated quantity and a row for each simulation. The original estimates
 #'   (`FUN` applied to the original coefficients or model fit object) are stored
-#'   in the attribute `"original"`. The `"sim_hash"` attributes contained the
+#'   in the attribute `"original"`. The `"sim_hash"` attribute contains the
 #'   simulation hash produced by `sim()`.
 #'
 #' @seealso
@@ -89,7 +91,7 @@
 #' coef(fit)
 #'
 #' set.seed(123)
-#' s <- sim(fit, n = 100)
+#' s <- sim(fit, n = 500)
 #'
 #' # Function to compare predicted values for two units
 #' # using `fit` argument
@@ -111,13 +113,21 @@
 #' # Function to compare coefficients using `coefs`
 #' # argument
 #' sim_fun <- function(coefs) {
-#'   c(`wh - his` = coefs["racewhite"] - coefs["racehispan"])
+#'   setNames(coefs["racewhite"] - coefs["racehispan"],
+#'            "wh - his")
 #' }
 #'
 #' est <- sim_apply(s, sim_fun, verbose = FALSE)
 #'
 #' # Examine estimates and confidence intervals
 #' summary(est)
+#'
+#' # Another way to do the above:
+#' est <- sim_apply(s, FUN = NULL)
+#' est <- transform(est,
+#'                  `wh - his` = `racewhite` - `racehispan`)
+#'
+#' summary(est, parm = "wh - his")
 #'
 #' @export
 sim_apply <- function(sim,
@@ -129,9 +139,11 @@ sim_apply <- function(sim,
   chk::chk_is(sim, "clarify_sim")
   chk::chk_flag(verbose)
 
-  if (missing(FUN)) {
-    if (verbose) {
-      chk::wrn("`FUN` not supplied; returning simulated coefficients")
+  missing.fun <- missing(FUN)
+
+  if (missing.fun || is.null(FUN)) {
+    if (verbose && missing.fun) {
+      .wrn("`FUN` not supplied; returning simulated coefficients")
     }
 
     ests <- sim$sim.coefs
@@ -155,7 +167,7 @@ sim_apply <- function(sim,
   if (inherits(sim, "clarify_misim")) {
     nimp <- nrow(sim$coefs)
 
-    apply_FUN <- make_apply_FUN_mi(FUN)
+    apply_FUN <- .make_apply_FUN_mi(FUN)
 
     # Test apply_FUN() on averaged coefficients, which will be final ests
     test.coefs <- colMeans(sim$coefs)
@@ -165,7 +177,7 @@ sim_apply <- function(sim,
 
     if (is_error(test)) {
       .err("`FUN` failed to run on an initial check with the following error:\n",
-               conditionMessage(attr(test, "condition")))
+           conditionMessage(attr(test, "condition")))
     }
 
     # test <- apply(do.call("rbind", test), 2, median)
@@ -178,13 +190,13 @@ sim_apply <- function(sim,
     }, cl = cl)
   }
   else {
-    apply_FUN <- make_apply_FUN(FUN)
+    apply_FUN <- .make_apply_FUN(FUN)
 
     # Test apply_FUN() on original model coefficients
     test <- try(apply_FUN(fit = sim$fit, coefs = sim$coefs, ...), silent = TRUE)
     if (is_error(test)) {
       .err("`FUN` failed to run on an initial check with the following error:\n",
-               conditionMessage(attr(test, "condition")))
+           conditionMessage(attr(test, "condition")))
     }
 
     if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
@@ -225,13 +237,15 @@ print.clarify_est <- function(x, digits = NULL, max.ests = 6, ...) {
                               attr(x, "original")[seq_len(max.ests)],
                               fix.empty.names	= FALSE),
                    row.names = FALSE, right = FALSE)
+
   if (max.ests != length(attr(x, "original"))) {
     cat(sprintf("# ... and %s more\n", length(attr(x, "original")) - max.ests))
   }
+
   invisible(x)
 }
 
-make_apply_FUN <- function(FUN) {
+.make_apply_FUN <- function(FUN) {
 
   if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
     function(fit, coefs, ...) {
@@ -258,7 +272,7 @@ make_apply_FUN <- function(FUN) {
   }
 }
 
-make_apply_FUN_mi <- function(FUN) {
+.make_apply_FUN_mi <- function(FUN) {
 
   if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
     function(fit, coefs, imp, ...) {

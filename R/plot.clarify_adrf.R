@@ -20,19 +20,20 @@
 #'
 #' @exportS3Method plot clarify_adrf
 plot.clarify_adrf <- function(x,
-                               ci = TRUE,
-                               level = .95,
-                               method = "quantile",
-                               baseline,
-                               color = "black",
-                               ...) {
+                              ci = TRUE,
+                              level = .95,
+                              method = "quantile",
+                              baseline,
+                              color = "black",
+                              ...) {
 
   at <- attr(x, "at")
   var <- attr(x, "var")
   contrast <- attr(x, "contrast")
+  by <- attr(x, "by")
 
   if (missing(baseline)) {
-    baseline <- contrast == "amef"
+    baseline <- !is.null(contrast) && contrast == "amef"
   }
   else {
     chk::chk_flag(baseline)
@@ -45,21 +46,57 @@ plot.clarify_adrf <- function(x,
       data.frame(Estimate = coef(x))
   }
 
+  if (!is.null(by)) {
+    s$by_var <- factor(.extract_by_values(x))
+    if (nlevels(s$by_var) == 1)
+      by <- NULL
+  }
+
   p <- ggplot(mapping = aes(x = at))
 
   if (baseline) {
     p <- p + geom_hline(yintercept = 0)
   }
-  p <- p + geom_line(aes(y = s$Estimate), color = color) +
-    labs(x = var, y = "E[Y|X]")
+
+  if (is.null(by)) {
+    p <- p + geom_line(aes(y = s$Estimate),
+                       color = color) +
+      labs(x = var, y = "E[Y|X]")
+  }
+  else {
+    p <- p + geom_line(aes(y = s$Estimate, color = s$by_var)) +
+      labs(x = var, y = "E[Y|X]", color = paste(by, collapse = ", "))
+  }
 
   if (ci) {
-    p <- p +
-      geom_ribbon(aes(ymin = s[[2]], ymax = s[[3]],
-                      color = NULL),
-                  alpha = .3, fill = color)
+    if (is.null(by)) {
+      p <- p +
+        geom_ribbon(aes(ymin = s[[2]], ymax = s[[3]]),
+                    alpha = .3, fill = color)
+    }
+    else {
+      p <- p +
+        geom_ribbon(aes(ymin = s[[2]], ymax = s[[3]],
+                        fill = s$by_var),
+                    alpha = .3) +
+        labs(fill = paste(by, collapse = ", "))
+    }
   }
-  p + labs(x = var, y = switch(attr(x, "contrast"), "adrf" = sprintf("E[Y(%s)]", var),
-                               "amef" = sprintf("E[dY/d(%s)]", var))) +
+  p + labs(x = var, y = if (!is.null(attr(x, "contrast"))) switch(attr(x, "contrast"), "adrf" = sprintf("E[Y(%s)]", var),
+                                                                  "amef" = sprintf("E[dY/d(%s)]", var))) +
     theme_bw()
+}
+
+.extract_by_values <- function(obj) {
+  x <- names(obj)
+
+  if (identical(attr(obj, "contrast"), "amef"))
+    pattern <- "\\,([^]]+)\\]"
+  else
+    pattern <- "\\|([^]]+)\\]"
+
+  matches <- regexpr(pattern, x, perl = TRUE)
+  out <- regmatches(x, matches)
+
+  substr(out, 2, nchar(out) - 1)
 }

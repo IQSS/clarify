@@ -8,3 +8,4 @@
 ^\.github$
 ^\_dev$
 ^CRAN-SUBMISSION$
+^clarify
