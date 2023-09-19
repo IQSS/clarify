@@ -239,14 +239,14 @@ str.clarify_est <- function(object,
   strO <- getOption("str")
   if (!is.list(strO)) {
     warning("invalid options(\"str\") -- using defaults instead")
-    strO <- strOptions()
+    strO <- utils::strOptions()
   }
   else {
     if (!all(names(strO) %in% oDefs))
       warning(gettextf("invalid components in options(\"str\"): %s",
                        paste(setdiff(names(strO), oDefs), collapse = ", ")),
               domain = NA)
-    strO <- modifyList(strOptions(), strO)
+    strO <- utils::modifyList(utils::strOptions(), strO)
   }
 
   oo <- options(digits = digits.d)
