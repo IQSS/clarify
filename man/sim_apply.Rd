@@ -27,7 +27,7 @@ details. If \code{NULL}, no parallelization will take place.}
 A \code{clarify_est} object, which is a matrix with a column for each
 estimated quantity and a row for each simulation. The original estimates
 (\code{FUN} applied to the original coefficients or model fit object) are stored
-in the attribute \code{"original"}. The \code{"sim_hash"} attributes contained the
+in the attribute \code{"original"}. The \code{"sim_hash"} attribute contains the
 simulation hash produced by \code{sim()}.
 }
 \description{
@@ -66,12 +66,14 @@ argument. This is because \code{sim_apply()} does not know how to reconstruct
 the original fit object with the new coefficients inserted. The quantities
 computed by \code{sim_apply()} must therefore be computed directly from the
 coefficients.
+
+If \code{FUN} is not supplied at all, the simulated values of the coefficients will be returned in the output with a warning. Set \code{FUN} to \code{NULL} or \code{verbose} to \code{FALSE} to suppress this warning.
 \subsection{\code{sim_apply()} with multiply imputed data}{
 
 When using \code{\link[=misim]{misim()}} and \code{sim_apply()} with multiply imputed data, the
 coefficients are supplied to the model fit corresponding to the imputation
 identifier associated with each set of coefficients, which means if \code{FUN}
-uses a dataset extracted from a model, it will do so from the model fit in
+uses a dataset extracted from a model (e.g., using \code{\link[insight:get_data]{insight::get_data()}}), it will do so from the model fit in
 the corresponding imputation.
 
 The original estimates (see Value below) are computed as the mean of the
@@ -96,7 +98,7 @@ fit <- lm(re78 ~ treat + age + race + nodegree + re74,
 coef(fit)
 
 set.seed(123)
-s <- sim(fit, n = 100)
+s <- sim(fit, n = 500)
 
 # Function to compare predicted values for two units
 # using `fit` argument
@@ -118,13 +120,21 @@ summary(est)
 # Function to compare coefficients using `coefs`
 # argument
 sim_fun <- function(coefs) {
-  c(`wh - his` = coefs["racewhite"] - coefs["racehispan"])
+  setNames(coefs["racewhite"] - coefs["racehispan"],
+           "wh - his")
 }
 
 est <- sim_apply(s, sim_fun, verbose = FALSE)
 
 # Examine estimates and confidence intervals
 summary(est)
+
+# Another way to do the above:
+est <- sim_apply(s, FUN = NULL)
+est <- transform(est,
+                 `wh - his` = `racewhite` - `racehispan`)
+
+summary(est, parm = "wh - his")
 
 }
 \seealso{

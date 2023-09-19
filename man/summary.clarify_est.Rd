@@ -13,6 +13,7 @@
   level = 0.95,
   method = "quantile",
   reference = FALSE,
+  ncol = 3,
   ...
 )
 
@@ -30,6 +31,8 @@
 \item{method}{the method used to compute p-values and confidence intervals. Can be \code{"wald"} to use a Normal approximation or \code{"quantile"} to use the simulated sampling distribution (default). See Details. Abbreviations allowed.}
 
 \item{reference}{\code{logical}; whether to overlay a normal density reference distribution over the plots. Default is \code{FALSE}.}
+
+\item{ncol}{the number of columns used when wrapping multiple plots; default is 3.}
 
 \item{...}{for \code{plot()}, further arguments passed to \code{\link[ggplot2:geom_density]{ggplot2::geom_density()}}.}
 

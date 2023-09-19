@@ -9,6 +9,7 @@ sim_adrf(
   sim,
   var,
   subset = NULL,
+  by = NULL,
   contrast = "adrf",
   at = NULL,
   n = 21,
@@ -28,6 +29,8 @@ sim_adrf(
 \item{var}{the name of a variable for which the ADRF or AMEF is to be computed. This variable must be present in the model supplied to \code{sim()} and must be a numeric variable taking on more than two unique values.}
 
 \item{subset}{optional; a vector used to subset the data used to compute the ADRF or AMEF. This will be evaluated within the original dataset used to fit the model using \code{\link[=subset]{subset()}}, so nonstandard evaluation is allowed.}
+
+\item{by}{a one-sided formula or character vector containing the names of variables for which to stratify the estimates. Each quantity will be computed within each level of the complete cross of the variables specified in \code{by}.}
 
 \item{contrast}{a string naming the type of quantity to be produced: \code{"adrf"} for the ADRF (the default) or \code{"amef"} for the AMEF.}
 
@@ -60,7 +63,7 @@ details. If \code{NULL}, no parallelization will take place.}
 \value{
 A \code{clarify_adrf} object, which inherits from \code{clarify_est} and is similar to
 the output of \code{sim_apply()}, with the additional attributes \code{"var"} containing
-the variable named in \code{var}, \code{"at"} containing values at which the ADRF or AMEF is evaluated, and \code{"contrast"} containing the argument supplied to \code{contrast}. For an ADRF, the average marginal means will be named
+the variable named in \code{var}, \code{"by"} containing the names of the variables specified in \code{by} (if any), \code{"at"} containing values at which the ADRF or AMEF is evaluated, and \code{"contrast"} containing the argument supplied to \code{contrast}. For an ADRF, the average marginal means will be named
 \code{E[Y({v})]}, where \code{{v}} is replaced with the values in \code{at}. For an AMEF, the average marginal effects will be
 named \code{dY/d({x})|{a}} where \code{{x}} is replaced with \code{var} and \code{{a}} is replaced by the values in \code{at}.
 }
@@ -78,7 +81,8 @@ If unit-level weights are included in the model fit (and discoverable using \cod
 data("lalonde", package = "MatchIt")
 
 # Fit the model
-fit <- glm(I(re78 > 0) ~ treat + age + race + re74,
+fit <- glm(I(re78 > 0) ~ treat + age + race +
+             married + re74,
            data = lalonde, family = binomial)
 
 # Simulate coefficients
@@ -99,6 +103,18 @@ est <- sim_adrf(s, var = "age", contrast = "amef",
 est
 summary(est)
 plot(est)
+
+# ADRF for `age` within levels of `married`
+est <- sim_adrf(s, var = "age",
+                at = seq(15, 55, length.out = 6),
+                by = ~married,
+                verbose = FALSE)
+est
+plot(est)
+
+## Difference between ADRFs
+est_diff <- est[7:12] - est[1:6]
+plot(est_diff) + ggplot2::labs(y = "Diff")
 }
 \seealso{
 \code{\link[=plot.clarify_adrf]{plot.clarify_adrf()}} for plotting the ADRF or AMEF; \code{\link[=sim_ame]{sim_ame()}} for computing average marginal effects; \code{\link[=sim_apply]{sim_apply()}}, which provides a general interface to computing any
