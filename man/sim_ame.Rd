@@ -71,8 +71,6 @@ named \code{E[dY/d({x})]} where \code{{x}} is replaced with \code{var}. When \co
 Categorical calculations involve computing average marginal means at each level of \code{var}. The average marginal mean is the average predicted outcome value after setting all units' value of \code{var} to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When \code{var} only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to \code{contrast}. Contrasts can be manually computed using \code{\link[=transform]{transform()}} afterward as well.
 
 Continuous calculations involve computing the average of marginal effects of \code{var} across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of \code{var} by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of \code{var} is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is \code{eps} times the standard deviation of the focal variable.
-
-If unit-level weights are included in the model fit (and discoverable using \code{\link[insight:get_weights]{insight::get_weights()}}), all means will be computed as weighted means.
 \subsection{Effect measures}{
 
 The effect measures specified in \code{contrast} are defined below. Typically only \code{"diff"} is appropriate for continuous outcomes and \code{"diff"} or \code{"irr"} are appropriate for count outcomes; the rest are appropriate for binary outcomes. For a focal variable with two levels, \code{0} and \code{1}, and an outcome \code{Y}, the average marginal means will be denoted in the below formulas as \code{E[Y(0)]} and \code{E[Y(1)]}, respectively.\tabular{ll}{
@@ -160,5 +158,5 @@ quantities for simulation-based inference; \code{\link[=plot.clarify_est]{plot.c
 output of a call to \code{sim_ame()}; \code{\link[=summary.clarify_est]{summary.clarify_est()}} for computing
 p-values and confidence intervals for the estimated quantities.
 
-\code{marginaleffects::marginaleffects()}, \code{marginaleffects::comparisons()}, and \code{margins::margins()} for delta method-based implementations of computing average marginal effects.
+\code{\link[marginaleffects:predictions]{marginaleffects::avg_predictions()}}, \code{\link[marginaleffects:comparisons]{marginaleffects::avg_comparisons()}} and \verb{[marginaleffects::avg_slopes()]} for delta method-based implementations of computing average marginal effects.
 }

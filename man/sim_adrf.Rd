@@ -74,8 +74,6 @@ named \code{dY/d({x})|{a}} where \code{{x}} is replaced with \code{var} and \cod
 The ADRF is composed of average marginal means across levels of the focal predictor. For each level of the focal predictor, predicted values of the outcome are computed after setting the value of the predictor to that level, and those values of the outcome are averaged across all units in the sample to arrive at an average marginal mean. Thus, the ADRF represent the relationship between the "dose" (i.e., the level of the focal predictor) and the average "response" (i.e., the outcome variable). It is the continuous analog to the average marginal effect computed for a binary predictor, e.g., using \code{\link[=sim_ame]{sim_ame()}}. Although inference can be at each level of the predictor or between two levels of the predictor, typically a plot of the ADRF is the most useful relevant quantity. These can be requested using \code{\link[=plot.clarify_adrf]{plot.clarify_adrf()}}.
 
 The AMEF is the derivative of the ADRF; if we call the derivative of the ADRF at each point a "treatment effect" (i.e., the rate at which the outcome changes corresponding to a small change in the predictor, or "treatment"), the AMEF is a function that relates the size of the treatment effect to the level of the treatment. The shape of the AMEF is usually of less importance than the value of the AMEF at each level of the predictor, which corresponds to the size of the treatment effect at the corresponding level. The AMEF is computed by computing the ADRF at each level of the focal predictor specified in \code{at}, shifting the predictor value by a tiny amount (control by \code{eps}), and computing the ratio of the change in the outcome to the shift, then averaging this value across all units. This quantity is related the the average marginal effect of a continuous predictor as computed by \code{\link[=sim_ame]{sim_ame()}}, but rather than average these treatment effects across all observed levels of the treatment, the AMEF is a function evaluated at each possible level of the treatment. The "tiny amount" used is \code{eps} times the standard deviation of \code{var}.
-
-If unit-level weights are included in the model fit (and discoverable using \code{\link[insight:get_weights]{insight::get_weights()}}), all means will be computed as weighted means.
 }
 \examples{
 data("lalonde", package = "MatchIt")
@@ -121,5 +119,5 @@ plot(est_diff) + ggplot2::labs(y = "Diff")
 quantities for simulation-based inference; \code{\link[=summary.clarify_est]{summary.clarify_est()}} for computing
 p-values and confidence intervals for the estimated quantities.
 
-\code{marginaleffects::marginaleffects()} and \code{marginaleffects::predictions()} for delta method-based implementations of computing average marginal effects and average marginal means.
+\code{\link[marginaleffects:slopes]{marginaleffects::avg_slopes()}} and \code{\link[marginaleffects:predictions]{marginaleffects::avg_predictions()}} for delta method-based implementations of computing average marginal effects and average marginal means.
 }

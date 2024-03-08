@@ -92,7 +92,7 @@ plot(est, parm = c("RD", "RR"), ci = TRUE)
 
 }
 \references{
-Rainey, C. (2023). A careful consideration of CLARIFY: Simulation-induced bias in point estimates of quantities of interest. \emph{Political Science Research and Methods}, 1–10. \doi{doi.org/10.1017/psrm.2023.8}
+Rainey, C. (2023). A careful consideration of CLARIFY: Simulation-induced bias in point estimates of quantities of interest. \emph{Political Science Research and Methods}, 1–10. \doi{10.1017/psrm.2023.8}
 }
 \seealso{
 \itemize{
