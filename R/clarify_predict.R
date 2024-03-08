@@ -6,8 +6,8 @@ clarify_predict <- function(x, newdata = NULL, group = NULL, type = NULL) {
     group <- NULL
   }
 
-  args <- list(x, newdata = newdata, vcov = FALSE, type = type)
-
+  args <- list(model = x, newdata = newdata, vcov = FALSE)
+  args$type <- type
 
   p <- try(do.call(marginaleffects::get_predict, args), silent = TRUE)
 
