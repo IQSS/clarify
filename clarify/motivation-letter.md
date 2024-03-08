@@ -10,14 +10,8 @@ Editor
 The R Journal  
 \bigskip
 
-Dear Professor Cook,
-\bigskip
 
-Please consider our article titled "ToOoOlTiPs: An R Package for Customizable Tooltips in Interactive Graphics" for publication in the R Journal.
-
-The manuscript introduces the new package called `ToOoOlTiPs` which provides examples on how to use interactive graphics in journal articles, and general tips for making an interesting contribution.
-
-We believe the readers of the R Journal will find this article helpful for their work because it provides generally useful instructions that will work for many purposes. 
+Thank you for considering our article "`clarify`: Simulation-Based Inference for Regression Models" for publication in the R Journal. The article describes the use of our package `clarify` for performing simulation-based inference of post-estimation quantities from regression, which enhances the interpretation of these models without making the same assumptions and approximations similar methods make. We believe this will be useful to anyone performing statistical analysis with regression and therefore will have broad appeal to R users. Please feel free to reach out with any questions or additional materials that might be useful.
 
 \bigskip
 \bigskip
@@ -27,15 +21,10 @@ Regards,
     
     
     
-Quietest Quokka  
-Department of Letter Q  
-University of Little Mates  
-Somewhere, Australia  
-qquo@ulm.edu
+Noah Greifer  
+Institute for Quantitative Social Science  
+Harvard University  
+Cambridge, MA, USA  
+ngreifer@iq.harvard.edu
 
 \bigskip
-
-NOTES: Modify this file with information about your article. 
-
-1. It may be invisible to you, so be aware that after each address line there are two spaces, this makes the line break correctly.
-2. It is also reasonable to submit an .md format of your motivating letter instead of a pdf. 

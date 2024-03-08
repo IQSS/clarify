@@ -8,6 +8,18 @@ knitr::opts_chunk$set(
   fig.height = 2
 )
 
+if (!requireNamespace("clarify")) {
+  install.packages("clarify")
+}
+
+if (!requireNamespace("MatchIt")) {
+  install.packages("MatchIt")
+}
+
+if (!requireNamespace("Amelia")) {
+  install.packages("Amelia")
+}
+
 
 ## -----------------------------------------------------------------------------
 library(clarify)

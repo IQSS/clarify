@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.9.19)  19 SEP 2023 15:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.9.22)  28 SEP 2023 14:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -705,6 +705,18 @@ Package hyperref Info: Link coloring ON on input line 47.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
 (./clarify.tex
+LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 7.
+(/Users/NoahGreifer/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd
+File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
+)
+LaTeX Font Info:    Font shape `T1/zi4/b/n' will be
+(Font)              scaled to size 21.15489pt on input line 7.
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `zi4' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
+(Font)              scaled to size 9.18004pt on input line 11.
 
 Package hyperref Warning: Difference (2) between bookmark levels is greater 
 (hyperref)                than one, level fixed on input line 14.
@@ -759,31 +771,22 @@ LaTeX Font Info:    Font shape `U/msb/m/n' will be
 (Font)              scaled to size 8.33606pt on input line 16.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
 (Font)              scaled to size 6.25204pt on input line 16.
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 26.
-(/Users/NoahGreifer/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd
-File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
-)
-LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.18004pt on input line 26.
-Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `zi4' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
 [1{/Users/NoahGreifer/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
-] [2{/Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 95.
+{/Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}] [2]
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 99.
 (/Users/NoahGreifer/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
 )
-Overfull \hbox (4.26273pt too wide) in paragraph at lines 99--101
+Overfull \hbox (4.26273pt too wide) in paragraph at lines 103--105
 \T1/ppl/m/n/9 (-20) ing a code for ex-tract-ing the co-vari-ance ma-trix, which is passed to \T1/zi4/m/n/9 marginaleffects::get_vcov()\T1/ppl/m/n/9 (-20) .
  []
 
+[3]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 131.
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 131.
+(textcomp)             Default family used instead on input line 135.
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 135.
 (/Users/NoahGreifer/Library/TinyTeX/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
@@ -791,7 +794,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 131.
+LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 135.
 (/Users/NoahGreifer/Library/TinyTeX/texmf-dist/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
@@ -801,149 +804,149 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             See the microtype manual for details.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 131.
-[3{/Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
+(textcomp)             Default family used instead on input line 135.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 178.
+(textcomp)             Default family used instead on input line 182.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 178.
+(textcomp)             Default family used instead on input line 182.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 178.
+(textcomp)             Default family used instead on input line 182.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 178.
+(textcomp)             Default family used instead on input line 182.
+[4{/Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 202.
+(textcomp)             Default family used instead on input line 206.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 202.
+(textcomp)             Default family used instead on input line 206.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 202.
+(textcomp)             Default family used instead on input line 206.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 202.
-[4]
-<figures/unnamed-chunk-8-1.pdf, id=86, 289.08pt x 144.54pt>
+(textcomp)             Default family used instead on input line 206.
+[5]
+<figures/unnamed-chunk-8-1.pdf, id=108, 289.08pt x 144.54pt>
 File: figures/unnamed-chunk-8-1.pdf Graphic file (type pdf)
 <use figures/unnamed-chunk-8-1.pdf>
-Package pdftex.def Info: figures/unnamed-chunk-8-1.pdf  used on input line 251.
+Package pdftex.def Info: figures/unnamed-chunk-8-1.pdf  used on input line 255.
 (pdftex.def)             Requested size: 289.07928pt x 144.53963pt.
-[5] [6 <./figures/unnamed-chunk-8-1.pdf>]
-<figures/unnamed-chunk-10-1.pdf, id=101, 289.08pt x 144.54pt>
+[6 <./figures/unnamed-chunk-8-1.pdf>]
+<figures/unnamed-chunk-10-1.pdf, id=118, 289.08pt x 144.54pt>
 File: figures/unnamed-chunk-10-1.pdf Graphic file (type pdf)
 <use figures/unnamed-chunk-10-1.pdf>
-Package pdftex.def Info: figures/unnamed-chunk-10-1.pdf  used on input line 295.
+Package pdftex.def Info: figures/unnamed-chunk-10-1.pdf  used on input line 299.
 (pdftex.def)             Requested size: 289.07928pt x 144.53963pt.
 LaTeX Font Info:    Font shape `T1/zi4/b/n' will be
-(Font)              scaled to size 10.20004pt on input line 309.
-[7 <./figures/unnamed-chunk-10-1.pdf>]
-<figures/unnamed-chunk-14-1.pdf, id=115, 361.35pt x 144.54pt>
+(Font)              scaled to size 10.20004pt on input line 313.
+[7 <./figures/unnamed-chunk-10-1.pdf>] [8]
+<figures/unnamed-chunk-14-1.pdf, id=142, 361.35pt x 144.54pt>
 File: figures/unnamed-chunk-14-1.pdf Graphic file (type pdf)
 <use figures/unnamed-chunk-14-1.pdf>
-Package pdftex.def Info: figures/unnamed-chunk-14-1.pdf  used on input line 394.
+Package pdftex.def Info: figures/unnamed-chunk-14-1.pdf  used on input line 398.
 (pdftex.def)             Requested size: 361.34912pt x 144.53963pt.
-[8]
-<figures/unnamed-chunk-16-1.pdf, id=120, 361.35pt x 144.54pt>
+<figures/unnamed-chunk-16-1.pdf, id=143, 361.35pt x 144.54pt>
 File: figures/unnamed-chunk-16-1.pdf Graphic file (type pdf)
 <use figures/unnamed-chunk-16-1.pdf>
-Package pdftex.def Info: figures/unnamed-chunk-16-1.pdf  used on input line 414.
+Package pdftex.def Info: figures/unnamed-chunk-16-1.pdf  used on input line 418.
 (pdftex.def)             Requested size: 361.34912pt x 144.53963pt.
 [9 <./figures/unnamed-chunk-14-1.pdf> <./figures/unnamed-chunk-16-1.pdf>]
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 8.16003pt on input line 445.
+(Font)              scaled to size 8.16003pt on input line 449.
+[10]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 491.
+(textcomp)             Default family used instead on input line 495.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 491.
-[10] [11]
-<figures/unnamed-chunk-25-1.pdf, id=153, 361.35pt x 144.54pt>
+(textcomp)             Default family used instead on input line 495.
+[11] [12]
+<figures/unnamed-chunk-25-1.pdf, id=182, 361.35pt x 144.54pt>
 File: figures/unnamed-chunk-25-1.pdf Graphic file (type pdf)
 <use figures/unnamed-chunk-25-1.pdf>
-Package pdftex.def Info: figures/unnamed-chunk-25-1.pdf  used on input line 609.
+Package pdftex.def Info: figures/unnamed-chunk-25-1.pdf  used on input line 613.
 (pdftex.def)             Requested size: 361.34912pt x 144.53963pt.
-[12]
-<figures/unnamed-chunk-28-1.pdf, id=159, 361.35pt x 144.54pt>
+<figures/unnamed-chunk-28-1.pdf, id=183, 361.35pt x 144.54pt>
 File: figures/unnamed-chunk-28-1.pdf Graphic file (type pdf)
 <use figures/unnamed-chunk-28-1.pdf>
-Package pdftex.def Info: figures/unnamed-chunk-28-1.pdf  used on input line 643.
+Package pdftex.def Info: figures/unnamed-chunk-28-1.pdf  used on input line 647.
 (pdftex.def)             Requested size: 361.34912pt x 144.53963pt.
-[13 <./figures/unnamed-chunk-25-1.pdf> <./figures/unnamed-chunk-28-1.pdf>]
+[13 <./figures/unnamed-chunk-25-1.pdf>]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 667.
+(textcomp)             Default family used instead on input line 671.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 667.
+(textcomp)             Default family used instead on input line 671.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 667.
+(textcomp)             Default family used instead on input line 671.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 667.
+(textcomp)             Default family used instead on input line 671.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 675.
+(textcomp)             Default family used instead on input line 679.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 675.
+(textcomp)             Default family used instead on input line 679.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 675.
+(textcomp)             Default family used instead on input line 679.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 675.
+(textcomp)             Default family used instead on input line 679.
+[14 <./figures/unnamed-chunk-28-1.pdf>]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 696.
+(textcomp)             Default family used instead on input line 700.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 696.
+(textcomp)             Default family used instead on input line 700.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 696.
+(textcomp)             Default family used instead on input line 700.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 696.
-LaTeX Font Info:    Trying to load font information for TS1+zi4 on input line 705.
+(textcomp)             Default family used instead on input line 700.
+LaTeX Font Info:    Trying to load font information for TS1+zi4 on input line 709.
 (/Users/NoahGreifer/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/ts1zi4.fd
 File: ts1zi4.fd 2018/01/14 TS1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `TS1/zi4/m/n' will be
-(Font)              scaled to size 9.18004pt on input line 705.
+(Font)              scaled to size 9.18004pt on input line 709.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: TS1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-[14{/Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}]
+[15{/Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 774.
+(textcomp)             Default family used instead on input line 778.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 774.
-[15]
+(textcomp)             Default family used instead on input line 778.
+[16]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 832.
+(textcomp)             Default family used instead on input line 836.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 832.
-[16] [17]
+(textcomp)             Default family used instead on input line 836.
+[17] [18]
 No file RJwrapper.bbl.
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 941.
+(Font)              using `T1/zi4/m/n' instead on input line 946.
 
 LaTeX Font Info:    Font shape `T1/zi4/m/it' will be
-(Font)              scaled to size 9.18004pt on input line 951.
-[18]) [19] (./RJwrapper.aux)
+(Font)              scaled to size 9.18004pt on input line 956.
+) [19] (./RJwrapper.aux)
  ***********
 LaTeX2e <2023-06-01> patch level 1
 L3 programming layer <2023-08-29>
@@ -952,16 +955,16 @@ L3 programming layer <2023-08-29>
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `RJwrapper.out' has not changed.
-(rerunfilecheck)             Checksum: 811FA86F3B8C894DA073EA79417BAD35;1886.
+(rerunfilecheck)             Checksum: A4AFFCD70343BD1CCFEF7035C37A5FC5;1886.
  ) 
 Here is how much of TeX's memory you used:
- 26874 strings out of 476894
- 490784 string characters out of 5807862
- 1940791 words of memory out of 5000000
- 47231 multiletter control sequences out of 15000+600000
- 622215 words of font info for 361 fonts, out of 8000000 for 9000
+ 26835 strings out of 476894
+ 490252 string characters out of 5807862
+ 1936791 words of memory out of 5000000
+ 47209 multiletter control sequences out of 15000+600000
+ 617285 words of font info for 343 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 117i,12n,131p,1381b,850s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 117i,12n,131p,1354b,835s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 pdfTeX warning (dest): name{Hfootnote.4} has been referenced but does not exist, replaced by a fixed one
 
@@ -974,11 +977,11 @@ pdfTeX warning (dest): name{Hfootnote.2} has been referenced but does not exist,
 
 pdfTeX warning (dest): name{Hfootnote.1} has been referenced but does not exist, replaced by a fixed one
 
-</Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4b.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbi.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmr.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on RJwrapper.pdf (19 pages, 281575 bytes).
+</Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4b.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmr.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/NoahGreifer/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on RJwrapper.pdf (19 pages, 286036 bytes).
 PDF statistics:
- 319 PDF objects out of 1000 (max. 8388607)
- 258 compressed objects within 3 object streams
- 65 named destinations out of 1000 (max. 500000)
- 87155 words of extra memory for PDF output out of 89155 (max. 10000000)
+ 380 PDF objects out of 1000 (max. 8388607)
+ 318 compressed objects within 4 object streams
+ 66 named destinations out of 1000 (max. 500000)
+ 79987 words of extra memory for PDF output out of 89155 (max. 10000000)
 
