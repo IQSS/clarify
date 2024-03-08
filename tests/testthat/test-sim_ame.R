@@ -1,3 +1,5 @@
+Sys.setenv(`_R_S3_METHOD_REGISTRATION_NOTE_OVERWRITES_` = "false")
+
 test_that("sim_ame() doesn't work with coefs and vcov", {
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
