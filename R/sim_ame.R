@@ -19,8 +19,6 @@
 #'
 #' Continuous calculations involve computing the average of marginal effects of `var` across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of `var` by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of `var` is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is `eps` times the standard deviation of the focal variable.
 #'
-#' If unit-level weights are included in the model fit (and discoverable using [insight::get_weights()]), all means will be computed as weighted means.
-#'
 #' ## Effect measures
 #'
 #' The effect measures specified in `contrast` are defined below. Typically only `"diff"` is appropriate for continuous outcomes and `"diff"` or `"irr"` are appropriate for count outcomes; the rest are appropriate for binary outcomes. For a focal variable with two levels, `0` and `1`, and an outcome `Y`, the average marginal means will be denoted in the below formulas as `E[Y(0)]` and `E[Y(1)]`, respectively.
@@ -51,7 +49,7 @@
 #'   output of a call to `sim_ame()`; [summary.clarify_est()] for computing
 #'   p-values and confidence intervals for the estimated quantities.
 #'
-#' `marginaleffects::marginaleffects()`, `marginaleffects::comparisons()`, and `margins::margins()` for delta method-based implementations of computing average marginal effects.
+#'  [marginaleffects::avg_predictions()], [marginaleffects::avg_comparisons()] and `[marginaleffects::avg_slopes()]` for delta method-based implementations of computing average marginal effects.
 #'
 #' @examples
 #' data("lalonde", package = "MatchIt")
@@ -248,7 +246,7 @@ sim_ame <- function(sim,
         pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
         p <- .get_p(pred)
         vapply(seq_along(vals), function(i) {
-          weighted.mean(p[seq_len(m) + (i - 1) * m], attr(fit, "weights"))
+          mean(p[seq_len(m) + (i - 1) * m])
         }, numeric(1L))
       }
 
@@ -288,9 +286,8 @@ sim_ame <- function(sim,
 
         unlist(lapply(levels(by_var), function(b) {
           in_b <- by_var == b
-          w_b <- attr(fit, "weights")[in_b]
           vapply(vals, function(v) {
-            weighted.mean(p[dat2[[var]] == v & in_b], w_b)
+            mean(p[dat2[[var]] == v & in_b])
           }, numeric(1L))
         }))
       }
@@ -355,8 +352,8 @@ sim_ame <- function(sim,
         pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
         p <- .get_p(pred)
 
-        m0 <- weighted.mean(p[ind], attr(fit, "weights"))
-        m1 <- weighted.mean(p[-ind], attr(fit, "weights"))
+        m0 <- mean(p[ind])
+        m1 <- mean(p[-ind])
 
         (m1 - m0) / eps
       }
@@ -380,10 +377,9 @@ sim_ame <- function(sim,
 
         vapply(levels(by_var), function(b) {
           in_b <- by_var == b
-          w_b <- attr(fit, "weights")[in_b]
 
-          m0 <- weighted.mean(p[ind][in_b], w_b)
-          m1 <- weighted.mean(p[-ind][in_b], w_b)
+          m0 <- mean(p[ind][in_b])
+          m1 <- mean(p[-ind][in_b])
 
           (m1 - m0) / eps
         }, numeric(1L))

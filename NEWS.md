@@ -1,3 +1,7 @@
+# `clarify` (development version)
+
+* In `sim_ame()` and `sim_adrf()`, unit-level weights are no longer used to compute means, consistent with advice in [Gabriel et al. (2023)](https://doi.org/10.1002/sim.9969). For those using these functions after matching or weighting for the ATT or ATC, this will not change results. For matching or weighting for the ATE, this improves robustness against misspecified weights. 
+
 # `clarify` 0.2.0
 
 * `sim_ame()` and `sim_adrf()` now have a `by` argument, which can be used to estimate quantities of interest within subsets of one or more variables.
