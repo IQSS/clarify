@@ -46,14 +46,14 @@ library(clarify)
 data("lalonde", package = "MatchIt")
 
 # Fit the model
-fit <- glm(I(re78 == 0) ~ treat * (age + educ + race + married +
-                                     nodegree + re74 + re75),
+fit <- glm(I(re78 > 0) ~ treat + age + educ + race + married +
+             nodegree + re74 + re75,
            data = lalonde, family = binomial)
 ```
 
 Next, to estimate the ATT risk ratio, we simulate coefficients from
 their implied distribution and compute the effects of interest in each
-simulation, yielding a distribution of estimates that was can summarize
+simulation, yielding a distribution of estimates that we can summarize
 and use for inference:
 
 ``` r
@@ -67,19 +67,19 @@ sim_est <- sim_ame(sim_coefs, var = "treat", subset = treat == 1,
 
 sim_est
 #> A `clarify_est` object (from `sim_ame()`)
-#>  - Average marginal effect of `treat`
+#>  - Average adjusted predictions for `treat`
 #>  - 1000 simulated values
 #>  - 3 quantities estimated:                  
-#>  E[Y(0)] 0.2944381
-#>  E[Y(1)] 0.2432432
-#>  RR      0.8261270
+#>  E[Y(0)] 0.6830995
+#>  E[Y(1)] 0.7567568
+#>  RR      1.1078280
 
 # View the estimates, confidence intervals, and p-values
 summary(sim_est, null = c(`RR` = 1))
 #>         Estimate 2.5 % 97.5 % P-value
-#> E[Y(0)]    0.294 0.220  0.384       .
-#> E[Y(1)]    0.243 0.199  0.360       .
-#> RR         0.826 0.619  1.391    0.79
+#> E[Y(0)]    0.683 0.587  0.753       .
+#> E[Y(1)]    0.757 0.686  0.813       .
+#> RR         1.108 0.971  1.298    0.13
 
 # Plot the resulting sampling distributions
 plot(sim_est)
@@ -94,40 +94,19 @@ other examples. For a complete vignette, see `vignette("clarify")`.
 
 Simulation-based inference is an alternative to the delta method and
 bootstrapping for performing inference on quantities that are functions
-of model parameters. The delta method involves multiple assumptions: 1)
-the model coefficients are normally distributed, 2) the resulting
-quantity of interest is normally distributed, and 3) the first-order
-approximation to the variance of the desired estimator is equal to the
-true variance. When these assumptions are incorrect, which is especially
-likely when the quantity of interest is a complicated nonlinear function
-of the model coefficients, the resulting inferences can be inaccurate.
-Bootstrapping is one solution to this problem that does not require any
-of the above assumptions for valid nonparametric inference (though other
-assumptions are required); however, it is computationally intensive
-because the original model needs to be fit many times, and any problems
-with the model that are only apparent in some bootstrap samples (e.g.,
-failure to converge, perfect prediction) can make using bootstrapping
-challenging.
-
-Simulation-based inference provides a compromise to these two methods:
-it is more accurate than the delta method because it does not require
-assumptions 2) and 3) (though it still relies on the central limit
-theorem to assume the coefficients are normally distributed), and it is
-faster and more stable than bootstrapping because the model only needs
-to be fit once. Simulation-based inference involves simulating model
-coefficients from their multivariate distribution using their estimated
-values and covariance from a single model fit to the original data,
-computing the quantities of interest from each set of model
-coefficients, and then performing inference using the resulting
-distribution of the estimates as their sampling distribution. Confidence
-intervals can be computed using the percentiles of the resulting
-sampling distribution, and p-values can be computed by inverting the
-confidence intervals. Alternatively, if the resulting sampling
-distribution is normally distributed, its standard error can be
-estimated as the standard deviation of the estimates and normal-theory
-Wald confidence intervals and p-values can be computed. The methodology
-of simulation-based inference is explained in King, Tomz, and Wittenberg
-(2000).
+of model parameters. It involves simulating model coefficients from
+their multivariate distribution using their estimated values and
+covariance from a single model fit to the original data, computing the
+quantities of interest from each set of model coefficients, and then
+performing inference using the resulting distribution of the estimates
+as their sampling distribution. Confidence intervals can be computed
+using the percentiles of the resulting sampling distribution, and
+p-values can be computed by inverting the confidence intervals.
+Alternatively, if the resulting sampling distribution is normally
+distributed, its standard error can be estimated as the standard
+deviation of the estimates and normal-theory Wald confidence intervals
+and p-values can be computed. The methodology of simulation-based
+inference is explained in King, Tomz, and Wittenberg (2000).
 
 `clarify` was designed to provide a simple, general interface for
 simulation-based inference and includes a few convenience functions to
@@ -146,12 +125,12 @@ simulation-based inference.
 
 There are also some wrappers for `sim_apply()` for performing some
 common operations: `sim_ame()` computes the average marginal effect of a
-variable, mirroring `marginaleffects::comparisons()` and
-`marginaleffects::marginaleffects()`; `sim_setx()` computes predictions
-at typical values of the covariates and differences between them,
-mirroring `Zelig::setx()` and `Zelig::setx1()`; and `sim_adrf()`
-computes average dose-response functions. `clarify` also offers support
-for models fit to multiply imputed data with the `misim()` function.
+variable, mirroring `marginaleffects::avg_predictions()` and
+`marginaleffects::avg_slopes()`; `sim_setx()` computes predictions at
+typical values of the covariates and differences between them, mirroring
+`Zelig::setx()` and `Zelig::setx1()`; and `sim_adrf()` computes average
+dose-response functions. `clarify` also offers support for models fit to
+multiply imputed data with the `misim()` function.
 
 In the example above, we used `sim_ame()` to compute the ATT, but we
 could have also done so manually using `sim_apply()`, as demonstrated
@@ -175,17 +154,17 @@ sim_est
 #> A `clarify_est` object (from `sim_apply()`)
 #>  - 1000 simulated values
 #>  - 3 quantities estimated:                  
-#>  E[Y(0)] 0.2944381
-#>  E[Y(1)] 0.2432432
-#>  RR      0.8261270
+#>  E[Y(0)] 0.6830995
+#>  E[Y(1)] 0.7567568
+#>  RR      1.1078280
 
 # View the estimates, confidence intervals, and p-values;
 # they are the same as when using sim_ame() above
 summary(sim_est, null = c(`RR` = 1))
 #>         Estimate 2.5 % 97.5 % P-value
-#> E[Y(0)]    0.294 0.220  0.384       .
-#> E[Y(1)]    0.243 0.199  0.360       .
-#> RR         0.826 0.619  1.391    0.79
+#> E[Y(0)]    0.683 0.587  0.753       .
+#> E[Y(1)]    0.757 0.686  0.813       .
+#> RR         1.108 0.971  1.298    0.13
 
 # Plot the resulting sampling distributions
 plot(sim_est, reference = TRUE, ci = FALSE)
@@ -210,10 +189,10 @@ If we want to compute the risk difference, we can do that using
 sim_est <- transform(sim_est, `RD` = `E[Y(1)]` - `E[Y(0)]`)
 summary(sim_est, null = c(`RR` = 1, `RD` = 0))
 #>         Estimate   2.5 %  97.5 % P-value
-#> E[Y(0)]   0.2944  0.2199  0.3841       .
-#> E[Y(1)]   0.2432  0.1994  0.3602       .
-#> RR        0.8261  0.6192  1.3908    0.79
-#> RD       -0.0512 -0.1379  0.0927    0.79
+#> E[Y(0)]   0.6831  0.5872  0.7528       .
+#> E[Y(1)]   0.7568  0.6859  0.8134       .
+#> RR        1.1078  0.9708  1.2976    0.13
+#> RD        0.0737 -0.0215  0.1757    0.13
 ```
 
 We can also use `clarify` to compute predictions and first differences
