@@ -1,4 +1,4 @@
-url: https://ngreifer.github.io/clarify/
+url: https://iqss.github.io/clarify/
 template:
   bootstrap: 5
 
@@ -8,6 +8,7 @@ reference:
   - sim
   - sim_apply
   - summary.clarify_est
+  - transform.clarify_est
 - title: Wrappers
 - contents:
   - sim_adrf
