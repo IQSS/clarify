@@ -436,7 +436,7 @@ test_that("sim_ame() works with betareg::betareg()", {
 
 test_that("sim_ame() works with survey::svyglm()", {
   skip_if_not_installed("survey")
-  skip_if_not_installed("marginaleffects", "0.20.2")
+  skip_if_not_installed("marginaleffects", "0.20.1.2")
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- survey::svyglm(binY ~ treat + age + educ + race + re74, family = quasibinomial,
