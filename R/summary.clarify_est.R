@@ -22,7 +22,7 @@
 #'
 #' When `method = "wald"`, the standard deviation of the simulation estimates is used as the standard error, which is used in the z-statistics and the confidence intervals. The p-values and confidence intervals are valid only when the sampling distribution of the resulting statistic is normal (which can be assessed using `plot()`). When `method = "quantile"`, the confidence interval is calculated using the quantiles of the simulation estimates corresponding to `level`, and the p-value is calculated as twice the proportion of simulation estimates less than or greater than `null`, whichever is smaller; this is equivalent to inverting the confidence interval but is only truly valid when the true sampling distribution is only a location shift from the sampling distribution under the null hypothesis and should therefore be interpreted with caution. Using `"method = "quantile"` (the default) is recommended because the confidence intervals will be valid even if the sampling distribution is not Normally distributed. The precision of the p-values and confidence intervals depends on the number of simulations requested (the value of `n` supplied to [sim()]).
 #'
-#' The plots are produced using [ggplot2::geom_density()] and can be customized with \pkg{ggplot2} functions.
+#' The plots are produced using [ggplot2::geom_density()] and can be customized with \pkg{ggplot2} functions. When `reference = TRUE`, a reference Normal distribution is produced using the empirical mean and standard deviation of the simulated values. A blue references line is plotted at the median of the simulated values. For Wald-based inference to be valid, the reference distribution should overlap with the empirical distribution, in which case the quantile-based and Wald-based intervals should be similar. For quantile-based inference to be valid, the median of the estimates should overlap with the estimated value; this is a necessary but not sufficient condition, though.
 #'
 #' @seealso
 #' * [sim_apply()] for applying a function to each set of simulated coefficients
@@ -85,6 +85,10 @@ summary.clarify_est <- function(object,
     .err("`parm` must be a numeric or character vector identifying the estimates to summarize")
   }
 
+  chk::chk_string(method)
+  method <- match_arg(method, c("quantile", "wald"))
+  # method <- match_arg(method, c("quantile", "wald", "optimal"))
+
   null <- process_null(null, object, parm)
 
   test <- !all(is.na(null))
@@ -114,9 +118,12 @@ summary.clarify_est <- function(object,
       p <- vapply(seq_along(parm), function(i) {
         if (is.na(null[i])) return(NA_real_)
         x <- object[, parm[i]]
-        2 * min(sum(x < null[i], na.rm = nas),
-                sum(x > null[i], na.rm = nas)) / ns[i]
+        2 * min(sum(x <= null[i], na.rm = nas),
+                sum(x >= null[i], na.rm = nas)) / ns[i]
       }, numeric(1L))
+    }
+    else {
+      .err("`null` cannot be specified when `method = \"optimal\"`")
     }
 
     ans <- cbind(ans,
@@ -155,6 +162,7 @@ confint.clarify_est <- function(object,
 
   chk::chk_string(method)
   method <- match_arg(method, c("quantile", "wald"))
+  # method <- match_arg(method, c("quantile", "wald", "optimal"))
 
   parm <- process_parm(object, parm)
   if (anyNA(parm)) {
@@ -174,16 +182,39 @@ confint.clarify_est <- function(object,
   nas <- anyNA(object[parm])
   if (nas) .wrn("`NA` values present among the estimates")
 
-  if (method == "wald") {
+  if (method == "quantile") {
+    object <- drop_sim_class(object)
+    ci[] <- t(apply(object[, parm, drop = FALSE], 2, quantile, probs = a,
+                    na.rm = nas, type = 8, names = FALSE))
+  }
+  else if (method == "wald") {
     cf <- coef(object)
     fac <- qnorm(a)
     ses <- sqrt(diag(vcov(object)))[parm]
     ci[] <- cf[parm] + outer(ses, fac, "*")
   }
-  else if (method == "quantile") {
+  else if (method == "optimal") {
     object <- drop_sim_class(object)
-    ci[] <- t(apply(object[, parm, drop = FALSE], 2, quantile, probs = a,
-                    na.rm = nas))
+    qseq <- seq(0, 1 - level, length.out = nrow(object))[-c(1, nrow(object))]
+    rowDiff <- function(x) {x[,2] - x[,1]}
+    ci[] <- t(apply(object[, parm, drop = FALSE], 2, function(x) {
+      ci.lengths <- rowDiff(matrix(quantile(x, probs = c(qseq, qseq + level),
+                                            na.rm = nas, type = 8, names = FALSE),
+                                   ncol = 2))
+
+      best.q <- qseq[which.min(ci.lengths)]
+      unname(quantile(x, probs = c(best.q, best.q + level),
+                      na.rm = nas, type = 8, names = FALSE))
+    }))
+
+    # ci[] <- t(apply(object[, parm, drop = FALSE], 2, function(x) {
+    #   opt <- optimize(function(q) diff(quantile(x, probs = c(q, q + level),
+    #                                             na.rm = nas, type = 8, names = FALSE)),
+    #                   lower = 0, upper = 1 - level)
+    #   best.q <- opt$minimum
+    #   unname(quantile(x, probs = c(best.q, best.q + level),
+    #                   na.rm = nas, type = 8, names = FALSE))
+    # }))
   }
 
   ci

@@ -1,6 +1,12 @@
 # `clarify` (development version)
 
-* In `sim_ame()` and `sim_adrf()`, unit-level weights are no longer used to compute means, consistent with advice in [Gabriel et al. (2023)](https://doi.org/10.1002/sim.9969). For those using these functions after matching or weighting for the ATT or ATC, this will not change results. For matching or weighting for the ATE, this improves robustness against misspecified weights. 
+* In `sim_ame()` and `sim_adrf()`, unit-level weights are no longer used to compute means, consistent with advice in [Gabriel et al. (2023)](https://doi.org/10.1002/sim.9969). For those using these functions after matching or weighting for the ATT or ATC, this will not change results. For matching or weighting for the ATE, this improves robustness against misspecified weights.
+
+* In `sim_ame()`, more than one variable can be supplied to `var` to generate average adjusted predictions or compute average marginal effects with other variables set to supplied values. The help page for `sim_ame()` has been retooled to reflect this.
+
+* In `transform()`, values can now be indicated by positional shortcuts of the form `.b{#}`, e.g., `.b1 - .b2`, to facilitate specifying transformations of the desired quantities without using the names of the quantities, which can be frustrating to use.
+
+* When `reference = TRUE` with `plot()`, a blue line at the median of the simulated estimates is also included on the plot; when this value does not align with the estimate, quantile confidence intervals may be invalid.
 
 # `clarify` 0.2.0
 
