@@ -3,7 +3,7 @@
 \name{transform.clarify_est}
 \alias{transform.clarify_est}
 \alias{cbind.clarify_est}
-\title{#' Transform and combine \code{clarify_est} objects}
+\title{Transform and combine \code{clarify_est} objects}
 \usage{
 \method{transform}{clarify_est}(`_data`, ...)
 

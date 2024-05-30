@@ -1,4 +1,4 @@
-#' #' Transform and combine `clarify_est` objects
+#' Transform and combine `clarify_est` objects
 #'
 #' @description
 #' `transform()` modifies a `clarify_est` object by allowing for the calculation of new quantities from the existing quantities without re-simulating them. `cbind()` binds two `clarify_est` objects together.
