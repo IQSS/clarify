@@ -1,11 +1,11 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
+pandoc: 3.1.11
+pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
-  Zelig: Zelig.html
   clarify: clarify.html
-last_built: 2023-12-07T18:28Z
+  Zelig: Zelig.html
+last_built: 2024-05-30T16:45Z
 urls:
-  reference: https://ngreifer.github.io/clarify/reference
-  article: https://ngreifer.github.io/clarify/articles
+  reference: https://iqss.github.io/clarify/reference
+  article: https://iqss.github.io/clarify/articles
 
