@@ -1,0 +1,54 @@
+Thank you for giving me the opportunity to review this interesting paper.
+
+I like the paper a lot. It is clear and well-written. 
+
+The software is of high quality. I have tried it, read the documentation, and skimmed its code base. The authors follow modern best practices for development, including many unit tests, thorough documentation, and a nice website with a useful vignette and a migration guide for users of the older `Zelig` package. Well done!
+
+# Motivation
+
+The motivation for simulation-based inference could be improved. For example, on page 1 the authors state that:
+
+> Simulation-based inference is not only often more accurate than using the delta method, it is also simpler to understand and implement, as it does not require understanding Taylor series or the calculus that underlies it. This makes it more palatable to nontechnical audiences and easier to learn for students without sacrificing statistical performance.
+
+This is a red herring. Easy to use software implements the delta method by default, and nontechnical audiences and students essentially never have to implement the delta method themselves. 
+
+Also, what does "accurate" mean, exactly? What does "often" mean? Under what conditions, exactly? This is a paper about software, so I don't expect a full theoretical investigation. But there should be at least be a little bit more discussion and breadcrumbs for users to follow. Are there good theoretical or simulation studies on the properties of this strategy, identifying when it works better or worse? Currently, the reader might leave the paper with the impression that simulation-based inference strictly dominates the delta method and bootstrapping in all cases, except along the computational cost dimension. Is that really true? I'll freely admit that I'm a bit skeptical, but I would love to see some references to authors who probe this question. I'm sure other readers would find this useful too in deciding whether they should use `clarify`.
+
+The flip side of this question is: If simulation-based inference is easier and more accurate, why isn't everyone using it already? What's the market failure?
+
+# Approximations in simulation-based inference
+
+The authors write:
+
+> Arriving at the posterior distribution does not require taking any derivatives or making any approximations beyond those usually used for inference on model parameter estimates.
+
+This may seem trivial, taking M random draws will lead to a different result than drawing a different M' set of coefficients. Clearly, there's a simulation-related approximation going on. This should be acknowledged early in the intro. The authors should revise the text to avoid saying that simulation-based inference requires no approximation.
+
+# Assumption or approximation?
+
+The abstract and introduction sell simulation-based inference as a way to relax "assumptions" of the delta method, but then goes on to talk about "approximations" that may fail:
+
+> The usual method for estimating the uncertainty of the derived quantities is known as the “delta method”, which involves two approximations: 1) that the variance of the derived quantity can be represented as a first-order Taylor series, and 2) that the estimate of the derived quantity is normally distributed. 
+
+The classic textbook treatment of the delta method talks about two assumptions: continuity, and normality of the $\hat{\theta}$ --- not of derived quantities $h(\hat{\theta})$. Do the authors see a distinction between a violation of delta method assumptions and a "failure" of approximations in finite samples? If so, this should be cleared up in the abstract and intro to avoid confusion.
+
+# Backtransformation
+
+Quotes like these two feel misleading: because standard practice in such GLM models it to build confidence intervals by backtransformation, rather than by naively constructing symmetric intervals:
+
+> For example, predicted probabilities close to 0 or 1 or ratios of coefficients or probabilities typically do not have normal (or even symmetrical) distributions in finite samples, and the usual Wald-type confidence interval limits produced from delta method standard errors can include values outside the domain of the quantity of interest.
+
+> One can see again how a delta method or Normal approximation may not have yielded valid uncertainty intervals given the non-Normality of the distributions.
+
+Most of the alternative packages in `R` will automatically use backtransformation to build confidence intervals that do not stretch outside reasonable bounds. Of course, this is not possible or easy for all model types. But if they authors want to make a big deal out of that critique --- open with it on page 1 and reiterate it in the text --- they should probably show an example where this is a real problem
+
+# Minor notes
+
+* Why are all functions prefixed with `sim_`? I would argue that these prefixes are extraneous, and that this is what the namespace is for.
+* Can `plot()` draw on more dimensions if more variables are included in `sim_setx()`?
+* It is not clear to me from the documentation what `null` values are acceptable in `summary()`. I see RD and RR. What else?
+
+> The largest difference is that clarify supports iterative building of more and more complex hypotheses through the transform() method, which quickly computes new quantities and transformation from the existing computed quantities, whereas marginaleffects only supports a single transformation 
+
+Or users can call `posterior_draws()` to manipulate the draws themselves, but this is admittedly less convenient.
+

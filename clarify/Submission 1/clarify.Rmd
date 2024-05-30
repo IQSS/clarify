@@ -2,7 +2,7 @@
 title: "`clarify`: Simulation-Based Inference for Regression Models"
 date: "`r Sys.Date()`"
 abstract: >
-  Simulation-based inference is an alternative to the delta method for computing the uncertainty around regression post-estimation (i.e., derived) quantities such as average marginal effects and adjusted predictions. It avoids several assumptions required by the delta method that are commonly violated, especially in nonlinear models, but does not require models to be refit as when using the bootstrap. It works by drawing model parameters from their joint distribution and estimating quantities of interest from each set of simulated values, which form the sampling distribution of the quantity. `clarify` provides a simple, unified interface for performing simulation-based inference for any user-specified derived quantities as well as wrappers for common quantities of interest. `clarify` supports a large and growing number of models through its interface with the `marginaleffects` package and provides native support for multiply imputed data.
+  Simulation-based inference is an alternative to the delta method for computing the uncertainty around regression post-estimation (i.e., derived) quantities such as average marginal effects and adjusted predictions. It avoids several assumptions required by the delta method that are commonly violated, especially in nonlinear models, but does not require models to be refit as when using the bootstrap. It works by drawing model parameters from their joint distribution and estimating quantities of interest from each set of simulated values, which form a simulated "posterior" distribution of the quantity. `clarify` provides a simple, unified interface for performing simulation-based inference for any user-specified derived quantities as well as wrappers for common quantities of interest. `clarify` supports a large and growing number of models through its interface with the `marginaleffects` package and provides native support for multiply imputed data.
 draft: true
 author:  
   - name: Noah Greifer
@@ -68,9 +68,9 @@ Although regression models are frequently used in empirical research to study re
 
 [^1]: In addition, most software that uses the delta method uses numerical differentiation, which also involves an approximation.
 
-\CRANpkg{clarify} implements an alternative to the delta method---simulation-based inference---which involves simulating the sampling distributions of the derived quantities. Simulation-based inference is not only often more accurate than using the delta method, it is also simpler to understand and implement, as it does not require understanding Taylor series or the calculus that underlies it. This makes it more palatable to nontechnical audiences and easier to learn for students without sacrificing statistical performance.
+\CRANpkg{clarify} implements an alternative to the delta method---simulation-based inference---which involves simulating a "posterior" distributions of the derived quantities. Simulation-based inference is not only often more accurate than using the delta method, it is also simpler to understand and implement, as it does not require understanding Taylor series or the calculus that underlies it. This makes it more palatable to nontechnical audiences and easier to learn for students without sacrificing statistical performance.
 
-The methodology \CRANpkg{clarify} relies on is described in @kingMakingMostStatistical2000 and @raineyCarefulConsiderationCLARIFY2023. Simulation-based inference involves taking draws from a specified joint distribution of model parameters, computing derived quantities from these draws, and collecting the derived quantities in a "posterior" distribution, which is taken to be the sampling distribution of the derived quantity, and from which uncertainty measures (standard errors and confidence intervals) can be computed. This method assumes the model parameters are drawn from a multivariate Normal (or T) distribution with means at the estimated values and covariance equal to the asymptotic covariance matrix of the estimated values, a standard assumption motivated by the central limit theorem that underlies usual inference on the original model parameters. Arriving at the posterior distribution does not require taking any derivatives or making any approximations beyond those usually used for inference on model parameter estimates. The delta method makes these same assumptions in addition to the approximations about the variance and the shape of the sampling distribution of the estimates of the derived quantities.
+The methodology \CRANpkg{clarify} relies on is described in @kingMakingMostStatistical2000 and @raineyCarefulConsiderationCLARIFY2023. Simulation-based inference involves taking draws from a specified joint distribution of model parameters, computing derived quantities from these draws, and collecting the derived quantities in a "posterior" distribution, from which uncertainty measures (standard errors and confidence intervals) can be computed. This method assumes the model parameters are drawn from a multivariate Normal (or T) distribution with means at the estimated values and covariance equal to the asymptotic covariance matrix of the estimated values, a standard assumption motivated by the central limit theorem that underlies usual inference on the original model parameters. Arriving at the posterior distribution does not require taking any derivatives or making any approximations beyond those usually used for inference on model parameter estimates, except for the approximation due to Monte-Carlo error induced by sampling from a finite number of simulations. The delta method makes these same assumptions in addition to the approximations about the variance and the shape of the sampling distribution of the estimates of the derived quantities.
 
 The nonparametric bootstrap is another alternative to the delta method for inference that does not require these approximations; it typically involves re-sampling individuals from the sample, fitting the model in each sample, and computing the quantity of interest from each model. Although bootstrapping tends to work well in practice, especially for complex and non-Normal estimators, refitting the model repeatedly can be prohibitively time-consuming and computationally expensive, especially for complicated models or large datasets. Simulation-based inference only requires the model to be fit once, and the simulations involve taking draws from a distribution produced from the single set of estimated parameters, making it much quicker in practice and allowing the user to capitalize on the already valid estimation of the model parameters.
 
@@ -107,6 +107,7 @@ For a running example, we will use the `lalonde` dataset in the \CRANpkg{MatchIt
 ```{r}
 data("lalonde", package = "MatchIt")
 
+# Create a binary outcome variable
 lalonde$re78_0 <- ifelse(lalonde$re78 > 0, 1, 0)
 
 head(lalonde)
@@ -179,7 +180,7 @@ sim_apply(sim = , FUN = , verbose = , cl = , ...)
 
 The `FUN` argument can be specified in one of two ways: either as a function that takes in a model fit object (e.g., a `glm` or `lm` object, the output of a call to `glm()` or `lm()`) or a function that takes in a vector of coefficients. The latter will always work but the former only works for supported models. When the function takes in a model fit object, `sim_apply()` will first insert each set of sampled coefficients into the model fit object and then supply the modified model to `FUN`.
 
-For example, we will let our derived quantity of interest be the predicted probability of the outcome for participant PSID1. We would specified our `FUN` function as follows:
+For example, we will let our derived quantity of interest be the predicted probability of the outcome for participant PSID1. We specify our `FUN` function as follows:
 
 ```{r}
 sim_fun1 <- function(fit) {
@@ -195,7 +196,7 @@ est1 <- sim_apply(s, FUN = sim_fun1, verbose = FALSE)
 est1
 ```
 
-The resulting `clarify_est` object contains the simulated estimates in matrix form as well as the estimate computed on the original coefficients. We will examine the sampling distribution shortly, but first we will demonstrate computing a derived quantity from the coefficients directly.
+The resulting `clarify_est` object contains the simulated estimates in matrix form as well as the estimate computed on the original coefficients. We will examine the posterior distribution shortly, but first we will demonstrate computing a derived quantity from the coefficients directly.
 
 The `race` variable is a factor, and the `black` category is used as the reference level, so it is not immediately clear whether there is a difference between the coefficients `racehispan` and `racewhite`, which represent the non-reference categories `hispan` and `white`. To compare these two directly, we can use `sim_apply()` to compute a derived quantity that corresponds to the difference between them.
 
@@ -288,11 +289,11 @@ plot(est2, reference = TRUE, ci = FALSE)
 summary(est2, method = "wald", null = 0)
 ```
 
-The uncertainty intervals and p-values in the `summary()` output are computed using the Normal approximation because we set `method = "wald"`, and the p-value for the test that our estimate is equal to 0 is returned because we set `null = 0`. Note that the Normal approximation should be used only when the simulated sampling distribution is both close to Normally distributed and centered around the estimate (i.e., when the mean of the simulated values [red vertical line] coincides with the estimate computed on the original coefficients [black vertical line]).
+The uncertainty intervals and p-values in the `summary()` output are computed using the Normal approximation because we set `method = "wald"`, and the p-value for the test that our estimate is equal to 0 is returned because we set `null = 0`. Note that the Normal approximation should be used only when the simulated posterior distribution is both close to Normal and centered around the estimate (i.e., when the mean of the simulated values [red vertical line] coincides with the estimate computed on the original coefficients [black vertical line]).
 
 ## `sim_apply()` Wrappers: `sim_setx()`, `sim_ame()`, `sim_adrf()`
 
-`sim_apply()` can be used to compute the simulated sampling distribution for an arbitrary derived quantity of interest, but there are some quantities that are common in applied research and may otherwise be somewhat challenging to program by hand, so \CRANpkg{clarify} provides shortcut functions to make computing these quantities simple. These functions include `sim_setx()`, `sim_ame()`, and `sim_adrf()`. Each of these can be used only when regression models compatible with \CRANpkg{clarify} are supplied to the original call to `sim()`.
+`sim_apply()` can be used to compute the simulated posterior distribution for an arbitrary derived quantity of interest, but there are some quantities that are common in applied research and may otherwise be somewhat challenging to program by hand, so \CRANpkg{clarify} provides shortcut functions to make computing these quantities simple. These functions include `sim_setx()`, `sim_ame()`, and `sim_adrf()`. Each of these can be used only when regression models compatible with \CRANpkg{clarify} are supplied to the original call to `sim()`.
 
 Like `sim_apply()`, each of these functions is named `sim_*()`, which signifies that they are to be used on an object produced by `sim()` (i.e., a `clarify_sim` object). (Multiple calls to these functions can be applied to the same `clarify_sim` object and combined; see the `cbind()` section below.) These functions are described below.
 

@@ -1,0 +1,143 @@
+---
+title: "Response to Reviewers"
+author:  
+  - name: Noah Greifer
+  - name: Steven Worthington
+  - name: Stefano Iacus
+  - name: Gary King
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+We are extremely grateful to the reviewers for providing feedback on our article, "`clarify`: Simulation-Based Inference for Regression Models". We are honored to have received positive feedback and have made efforts to incorporate their suggestions into the article, which we believe have strengthened it. We will respond to the reviewers' points in turn.
+
+## Reviewer 1
+
+> A bit of background on my perspective as a reviewer. As the paper notes, there is some “disagreement” in practice (and maybe in theory) about the relative value of the delta-method versus simulation-based inference. I fall into the delta-method camp. As such, I’m slightly skeptical of the method the paper proposes. That said, I don’t have a huge problem with the approach that the authors propose—I would never suggest that a researcher should switch from {clarify} to {marginaleffects}, for example. That said, I’m going to make an argument for publication, and that argument is from the perspective of a skeptic. Others might make stronger arguments for publication.
+
+We appreciate the reviewer's candidness and support for our article despite their reservations.
+
+> ### Strengths
+>
+> First, the paper is extremely clear about both the software and the method. I sometimes find modern software frustrating because it’s not always clear what the software is doing. I assume that it’s doing good things, but I’m not always sure what it’s doing. That is not the case with this paper. The authors describe the software interface clearly, but also the method that the software is implementing.
+
+We appreciate the reviewer's kind words about our article.
+
+> Second, this package is important for historical reasons. CLARIFY was (is?) an immensely popular Stata package among political scientists. {Zelig} never took off, but was widely known among political scientists. In my opinion, {clarify} is an excellent, smart replacement for {Zelig}. This paper is worth publishing because of the historical importance of CLARIFY and Zelig among political scientists. Will {clarify} be as popular as {marginaleffects}? I don’t think so. Will it help political scientists trained in and around 2003 to 2018? Absolutely. King, Tomz, and Wittenberg (2000) is one of the most cited political science papers ever, so it would be a real shame to not have a well-documented R package to implement those ideas. (I’m not sure how popular this method was/is outside political science; perhaps it’s also important in some adjacent social sciences.)
+
+We thank the reviewer for acknowledging this. Indeed, the development of `clarify` was motivated by `Zelig`'s removal from CRAN and decreased support. We are aware of its historical impact and hope that `clarify` will not only allow users to continue to access some of `Zelig`'s most useful features, but also make those features easier to use without compromising the ability to maintain the package. We recognize that much of `Zelig`'s influence has been within the field of political science, but we hope that `clarify` can be a seen as a general-purpose package for researchers in any discipline. In our extended literature review, we found an independent literature in psychological methods that uses simulation-based inference for derived quantities in mediation analysis.
+
+> This two points seem uncontroversial and should weigh heavily in favor of publication.
+
+> ### A (Minor) Weakness
+>
+> I would gently push back on a few stronger claims in the paper regarding the performance of the simulation-based intervals over the delta intervals. Here are a few examples:
+>
+> 1.  “often more accurate than using the delta method” (p. 1)
+> 2.  “Given its non-Normality, the quantile-based bounds are clearly more appropriate than those resulting from the Normal approximation, as the bounds computed from the Normal approximation would be outside the bounds of the estimate.” (p. 6)
+> 3.  “Inverting the uncertainty interval involves finding the smallest confidence level such that the null value is within the confidence bounds. The p-value for the test is one minus this level.” (p. 6)
+> 4.  “including plots to assess the normality of the distributions of simulated values (important for assessing whether Wald-type confidence intervals and p-values are valid)” (p. 16)
+>
+> I think the authors would agree with this summary of their position: When the simulations of the quantity of interest is not normal, then simulation-based inference should be preferred.”
+>
+> It isn’t clear to me why this summary would be true.
+>
+> For example, if I knew the sampling distribution was skewed to the right, then I would want a CI with a longer arm to the left and a shorter arm to the right, else the CI will misses won’t be symmetric (e.g., 2.5% low, 2.5% high). To make this concrete, suppose you get a point estimate at the 97.5th percentile of a right-skewed sampling distribution. Then you have to go really far back to the left to capture the truth. If you get a point estimate at the 2.5th percentile of this same sampling distribution, then you only need to go a little bit to the right to capture the truth. Thus, the CI with the nominal behavior would seem to require a short arm to the right and a long arm to the left. Simulation-based inference does the opposite of this. It’s my intuition that equal-armed CIs would work better than CIs with a long and short arm on the “wrong” side. This is merely my intuition.
+>
+> The quote from p. 1 is stated as a matter of fact, but it’s not clear what the authors mean by “more accurate” or what conception of “accurate” would make this statement true. Similarly for “valid” on p. 16.
+>
+> The most natural reading of “more accurate” seems to be “closer to nominal coverage” (e.g., 95% capture rate). The authors suggest that the delta method will not approximately achieve this coverage when the sampling distribution is far from symmetric. This seems non-controversial. But it seems to me (based on intuition/theory and simulations) that the simulation-based intervals will also behave poorly in these same scenarios (with this poor behavior translating to the p-values). Claims 1, 2, and 4 above seem to assume that simulation-based inference will meaningfully improve on the delta method when the sampling distribution is non-normal, but I can’t quite see why that should be (see discussion above). Claim 3 depends on claims 1, 2, and 4.
+>
+> If they are able, I suggest that the authors (1) clarify their usage of “accurate” and “valid” and (2) support these points with references and or brief justifications. It’s certainly beyond the scope of the paper to fully justify these claims, but given the matter-of-factness with which the authors make these claims, perhaps stating the claims more clearly or justifying them briefly would be helpful to readers.
+>
+> I should emphasize, though, that this is “small beans”—mostly theoretical navel gazing—because asymptotic results apply and simulation-based inference is easy to use and historically important and popular.
+
+We thank the reviewer for this insightful point and nice example of how quantile-based intervals could be misleading in exactly the scenario we have recommended them. We are reminded of the difference between "basic" and "percentile" confidence intervals in the context of bootstrapping, where the "basic" interval seems to address the difficulties with skewness demonstrated by your example. While a similar idea could be implemented here, we prefer to wait until more research as been done before implementing and recommending it.
+
+On the other hand, percentile confidence intervals for bootstrapping have an invariance property even for skewed distributions: as long as some transformation of the estimate would have a distribution symmetric about the transformed estimate, the untransformed percentile intervals will have the correct coverage. For this to be true, the median of the distribution of estimates should overlap with the point estimate. This property would be expected to apply for simulated quantile intervals, too, and we have implemented this as an additional diagnostic in the `plot()` method. We now mention this advantage in the paper; this also ties into the issue of back-transforming brought up by the other reviewer.
+
+We have soften the language used throughout the paper, being sure to avoid unsupported claims about statistical performance, especially in comparison to the delta method. We performed a more extensive literature search and found several papers that empirically compared simulation-based intervals and the delta method. While in some cases performance (i.e., with respect to coverage) was similar, there were some specific cases, primarily in the context of mediation analysis, in which the quantile confidence intervals had slightly better coverage than the delta method-based Wald intervals. We have attempted to reframe simulation-based inference as an alternative to the delta method rather than a replacement, acknowledging that little empirical research has been done comparing the approaches for general statistical analysis.
+
+## Reviewer 2
+
+> Thank you for giving me the opportunity to review this interesting paper.
+>
+> I like the paper a lot. It is clear and well-written.
+>
+> The software is of high quality. I have tried it, read the documentation, and skimmed its code base. The authors follow modern best practices for development, including many unit tests, thorough documentation, and a nice website with a useful vignette and a migration guide for users of the older `Zelig` package. Well done!
+
+We thank the reviewer for taking the time to review it and for their kind words about the paper and package.
+
+> ### Motivation
+>
+> The motivation for simulation-based inference could be improved. For example, on page 1 the authors state that:
+>
+> > Simulation-based inference is not only often more accurate than using the delta method, it is also simpler to understand and implement, as it does not require understanding Taylor series or the calculus that underlies it. This makes it more palatable to nontechnical audiences and easier to learn for students without sacrificing statistical performance.
+>
+> This is a red herring. Easy to use software implements the delta method by default, and nontechnical audiences and students essentially never have to implement the delta method themselves.
+
+We have clarified this in the paper, focusing on ease of understanding the method rather than ease of implementation, which we acknowledge has been greatly simplified since King et al. (2000) due to the development of modern packages including `marginaleffects`.
+
+> Also, what does "accurate" mean, exactly? What does "often" mean? Under what conditions, exactly? This is a paper about software, so I don't expect a full theoretical investigation. But there should be at least be a little bit more discussion and breadcrumbs for users to follow. Are there good theoretical or simulation studies on the properties of this strategy, identifying when it works better or worse? Currently, the reader might leave the paper with the impression that simulation-based inference strictly dominates the delta method and bootstrapping in all cases, except along the computational cost dimension. Is that really true? I'll freely admit that I'm a bit skeptical, but I would love to see some references to authors who probe this question. I'm sure other readers would find this useful too in deciding whether they should use `clarify`.
+>
+> The flip side of this question is: If simulation-based inference is easier and more accurate, why isn't everyone using it already? What's the market failure?
+
+Thank you for this comment. We have attempted to soften the language used and provide citations for studies that have compared the performance of the delta method and simulation-based inference. Unfortunately, there are few studies comparing the two for general inference of common quantities like average adjusted predictions or average marginal effects, but for the few quantities that have been studied, simulation-based inference has competitive performance. In general, by "accurate" and "valid" we mean achieving close to nominal coverage rates.
+
+We highlight scenarios in which each of the three methods by be expected to perform better than the others, when they might fail, and when they might be expected to agree. However, there has been insufficient research done to make strong affirmative claims recommending any approach over the others universally, and we attempt to avoid making such claims.
+
+Although simulation-based inference may be less common nowadays, it is worth noting that King et al. (2000), which introduced to method to political scientists, is among the most highly cited political methodology articles as noted by the other reviewer, and the software packages that implement its method, `Zelig` and `CLARIFY` for Stata, have been widely used. Modern tools that implement the delta method like `marginaleffects` and `margins` in Stata are certainly the standard nowadays, but we argue there has not been a general-purpose simulation-based inference package in R, which may have reduced its uptake. Additionally, researchers may be resistant to use a less-studied method, especially one that is computationally intensive and yields results that depend on a seed; we are sympathetic to these concerns but believe simulation-based inference should at least be available in an easy-to-use package, even if it is currently less commonly used than other methods.
+
+> ### Approximations in simulation-based inference
+>
+> The authors write:
+>
+> > Arriving at the posterior distribution does not require taking any derivatives or making any approximations beyond those usually used for inference on model parameter estimates.
+>
+> This may seem trivial, taking M random draws will lead to a different result than drawing a different M' set of coefficients. Clearly, there's a simulation-related approximation going on. This should be acknowledged early in the intro. The authors should revise the text to avoid saying that simulation-based inference requires no approximation.
+
+We have noted the approximation due to Monte Carlo error and highlight that many replications may be required for results to stabilize. We highlight that this is a disadvantage for simulation-based inference relative to the delta method.
+
+> ### Assumption or approximation?
+>
+> The abstract and introduction sell simulation-based inference as a way to relax "assumptions" of the delta method, but then goes on to talk about "approximations" that may fail:
+>
+> > The usual method for estimating the uncertainty of the derived quantities is known as the “delta method”, which involves two approximations: 1) that the variance of the derived quantity can be represented as a first-order Taylor series, and 2) that the estimate of the derived quantity is normally distributed.
+>
+> The classic textbook treatment of the delta method talks about two assumptions: continuity, and normality of the $\hat{\theta}$ --- not of derived quantities $h(\hat{\theta})$. Do the authors see a distinction between a violation of delta method assumptions and a "failure" of approximations in finite samples? If so, this should be cleared up in the abstract and intro to avoid confusion.
+
+Normailty of $h(\hat\theta)$ is required for valid use of Normal quantile for Wald-based inference of the derived quantity. Of course both simulation-based inference and the delta method require joint Normality of $\hat\theta$. We have attempted to clarify this and soften the language around assumptions and their violation. We also cite a few studies that have compared their performance for derived quantities that explicitly do not have a Normal distribution.
+
+> ### Backtransformation
+>
+> Quotes like these two feel misleading: because standard practice in such GLM models it to build confidence intervals by backtransformation, rather than by naively constructing symmetric intervals:
+>
+> > For example, predicted probabilities close to 0 or 1 or ratios of coefficients or probabilities typically do not have normal (or even symmetrical) distributions in finite samples, and the usual Wald-type confidence interval limits produced from delta method standard errors can include values outside the domain of the quantity of interest.
+>
+> > One can see again how a delta method or Normal approximation may not have yielded valid uncertainty intervals given the non-Normality of the distributions.
+>
+> Most of the alternative packages in `R` will automatically use backtransformation to build confidence intervals that do not stretch outside reasonable bounds. Of course, this is not possible or easy for all model types. But if they authors want to make a big deal out of that critique --- open with it on page 1 and reiterate it in the text --- they should probably show an example where this is a real problem
+
+Thank you for this comment. We have attempted to clarify this and include a footnote acknowledging this. A benefit of simulation-based inference is that as long as there exists a transformation that yields a symmetric distribution, one does not need to know what that transformation is in order for the quantile-based interval to be valid; this has been described for quantile intervals for the bootstrap, which we now reference in the paper. To keep the paper focused on the software, we have chosen not to delve too deeply into a thorough empirical comparison between the methods to highlight when either might fail.
+
+> ### Minor notes
+>
+> -   Why are all functions prefixed with `sim_`? I would argue that these prefixes are extraneous, and that this is what the namespace is for.
+> -   Can `plot()` draw on more dimensions if more variables are included in `sim_setx()`?
+> -   It is not clear to me from the documentation what `null` values are acceptable in `summary()`. I see RD and RR. What else?
+>
+> > The largest difference is that clarify supports iterative building of more and more complex hypotheses through the transform() method, which quickly computes new quantities and transformation from the existing computed quantities, whereas marginaleffects only supports a single transformation
+>
+> Or users can call `posterior_draws()` to manipulate the draws themselves, but this is admittedly less convenient.
+
+We prefixed functions with `sim_` to highlight that these are specifically to be used after running `sim()`. Although the namespace and class checking accomplishes this as well, removing the `sim_` prefix would leave functions like `apply()`, `adrf()`, and `ame()`, suggetsing these functions are general-purpose functions for computing the relevant quantity, whereas they are specifically to be used in the context of simulation-based inference with `clarify`. This also avoid namespace clashes with other packagest hat might implement more general-purpose functions.
+
+Yes, `plot()` can include other variable combinations as colors or facets when used with `sim_setx()`. In practice, varying too many variables will create cluttered plots, so we highlight simpler plots in the paper as example use cases.
+
+The user can supply any value to `null` depending on the hypothesis they want to test, if any. Often, researchers are interested in tests of no effect, which needs to be defined differently for the contrast being used. For example, to test a hypothesis that two probabilities are equal, one can test whether their difference is 0, their ratio is 1, or their odds ratio is 1, etc. We do not specify which values the null should take to allow users to supply their own hypothesis. In some cases, hypothesis testing may not be of interest at all (e.g., for model predictions), so `null` can be omitted.
+
+Although it is certainly possible to perform similar manipulations from the `marginaleffects` output, we would argue that because the focus of `clarify` is solely on simulation-based inference, its interface is more user-friendly for this analysis. `posterior_draws()` output needs to be reshaped and is better designed for expert users than casual users of the package, whereas `transform()` uses an existing base R function with a simple interface that yields an objects with the same properties as the object the user started with. We would like to think `transform()` is one of the biggest contributions of this package, as it supports iterative construction of more and more complicated quantities of interest without any increase in computational time.
+
+------------------------------------------------------------------------
+
+We thank both reviewers for their insightful comments and support for the paper and package. We hope to have improved the paper through their comments while maintain our position that `clarify` implements useful methodology for applied researchers, and therefore would benefit the R community.
