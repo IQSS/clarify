@@ -8,4 +8,5 @@
 ^\.github$
 ^\_dev$
 ^CRAN-SUBMISSION$
-^clarify
+^clarify$
+^tests/testthat/fixtures/mimira\.rds$

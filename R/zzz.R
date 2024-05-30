@@ -1,2 +1,2 @@
 ###pkg load stuff
-utils::globalVariables(c("M1", "M2"))
+utils::globalVariables(c(".b1", ".b2"))

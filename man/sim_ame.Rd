@@ -24,19 +24,41 @@ sim_ame(
 \item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or
 \code{\link[=misim]{misim()}}.}
 
-\item{var}{either the name of a variable for which marginal effects are to be computed or a named list of length one containing the values the variable should take. If a list is supplied or the named variables is categorical (factor, character, or having two values), categorical calculations will be triggered. Otherwise, continuous calculations will be triggered. See Details.}
+\item{var}{either the names of the variables for which marginal effects are
+to be computed or a named list containing the values the variables should
+take. See Details.}
 
-\item{subset}{optional; a vector used to subset the data used to compute the marginal effects. This will be evaluated within the original dataset used to fit the model using \code{\link[=subset]{subset()}}, so nonstandard evaluation is allowed.}
+\item{subset}{optional; a vector used to subset the data used to compute the
+marginal effects. This will be evaluated within the original dataset used
+to fit the model using \code{\link[=subset]{subset()}}, so nonstandard evaluation is allowed.}
 
-\item{by}{a one-sided formula or character vector containing the names of variables for which to stratify the estimates. Each quantity will be computed within each level of the complete cross of the variables specified in \code{by}.}
+\item{by}{a one-sided formula or character vector containing the names of
+variables for which to stratify the estimates. Each quantity will be
+computed within each level of the complete cross of the variables specified
+in \code{by}.}
 
-\item{contrast}{a string containing the name of a contrast between the average marginal means when the variable named in \code{var} is categorical and takes on two values. Allowed options include \code{"diff"} for the difference in means (also \code{"rd"}), \code{"rr"} for the risk ratio (also \code{"irr"}), \verb{"log(rr):} for the log risk ratio (also \code{"log(irr)"}), \code{"sr"} for the survival ratio, \verb{"log(sr):} for the log survival ratio, \code{"srr"} for the switch relative risk (also \code{"grrr"}), \code{"or"} for the odds ratio, \code{"log(or)"} for the log odds ratio, and \code{"nnt"} for the number needed to treat. These options are not case sensitive, but the parentheses must be included if present.}
+\item{contrast}{a string containing the name of a contrast between the
+average marginal means when the variable named in \code{var} is categorical and
+takes on two values. Allowed options include \code{"diff"} for the difference in
+means (also \code{"rd"}), \code{"rr"} for the risk ratio (also \code{"irr"}), \verb{"log(rr):}
+for the log risk ratio (also \code{"log(irr)"}), \code{"sr"} for the survival ratio,
+\verb{"log(sr):} for the log survival ratio, \code{"srr"} for the switch relative
+risk (also \code{"grrr"}), \code{"or"} for the odds ratio, \code{"log(or)"} for the log
+odds ratio, and \code{"nnt"} for the number needed to treat. These options are
+not case sensitive, but the parentheses must be included if present.}
 
-\item{outcome}{a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.}
+\item{outcome}{a string containing the name of the outcome or outcome level
+for multivariate (multiple outcomes) or multi-category outcomes. Ignored
+for univariate (single outcome) and binary outcomes.}
 
-\item{type}{a string containing the type of predicted values (e.g., the link or the response). Passed to \code{\link[marginaleffects:get_predict]{marginaleffects::get_predict()}} and eventually to \code{predict()} in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).}
+\item{type}{a string containing the type of predicted values (e.g., the link
+or the response). Passed to \code{\link[marginaleffects:get_predict]{marginaleffects::get_predict()}} and eventually
+to \code{predict()} in most cases. The default and allowable option depend on
+the type of model supplied, but almost always corresponds to the response
+scale (e.g., predicted probabilities for binomial models).}
 
-\item{eps}{when the variable named in \code{var} is continuous, the value by which to change the variable values to approximate the derivative. See Details.}
+\item{eps}{when the variable named in \code{var} is continuous, the value by which
+to change the variable values to approximate the derivative. See Details.}
 
 \item{verbose}{\code{logical}; whether to display a text progress bar indicating
 progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
@@ -55,41 +77,77 @@ details. If \code{NULL}, no parallelization will take place.}
 \item{...}{optional arguments passed to \code{FUN}.}
 }
 \value{
-A \code{clarify_ame} object, which inherits from \code{clarify_est} and is similar to
-the output of \code{sim_apply()}, with the additional attributes \code{"var"} containing
-the variable named in \code{var} and \code{"by"} containing the names of the variables specified in \code{by} (if any). The average adjusted predictions will be named
-\code{E[Y({v})]}, where \code{{v}} is replaced with the values the focal variable
-(\code{var}) takes on. The average marginal effect for a continuous \code{var} will be
-named \code{E[dY/d({x})]} where \code{{x}} is replaced with \code{var}. When \code{by} is specified, the average adjusted predictions will be named \code{E[Y({v})|{b}]} and the average marginel effect \code{E[dY/d({x})|{b}]} where \code{{b}} is a comma-separated list of of values of the \code{by} variables at which the quantity is computed. See examples.
+A \code{clarify_ame} object, which inherits from \code{clarify_est} and is
+similar to the output of \code{sim_apply()}, with the additional attributes
+\code{"var"} containing the variable values specified in \code{var} and \code{"by"} containing the
+names of the variables specified in \code{by} (if any). The average adjusted
+predictions will be named \code{E[Y({v})]}, where \code{{v}} is replaced with the
+values the variables named in \code{var} take on. The average marginal effect for a
+continuous \code{var} will be named \code{E[dY/d({x})]} where \code{{x}} is replaced with
+\code{var}. When \code{by} is specified, the average adjusted predictions will be named
+\code{E[Y({v})|{b}]} and the average marginal effect \code{E[dY/d({x})|{b}]} where
+\code{{b}} is a comma-separated list of of values of the \code{by} variables at which
+the quantity is computed. See examples.
 }
 \description{
-\code{sim_ame()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes average marginal effects, the average effect of changing a single variable from one value to another (i.e., from one category to another for categorical variables or a tiny change for continuous variables).
+\code{sim_ame()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes average
+marginal effects, the average effect of changing a single variable from one
+value to another (i.e., from one category to another for categorical
+variables or a tiny change for continuous variables).
 }
 \details{
-\code{sim_ame()} operates differently depending on whether continuous or categorical calculations are triggered. To trigger categorical calculations, \code{var} should be a string naming a factor, character, or binary variable or a named list with specific values given (e.g., \code{var = list(x1 = c(1, 2 ,3))}). Otherwise, continuous calculations are triggered.
+\code{sim_ame()} computes average adjusted predictions or average marginal effects depending on which variables are named in \code{var} and how they are specified. Canonically, \code{var} should be specified as a named list with the value(s) each variable should be set to. For example, specifying \code{var = list(x1 = 0:1)} computes average adjusted predictions setting \code{x1} to 0 and 1. Specifying a variable's values as \code{NULL}, e.g., \code{list(x1 = NULL)}, is equivalent to requesting average adjusted predictions at each unique value of the variable when that variable is binary or a factor or character and requests the average marginal effect of that variable otherwise. Specifying an unnamed entry in the list with a string containing the value of that variable, e.g., \code{list("x1")} is equivalent to specifying \code{list(x1 = NULL)}. Similarly, supplying a vector with the names of the variables is equivalent to specifying a list, e.g., \code{var = "x1"} is equivalent to \code{var = list(x1 = NULL)}.
 
-Categorical calculations involve computing average marginal means at each level of \code{var}. The average marginal mean is the average predicted outcome value after setting all units' value of \code{var} to one level. (This quantity has several names, including the average potential outcome, average adjusted prediction, and standardized mean). When \code{var} only takes on two levels (or it is supplied as a list and only two values are specified), a contrast between the average marginal means can be computed by supplying an argument to \code{contrast}. Contrasts can be manually computed using \code{\link[=transform]{transform()}} afterward as well.
+Multiple variables can be supplied to \code{var} at the same time to set the corresponding variables to those values. If all values are specified directly or the variables are categorical, e.g., \code{list(x1 = 0:1, x2 = c(5, 10))}, this computes average adjusted predictions at each combination of the supplied variables. If any one variable's values is specified as \code{NULL} and the variable is continuous, the average marginal effect of that variable will be computed with the other variables set to their corresponding combinations. For example, if \code{x2} is a continuous variable, specifying \code{var = list(x1 = 0:1, x2 = NULL)} requests the average marginal effect of \code{x2} computed first setting \code{x1} to 0 and then setting \code{x1} to 1. The average marginal effect can only be computed for one variable at a time.
 
-Continuous calculations involve computing the average of marginal effects of \code{var} across units. A marginal effect is the instantaneous rate of change corresponding to changing a unit's observed value of \code{var} by a tiny amount and considering to what degree the predicted outcome changes. The ratio of the change in the predicted outcome to the change in the value of \code{var} is the marginal effect; these are averaged across the sample to arrive at an average marginal effect. The "tiny amount" used is \code{eps} times the standard deviation of the focal variable.
+Below are some examples of specifications and what they request, assuming \code{x1} is a binary variable taking on values of 0 and 1 and \code{x2} is a continuous variable:
+\itemize{
+\item \code{list(x1 = 0:1)}, \code{list(x1 = NULL)}, \code{list("x1")}, \code{"x1"} -- the average adjusted predictions setting \code{x1} to 0 and to 1
+\item \code{list(x2 = NULL)}, \code{list("x2")}, \code{"x2"} -- the average marginal effect of \code{x2}
+\item \code{list(x2 = c(5, 10))} -- the average adjusted predictions setting \code{x2} to 5 and to 10
+\item \code{list(x1 = 0:1, x2 = c(5, 10))}, \code{list("x1", x2 = c(5, 10))} -- the average adjusted predictions setting \code{x1} and \code{x2} in a full cross of 0, 1 and 5, 10, respectively (e.g., (0, 5), (0, 10), (1, 5), and (1, 10))
+\item \code{list(x1 = 0:1, "x2")}, \code{list("x1", "x2")}, \code{c("x1", "x2")} -- the average marginal effects of \code{x2} setting \code{x1} to 0 and to 1
+}
 
-If unit-level weights are included in the model fit (and discoverable using \code{\link[insight:get_weights]{insight::get_weights()}}), all means will be computed as weighted means.
+The average adjusted prediction is the average predicted outcome
+value after setting all units' value of a variable to a specified level. (This quantity
+has several names, including the average potential outcome, average marginal mean, and standardized mean). When exactly two average adjusted predictions are requested, a contrast
+between them can be requested by supplying an argument
+to \code{contrast} (see Effect Measures section below). Contrasts can be manually computed using \code{\link[=transform]{transform()}}
+afterward as well; this is required when multiple average adjusted predictions are requested (i.e., because a single variable was supplied to \code{var} with more than two levels or a combination of multiple variables was supplied).
+
+A marginal effect is the instantaneous rate of change
+corresponding to changing a unit's observed value of a variable by a tiny amount
+and considering to what degree the predicted outcome changes. The ratio of
+the change in the predicted outcome to the change in the value of the variable is
+the marginal effect; these are averaged across the sample to arrive at an
+average marginal effect. The "tiny amount" used is \code{eps} times the standard
+deviation of the focal variable.
+
+The difference between using \code{by} or \code{subset} vs. \code{var} is that \code{by} and \code{subset} subset the data when computing the requested quantity, whereas \code{var} sets the corresponding variable to given a value for all units. For example, using \code{by = ~v} computes the quantity of interest separately for each subset of the data defined by \code{v}, whereas setting \code{var = list(., "v")} computes the quantity of interest for all units setting their value of \code{v} to its unique values. The resulting quantities have different interpretations. Both \code{by} and \code{var} can be used simultaneously.
 \subsection{Effect measures}{
 
-The effect measures specified in \code{contrast} are defined below. Typically only \code{"diff"} is appropriate for continuous outcomes and \code{"diff"} or \code{"irr"} are appropriate for count outcomes; the rest are appropriate for binary outcomes. For a focal variable with two levels, \code{0} and \code{1}, and an outcome \code{Y}, the average marginal means will be denoted in the below formulas as \code{E[Y(0)]} and \code{E[Y(1)]}, respectively.\tabular{ll}{
-   \code{contrast} \tab Formula \cr
-   \code{"diff"} \tab \code{E[Y(1)] - E[Y(0)]} \cr
-   \code{"rr"} \tab \code{E[Y(1)] / E[Y(0)]} \cr
-   \code{"sr"} \tab \code{(1 - E[Y(1)]) / (1 - E[Y(0)])} \cr
-   \code{"srr"} \tab \code{1 - sr} if  \code{E[Y(1)] > E[Y(0)]} \cr
-    \tab \code{rr - 1} if \code{E[Y(1)] < E[Y(0)]} \cr
-    \tab \code{0} otherwise \cr
-   \code{"or"} \tab \code{O[Y(1)] / O[Y(0)]} \cr
-    \tab where \code{O[Y(.)]} = \code{E[Y(.)] / (1 - E[Y(.)])} \cr
-   \code{"nnt"} \tab \code{1 / (E[Y(1)] - E[Y(0)])} \cr
+The effect measures specified in \code{contrast} are defined below. Typically only
+\code{"diff"} is appropriate for continuous outcomes and \code{"diff"} or \code{"irr"} are
+appropriate for count outcomes; the rest are appropriate for binary outcomes.
+For a focal variable with two levels, \code{0} and \code{1}, and an outcome \code{Y}, the
+average marginal means will be denoted in the below formulas as \code{E[Y(0)]} and
+\code{E[Y(1)]}, respectively.\tabular{lll}{
+   \code{contrast} \tab \strong{Description} \tab \strong{Formula} \cr
+   \code{"diff"}/\code{"rd"} \tab Mean/risk difference \tab \code{E[Y(1)] - E[Y(0)]} \cr
+   \code{"rr"}/\code{"irr"} \tab Risk ratio/incidence rate ratio \tab \code{E[Y(1)] / E[Y(0)]} \cr
+   \code{"sr"} \tab Survival ratio \tab \code{(1 - E[Y(1)]) / (1 - E[Y(0)])} \cr
+   \code{"srr"}/\code{"grrr"} \tab Switch risk ratio \tab \code{1 - sr} if \code{E[Y(1)] > E[Y(0)]} \cr
+    \tab  \tab \code{rr - 1} if \code{E[Y(1)] < E[Y(0)]} \cr
+    \tab  \tab \code{0} otherwise \cr
+   \code{"or"} \tab Odds ratio \tab \code{O[Y(1)] / O[Y(0)]} \cr
+    \tab  \tab where \code{O[Y(.)]} = \code{E[Y(.)] / (1 - E[Y(.)])} \cr
+   \code{"nnt"} \tab Number needed to treat \tab \code{1 / rd} \cr
 }
 
 
-The \code{log(.)} versions are defined by taking the \code{\link[=log]{log()}} (natural log) of the corresponding effect measure.
+The \code{log(.)} versions are defined by taking the \code{\link[=log]{log()}} (natural log) of the
+corresponding effect measure.
 }
 }
 \examples{
@@ -140,7 +198,7 @@ est <- sim_ame(s, var = "treat", by = ~married,
 est
 summary(est)
 
-# Average marginal effect of `re74` within levels of
+# Average marginal effect of `age` within levels of
 # married*race
 est <- sim_ame(s, var = "age", by = ~married + race,
                verbose = FALSE)
@@ -153,6 +211,15 @@ est_diff <- est[4:6] - est[1:3]
 names(est_diff) <- paste0("AME_diff|", levels(lalonde$race))
 summary(est_diff)
 
+# Average adjusted predictions at a combination of `treat`
+# and `married`
+est <- sim_ame(s, var = c("treat", "married"),
+               verbose = FALSE)
+est
+
+# Average marginal effect of `age` setting `married` to 1
+est <- sim_ame(s, var = list("age", married = 1),
+               verbose = FALSE)
 }
 \seealso{
 \code{\link[=sim_apply]{sim_apply()}}, which provides a general interface to computing any
@@ -160,5 +227,5 @@ quantities for simulation-based inference; \code{\link[=plot.clarify_est]{plot.c
 output of a call to \code{sim_ame()}; \code{\link[=summary.clarify_est]{summary.clarify_est()}} for computing
 p-values and confidence intervals for the estimated quantities.
 
-\code{marginaleffects::marginaleffects()}, \code{marginaleffects::comparisons()}, and \code{margins::margins()} for delta method-based implementations of computing average marginal effects.
+\code{\link[marginaleffects:predictions]{marginaleffects::avg_predictions()}}, \code{\link[marginaleffects:comparisons]{marginaleffects::avg_comparisons()}} and \code{\link[marginaleffects:slopes]{marginaleffects::avg_slopes()}} for delta method-based implementations of computing average marginal effects.
 }

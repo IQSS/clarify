@@ -1,0 +1,58 @@
+A bit of background on my perspective as a reviewer. As the paper notes, there is some “disagreement” in practice (and maybe in theory) about the relative value of the delta-method versus simulation-based inference. I fall into the delta-method camp. As such, I’m slightly skeptical of the method the paper proposes. That said, I don’t have a huge problem with the approach that the authors propose—I would never suggest that a researcher should switch from {clarify} to {marginaleffects}, for example. That said, I’m going to make an argument for publication, and that argument is from the perspective of a skeptic. Others might make stronger arguments for publication.
+
+
+
+# Strengths
+
+
+
+First, the paper is extremely clear about both the software and the method. I sometimes find modern software frustrating because it’s not always clear what the software is doing. I assume that it’s doing good things, but I’m not always sure what it’s doing. That is not the case with this paper. The authors describe the software interface clearly, but also the method that the software is implementing.
+
+
+
+Second, this package is important for historical reasons. CLARIFY was (is?) an immensely popular Stata package among political scientists. {Zelig} never took off, but was widely known among political scientists. In my opinion, {clarify} is an excellent, smart replacement for {Zelig}. This paper is worth publishing because of the historical importance of CLARIFY and Zelig among political scientists. Will {clarify} be as popular as {marginaleffects}? I don’t think so. Will it help political scientists trained in and around 2003 to 2018? Absolutely. King, Tomz, and Wittenberg (2000) is one of the most cited political science papers ever, so it would be a real shame to not have a well-documented R package to implement those ideas. (I’m not sure how popular this method was/is outside political science; perhaps it’s also important in some adjacent social sciences.)
+
+
+
+This two points seem uncontroversial and should weigh heavily in favor of publication.
+
+
+
+# A (Minor) Weakness
+
+
+
+I would gently push back on a few stronger claims in the paper regarding the performance of the simulation-based intervals over the delta intervals. Here are a few examples:
+
+ 1. “often more accurate than using the delta method” (p. 1)
+ 2. “Given its non-Normality, the quantile-based bounds are clearly more appropriate than those resulting from the Normal approximation, as the bounds computed from the Normal approximation would be outside the bounds of the estimate.” (p. 6)
+ 3. “Inverting the uncertainty interval involves finding the smallest confidence level such that the null value is within the confidence bounds. The p-value for the test is one minus this level.” (p. 6)
+ 4. “including plots to assess the normality of the distributions of simulated values (important for assessing whether Wald-type confidence intervals and p-values are valid)” (p. 16)
+
+
+I think the authors would agree with this summary of their position: When the simulations of the quantity of interest is not normal, then simulation-based inference should be preferred.” 
+
+
+
+It isn’t clear to me why this summary would be true. 
+
+
+
+For example, if I knew the sampling distribution was skewed to the right, then I would want a CI with a longer arm to the left and a shorter arm to the right, else the CI will misses won’t be symmetric (e.g., 2.5% low, 2.5% high). To make this concrete, suppose you get a point estimate at the 97.5th percentile of a right-skewed sampling distribution. Then you have to go really far back to the left to capture the truth. If you get a point estimate at the 2.5th percentile of this same sampling distribution, then you only need to go a little bit to the right to capture the truth. Thus, the CI with the nominal behavior would seem to require a short arm to the right and a long arm to the left. Simulation-based inference does the opposite of this. It’s my intuition that equal-armed CIs would work better than CIs with a long and short arm on the “wrong” side. This is merely my intuition.
+
+
+
+The quote from p. 1 is stated as a matter of fact, but it’s not clear what the authors mean by “more accurate” or what conception of “accurate” would make this statement true. Similarly for “valid” on p. 16.
+
+
+
+The most natural reading of “more accurate” seems to be “closer to nominal coverage” (e.g., 95% capture rate). The authors suggest that the delta method will not approximately achieve this coverage when the sampling distribution is far from symmetric. This seems non-controversial. But it seems to me (based on intuition/theory and simulations) that the simulation-based intervals will also behave poorly in these same scenarios (with this poor behavior translating to the p-values). Claims 1, 2, and 4 above seem to assume that simulation-based inference will meaningfully improve on the delta method when the sampling distribution is non-normal, but I can’t quite see why that should be (see discussion above). Claim 3 depends on claims 1, 2, and 4. 
+
+
+
+If they are able, I suggest that the authors (1) clarify their usage of “accurate” and “valid” and (2) support these points with references and or brief justifications. It’s certainly beyond the scope of the paper to fully justify these claims, but given the matter-of-factness with which the authors make these claims, perhaps stating the claims more clearly or justifying them briefly would be helpful to readers. 
+
+
+
+I should emphasize, though, that this is “small beans”—mostly theoretical navel gazing—because asymptotic results apply and simulation-based inference is easy to use and historically important and popular.
+

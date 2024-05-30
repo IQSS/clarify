@@ -1,5 +1,5 @@
 % !TeX root = RJwrapper.tex
-\title{clarify: Simulation-Based Inference for Regression Models}
+\title{\texttt{clarify}: Simulation-Based Inference for Regression Models}
 
 
 \author{by Noah Greifer, Steven Worthington, Stefano Iacus, and Gary King}
@@ -7,28 +7,32 @@
 \maketitle
 
 \abstract{%
-Simulation-based inference is an alternative to the delta method for computing the uncertainty around regression post-estimation (i.e., derived) quantities such as average marginal effects and adjusted predictions. It avoids several assumptions required by the delta method that are commonly violated, especially in nonlinear models, but does not require models to be refit as when using the bootstrap. It works by drawing model parameters from their joint distribution and estimating quantities of interest from each set of simulated values, which form the sampling distribution of the quantity. \pkg{clarify} provides a simple, unified interface for performing simulation-based inference for any user-specified derived quantities as well as wrappers for common quantities of interest. \pkg{clarify} supports a large and growing number of models through its interface with the \pkg{marginaleffects} package and provides native support for multiply imputed data.
+Simulation-based inference is an alternative to the delta method for computing the uncertainty around regression post-estimation (i.e., derived) quantities such as average marginal effects and adjusted predictions. It avoids several assumptions required by the delta method that are commonly violated, especially in nonlinear models, but does not require models to be refit as when using the bootstrap. It works by drawing model parameters from their joint distribution and estimating quantities of interest from each set of simulated values, which form the sampling distribution of the quantity. \texttt{clarify} provides a simple, unified interface for performing simulation-based inference for any user-specified derived quantities as well as wrappers for common quantities of interest. \texttt{clarify} supports a large and growing number of models through its interface with the \texttt{marginaleffects} package and provides native support for multiply imputed data.
 }
 
 \hypertarget{introduction}{%
 \subsection{Introduction}\label{introduction}}
 
-Although regression models are frequently used in empirical research to study relationships among variables, often the quantity of substantive interest is not one of the coefficients of the model, but rather a quantity derived from the coefficients, such as predicted values or average marginal effects. The usual method for estimating the uncertainty of the derived quantities is known as the ``delta method'', which involves two approximations: 1) that the variance of the derived quantity can be represented as a first-order Taylor series, and 2) that the resulting estimate is normally distributed\footnote{In addition, most software that uses the delta method uses numerical differentiation, which also involves an approximation.}. In many cases, especially with nonlinear models, these approximation can fail badly. \pkg{clarify} implements an alternative to the delta method---simulation-based inference---which involves simulating the sampling distributions of the derived quantities.
+Although regression models are frequently used in empirical research to study relationships among variables, often the quantity of substantive interest is not one of the coefficients of the model, but rather a quantity derived from the coefficients, such as predicted values or average marginal effects. The usual method for estimating the uncertainty of the derived quantities is known as the ``delta method'', which involves two approximations: 1) that the variance of the derived quantity can be represented as a first-order Taylor series, and 2) that the estimate of the derived quantity is normally distributed\footnote{In addition, most software that uses the delta method uses numerical differentiation, which also involves an approximation.}. In many cases, especially with nonlinear models, these approximation can fail badly. For example, predicted probabilities close to 0 or 1 or ratios of coefficients or probabilities typically do not have normal (or even symmetrical) distributions in finite samples, and the usual Wald-type confidence interval limits produced from delta method standard errors can include values outside the domain of the quantity of interest.
 
-The methodology \pkg{clarify} relies on is described in King, Tomz, and Wittenberg (2000) and Rainey (2023). Simulation-based inference involves taking draws from a specified joint distribution of model parameters, computing derived quantities from these draws, and collecting the derived quantities in a ``posterior'' distribution, which is taken to be the sampling distribution of the derived quantity, and from which uncertainty measures (standard errors and confidence intervals) can be computed. This method assumes the model parameters are drawn from a multivariate Normal (or T) distribution with means at the estimated values and covariance equal to the asymptotic covariance matrix of the estimated values. Arriving at the posterior distribution does not require taking any derivatives or making any approximations except those used to define the sampling distribution of the parameter estimates. The delta method makes these same approximation in addition to the approximations of the variance and the shape of the sampling distribution of the estimates.
+\CRANpkg{clarify} implements an alternative to the delta method---simulation-based inference---which involves simulating the sampling distributions of the derived quantities. Simulation-based inference is not only often more accurate than using the delta method, it is also simpler to understand and implement, as it does not require understanding Taylor series or the calculus that underlies it. This makes it more palatable to nontechnical audiences and easier to learn for students without sacrificing statistical performance.
 
-More formally, we fit a regression model \(y_i = f(x_i; \beta)\), such a linear or generalized linear model with model coefficients \(\beta\). We assume\[
+The methodology \CRANpkg{clarify} relies on is described in King, Tomz, and Wittenberg (2000) and Rainey (2023). Simulation-based inference involves taking draws from a specified joint distribution of model parameters, computing derived quantities from these draws, and collecting the derived quantities in a ``posterior'' distribution, which is taken to be the sampling distribution of the derived quantity, and from which uncertainty measures (standard errors and confidence intervals) can be computed. This method assumes the model parameters are drawn from a multivariate Normal (or T) distribution with means at the estimated values and covariance equal to the asymptotic covariance matrix of the estimated values, a standard assumption motivated by the central limit theorem that underlies usual inference on the original model parameters. Arriving at the posterior distribution does not require taking any derivatives or making any approximations beyond those usually used for inference on model parameter estimates. The delta method makes these same assumptions in addition to the approximations about the variance and the shape of the sampling distribution of the estimates of the derived quantities.
+
+The nonparametric bootstrap is another alternative to the delta method for inference that does not require these approximations; it typically involves re-sampling individuals from the sample, fitting the model in each sample, and computing the quantity of interest from each model. Although bootstrapping tends to work well in practice, especially for complex and non-Normal estimators, refitting the model repeatedly can be prohibitively time-consuming and computationally expensive, especially for complicated models or large datasets. Simulation-based inference only requires the model to be fit once, and the simulations involve taking draws from a distribution produced from the single set of estimated parameters, making it much quicker in practice and allowing the user to capitalize on the already valid estimation of the model parameters.
+
+More formally, we fit a regression model \(y_i = f(x_i; \beta)\), such as a linear or other generalized linear model with model coefficients \(\beta\). We assume\[
 \hat{\beta} \sim \text{MVN}(\beta, \Sigma_{\hat{\beta}})
-\]where \(\hat{\beta}\) is the vector of estimates of \(\beta\) and \(\Sigma_{\hat{\beta}}\) is their asymptotic covariance matrix. We define a function \(\tau(\beta)\) that represents a quantity of interest derived from the model parameters, and compute its estimate \(\hat{\tau}(\beta)\) as \(\tau(\hat{\beta})\). Next, we take \(M\) draws \(\tilde{\beta}^{(j)}\) for \(j\in(1, \dots, M)\) from a multivariate Normal distribution with mean vector \(\boldsymbol{\mu} = \hat{\beta}\) and covariance \(\Sigma = \hat{\Sigma}_{\hat{\beta}}\), where \(\hat{\Sigma}_{\hat{\beta}}\) is an estimate of the asymptotic covariance matrix of the parameter estimates. We use the distribution of \(\tilde{\tau}=\tau(\tilde{\theta})\) as the ``posterior'' sampling distribution of \(\hat{\tau}(\beta)\), and compute its variance as\[
-\sigma^2_{\hat{\tau}(\theta)} = \frac{1}{M}\sum^M_{j=1}{(\tilde{\tau}^{(j)} - \bar{\tilde{\tau}})^2}
+\]where \(\hat{\beta}\) is the vector of estimates of \(\beta\) and \(\Sigma_{\hat{\beta}}\) is their asymptotic covariance matrix. We define a function \(\tau(\beta)\) that represents a quantity of interest derived from the model parameters, and compute its estimate \(\widehat{\tau(\beta)}\) as \(\tau(\hat{\beta})\). Next, we take \(M\) draws \(\tilde{\beta}^{(j)}\) for \(j\in(1, \dots, M)\) from a multivariate Normal distribution with mean vector \(\mu = \hat{\beta}\) and covariance \(\Sigma = \hat{\Sigma}_{\hat{\beta}}\), where \(\hat{\Sigma}_{\hat{\beta}}\) is an estimate of the asymptotic covariance matrix of the parameter estimates. We use the distribution of \(\tilde{\tau}=\tau(\tilde{\theta})\) as the ``posterior'' sampling distribution of \(\widehat{\tau(\beta)}\), and compute its variance as\[
+\sigma^2_{\widehat{\tau(\theta)}} = \frac{1}{M}\sum^M_{j=1}{(\tilde{\tau}^{(j)} - \bar{\tilde{\tau}})^2}
 \]and quantile \(100(1-\alpha)\%\) confidence interval limits as \(\left[\tilde{\tau}_{(\frac{\alpha}{2})}, \tilde{\tau}_{(1-\frac{\alpha}{2})}\right]\) where \(\tilde{\tau}_{(k)}\) is the \(k\)th value of \(\tilde{\tau}\) when arranged in ascending order.
 
-Similar functionality exists in the \pkg{CLARIFY} package in Stata {[}Tomz, Wittenberg, and King (2003){]}\footnote{Despite the similar name, the R package \pkg{clarify} and the Stata package \pkg{CLARIFY} differ in several ways, one of which is that the estimates reported by \pkg{clarify} in R are those computed using the original model coefficients, whereas those reported by \pkg{CLARIFY} in Stata are those computed as the average of the simulated distribution. The R implementation avoids the ``simulation-induced bias'' described by Rainey (2023).} and used to be available in the \texttt{Zelig} R package (Imai, King, and Lau 2008), though there are differences in these implementations. \pkg{clarify} provides additional flexibility by allowing the user to request any derived quantity, in addition to providing shortcuts for common quantities, including predictions at representative values, average marginal effects, and average dose-response functions (described below). \pkg{clarify} relies on and can be seen as a companion to the \CRANpkg{marginaleffects} package, which offers similar functionality but primarily uses the delta method for calculating uncertainty (though simulation-based inference is supported in a more limited capacity as well).
+Similar functionality exists in the \pkg{CLARIFY} package in Stata\footnote{Despite the similar name, the R package \CRANpkg{clarify} and the Stata package \pkg{CLARIFY} differ in several ways, one of which is that the estimates reported by \CRANpkg{clarify} in R are those computed using the original model coefficients, whereas those reported by \pkg{CLARIFY} in Stata are those computed as the average of the simulated distribution. The R implementation avoids the ``simulation-induced bias'' described by Rainey (2023).} (Tomz, Wittenberg, and King 2003) and used to be available in the \texttt{Zelig} R package (Imai, King, and Lau 2008), though there are differences in these implementations. \CRANpkg{clarify} provides additional flexibility by allowing the user to request any derived quantity, in addition to providing shortcuts for common quantities, including predictions at representative values, average marginal effects, and average dose-response functions (described below). \CRANpkg{clarify} relies on and can be seen as a companion to the \CRANpkg{marginaleffects} package, which offers similar functionality but primarily uses the delta method for calculating uncertainty (though simulation-based inference is supported in a more limited capacity as well).
 
 \hypertarget{using}{%
-\subsection{\texorpdfstring{Using \pkg{clarify}}{Using }}\label{using}}
+\subsection{\texorpdfstring{Using \CRANpkg{clarify}}{Using }}\label{using}}
 
-There are four steps to using \pkg{clarify}:
+There are four steps to using \CRANpkg{clarify}:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -42,13 +46,13 @@ There are four steps to using \pkg{clarify}:
   Use \texttt{summary()} and \texttt{plot()} to summarize and visualize the distribution of the derived quantities and perform inference on them.
 \end{enumerate}
 
-In the sections below, we'll describe how to implement these steps in detail. First, we'll load \pkg{clarify} using \texttt{library()}.
+In the sections below, we will describe how to implement these steps in detail. First, we will load \CRANpkg{clarify} using \texttt{library()}.
 
 \begin{verbatim}
 library(clarify)
 \end{verbatim}
 
-For a running example, we'll use the \texttt{lalonde} dataset in the \pkg{MatchIt} package (Ho et al. 2011), which contains data on 614 participants enrolled in a job training program or sampled from a survey (Dehejia and Wahba 1999). The treatment variable is \texttt{treat} and the outcome is \texttt{re78}, and all other variables are confounders. Although the original use of this dataset was to estimate the effect of \texttt{treat} on \texttt{re78}, we'll use it more generally to demonstrate all of \pkg{clarify}'s capabilities. In addition, we'll use a transformation of the outcome variable to demonstrate applications to nonlinear models, for which the benefits of simulation-based inference are more apparent.
+For a running example, we will use the \texttt{lalonde} dataset in the \CRANpkg{MatchIt} package (Ho et al. 2011), which contains data on 614 participants enrolled in a job training program or sampled from a survey (Dehejia and Wahba 1999). The treatment variable is \texttt{treat} and the outcome is \texttt{re78}, and all other variables are confounders. Although the original use of this dataset was to estimate the effect of \texttt{treat} on \texttt{re78}, we will use it more generally to demonstrate all of \CRANpkg{clarify}'s capabilities. In addition, we will use a transformation of the outcome variable to demonstrate applications to nonlinear models, for which the benefits of simulation-based inference are more apparent.
 
 \begin{verbatim}
 data("lalonde", package = "MatchIt")
@@ -71,9 +75,9 @@ head(lalonde)
 \hypertarget{fitting-the-model}{%
 \subsubsection{1. Fitting the model}\label{fitting-the-model}}
 
-The first step is to fit the model. \pkg{clarify} can operate on a large set of models (those supported by \pkg{marginaleffects}), including generalized linear models, multinomial models, multivariate models, and instrumental variable models, many of which are available in other R packages. Even if \pkg{clarify} does not offer direct support for a given model, there are ways to use its functionality regardless (explained in more detail below).
+The first step is to fit the model. \CRANpkg{clarify} can operate on a large set of models (those supported by \CRANpkg{marginaleffects}), including generalized linear models, multinomial models, multivariate models, and instrumental variable models, many of which are available in other R packages. Even if \CRANpkg{clarify} does not offer direct support for a given model, there are ways to use its functionality regardless (explained in more detail below).
 
-Because we are computing derived quantities, it is not critical to parameterize the model in such a way that the coefficients are interpretable, e.g., by using a model with interpretable coefficients or centering predictors. Below, we'll fit a probit regression model for the outcome given the treatment and confounders. Coefficients in probit regression do not have a straightforward interpretation, but that's okay; our quantities of interest can be expressed as derived quantities---functions of the model parameters, such as predictions, counterfactual predictions, and averages and contrasts of them.
+Because we are computing derived quantities, it is not critical to parameterize the model in such a way that the coefficients are interpretable, e.g., by using a model with interpretable coefficients or centering predictors. Below, we will fit a probit regression model for the outcome given the treatment and confounders. Coefficients in probit regression do not have a straightforward interpretation, but that does not matter; our quantities of interest can be expressed as derived quantities---functions of the model parameters, such as predictions, counterfactual predictions, and averages and contrasts of them.
 
 \begin{verbatim}
 fit <- glm(re78_0 ~ treat * married + age + educ + race +
@@ -103,7 +107,7 @@ sim(fit = , n = , vcov = , coefs = , dist = )
   \texttt{dist} -- the name of the distribution from which to draw the sampled coefficients. Can be \texttt{"normal"} for a Normal distribution or \texttt{t(\#)} for a t-distribution, where \texttt{\#} represents the degrees of freedom. If left unspecified, \texttt{sim()} will decide on which distribution makes sense given the characteristics of the model (the decision is made by \texttt{insight::get\_df()} with \texttt{type\ =\ "wald"}). Typically this does not need to be specified.
 \end{itemize}
 
-If one's model is not supported by \pkg{clarify}, one can omit the \texttt{fit} argument and just specify the \texttt{vcov} and \texttt{coefs} argument, which will draw the coefficients from the distribution named in \texttt{dist} (\texttt{"normal"} by default).
+If one's model is not supported by \CRANpkg{clarify}, one can omit the \texttt{fit} argument and just specify the \texttt{vcov} and \texttt{coefs} argument, which will draw the coefficients from the distribution named in \texttt{dist} (\texttt{"normal"} by default).
 
 \texttt{sim()} uses a random number generator to draw the sampled coefficients from the sampling distribution, so a seed should be set using \texttt{set.seed()} to ensure results are replicable across sessions.
 
@@ -154,7 +158,7 @@ sim_apply(sim = , FUN = , verbose = , cl = , ...)
 
 The \texttt{FUN} argument can be specified in one of two ways: either as a function that takes in a model fit object (e.g., a \texttt{glm} or \texttt{lm} object, the output of a call to \texttt{glm()} or \texttt{lm()}) or a function that takes in a vector of coefficients. The latter will always work but the former only works for supported models. When the function takes in a model fit object, \texttt{sim\_apply()} will first insert each set of sampled coefficients into the model fit object and then supply the modified model to \texttt{FUN}.
 
-For example, let's say our derived quantity of interest is the predicted probability of the outcome for participant PSID1. We would specified our \texttt{FUN} function as follows:
+For example, we will let our derived quantity of interest be the predicted probability of the outcome for participant PSID1. We would specified our \texttt{FUN} function as follows:
 
 \begin{verbatim}
 sim_fun1 <- function(fit) {
@@ -177,7 +181,7 @@ est1
 #>  PSID1 0.9757211
 \end{verbatim}
 
-The resulting \texttt{clarify\_est} object contains the simulated estimates in matrix form as well as the estimate computed on the original coefficients. We'll examine the sampling distribution shortly, but first we'll demonstrate computing a derived quantity from the coefficients directly.
+The resulting \texttt{clarify\_est} object contains the simulated estimates in matrix form as well as the estimate computed on the original coefficients. We will examine the sampling distribution shortly, but first we will demonstrate computing a derived quantity from the coefficients directly.
 
 The \texttt{race} variable is a factor, and the \texttt{black} category is used as the reference level, so it is not immediately clear whether there is a difference between the coefficients \texttt{racehispan} and \texttt{racewhite}, which represent the non-reference categories \texttt{hispan} and \texttt{white}. To compare these two directly, we can use \texttt{sim\_apply()} to compute a derived quantity that corresponds to the difference between them.
 
@@ -203,7 +207,7 @@ est2
 
 The function supplied to \texttt{FUN} can be arbitrarily complicated and return as many derived quantities as one wants, though the slower each run of \texttt{FUN} is, the longer it will take to simulate the derived quantities. Using parallel processing by supplying an argument to \texttt{cl} can sometimes dramatically speed up evaluation.
 
-There are several functions in \pkg{clarify} that serve as convenience wrappers for \texttt{sim\_apply()} to automate some common derived quantities of interest. These include
+There are several functions in \CRANpkg{clarify} that serve as convenience wrappers for \texttt{sim\_apply()} to automate some common derived quantities of interest. These include
 
 \begin{itemize}
 \item
@@ -239,7 +243,7 @@ plot(x = , parm = , ci = , level = , method = , reference =)
 \item
   \texttt{method} -- if \texttt{ci} is \texttt{TRUE}, the method used to compute the bounds. Allowable methods include a Normal approximation (\texttt{"wald"}) or using the quantiles of the resulting distribution (\texttt{"quantile"}). The Normal approximation involves multiplying the standard deviation of the estimates (i.e., which functions like the standard error of the sampling distribution) by the critical Z-statistic computed using \texttt{(1-level)/2} to create a symmetric margin of error around the point estimate. The default is \texttt{"quantile"} to instead use quantile-based bounds, which are more appropriate when the distribution is non-Normal. However, quantile-based bounds may require more simulations to stabilize.
 \item
-  \texttt{reference} -- whether to display a normal density over the plot for each estimate. The default is \texttt{FALSE} to omit them.
+  \texttt{reference} -- whether to display a normal density over the plot for each estimate. The default is \texttt{FALSE} to omit it.
 \end{itemize}
 
 Below, we plot the first estimate we computed above, the predicted probability for participant PSID1:
@@ -250,7 +254,7 @@ plot(est1, reference = TRUE, ci = FALSE)
 
 \begin{center}\includegraphics{figures/unnamed-chunk-8-1} \end{center}
 
-From the plot, one can see that the distribution of simulated values is non-Normal, asymmetrical, and not centered around the estimate, with no values falling above 1 because the outcome is a predicted probability. Given its non-Normality, the quantile-based bounds are clearly more appropriate than those resulting from the Normal approximation, as the bounds computed from the Normal approximation would be outside the bounds of the estimate. The plot itself is a \texttt{ggplot} object that can be modified using \texttt{ggplot2} syntax.
+Overlaid on the plot in red is a Normal distribution with the same mean and standard deviation as the simulated values; this is requested by setting \texttt{reference\ =\ TRUE}. From the plot, one can see that the distribution of simulated values is non-Normal, asymmetrical, and not centered around the estimate, with no values falling above 1 because the outcome is a predicted probability. Given its non-Normality, the quantile-based bounds are clearly more appropriate than those resulting from the Normal approximation, as the bounds computed from the Normal approximation would be outside the bounds of the estimate. The plot itself is a \texttt{ggplot} object that can be modified using \texttt{ggplot2} syntax.
 
 We can use \texttt{summary()} to display the value of the point estimate, the uncertainty bounds, and other statistics that describe the distribution of estimates. The arguments to \texttt{summary()} are below:
 
@@ -273,7 +277,7 @@ summary(object = , parm = , level = , method = , null = )
 
 Inverting the uncertainty interval involves finding the smallest confidence level such that the null value is within the confidence bounds. The p-value for the test is one minus this level. It is only valid as a p-value when the simulated distribution of the estimates differs from its true sampling distribution under the null value by a location shift (which can be violated when the distribution of the estimates is asymmetric). However, because the p-values are invariant to monotonic transformations of the estimates and null value, as long as the distribution of \emph{some} monotonic transformation of the estimate is a location shift from its sampling distribution under the null hypothesis, the p-values will be valid.
 
-We'll use \texttt{summary()} with the default arguments on our first \texttt{clarify\_est} object to view the point estimate and quantile-based uncertainty bounds.
+We can use \texttt{summary()} with the default arguments on our first \texttt{clarify\_est} object to view the point estimate and quantile-based uncertainty bounds.
 
 \begin{verbatim}
 summary(est1)
@@ -284,9 +288,9 @@ summary(est1)
 #> PSID1    0.976 0.891  0.996
 \end{verbatim}
 
-A benefit of quantile-based confidence bounds is that the bounds will always be in the domain of the quantity of interest, e.g., bounds for probabilities will not be above 1 or below 0 if the model always generates predicted probabilities between 0 and 1. In contrast, Wald-type symmetric confidence intervals can include values outside the domain of the quantity of interest. While it is possible to compute Wald-type confidence interval bounds that respect the domain boundaries, e.g., by computing the confidence interval around the logit of the predicted probability and using the inverse logit of the bounds as the bound on the probability, quantile confidence intervals do not require the user to know which transformation of the quantity of interest will yield appropriate bounds.
+A benefit of quantile-based confidence bounds is that the bounds will always be in the domain of the quantity of interest, e.g., bounds for probabilities will not be above 1 or below 0 if the model always generates predicted probabilities between 0 and 1. In contrast, Wald-type symmetric confidence intervals (including those produced by the delta method) can include values outside the domain of the quantity of interest. While it is possible to compute Wald-type confidence interval bounds that respect the domain boundaries, e.g., by computing the confidence interval around the logit of the predicted probability and using the inverse logit of the bounds as the bound on the probability, quantile confidence intervals do not require the user to know which transformation of the quantity of interest will yield appropriate bounds.
 
-Our second estimated quantity, the difference between two regression coefficients, is closer to Normally distributed, as the plot below demonstrates (and would be expected theoretically), so we'll use the Normal approximation to test the hypothesis that difference differs from 0.
+Our second estimated quantity, the difference between two regression coefficients, is closer to Normally distributed, as the plot below demonstrates (and would be expected theoretically), so we will use the Normal approximation to test the hypothesis that difference differs from 0.
 
 \begin{verbatim}
 plot(est2, reference = TRUE, ci = FALSE)
@@ -306,18 +310,18 @@ summary(est2, method = "wald", null = 0)
 The uncertainty intervals and p-values in the \texttt{summary()} output are computed using the Normal approximation because we set \texttt{method\ =\ "wald"}, and the p-value for the test that our estimate is equal to 0 is returned because we set \texttt{null\ =\ 0}. Note that the Normal approximation should be used only when the simulated sampling distribution is both close to Normally distributed and centered around the estimate (i.e., when the mean of the simulated values {[}red vertical line{]} coincides with the estimate computed on the original coefficients {[}black vertical line{]}).
 
 \hypertarget{sim_apply-wrappers-sim_setx-sim_ame-sim_adrf}{%
-\subsection{\texorpdfstring{\texttt{sim\_apply()} wrappers: \texttt{sim\_setx()}, \texttt{sim\_ame()}, \texttt{sim\_adrf()}}{sim\_apply() wrappers: sim\_setx(), sim\_ame(), sim\_adrf()}}\label{sim_apply-wrappers-sim_setx-sim_ame-sim_adrf}}
+\subsection{\texorpdfstring{\texttt{sim\_apply()} Wrappers: \texttt{sim\_setx()}, \texttt{sim\_ame()}, \texttt{sim\_adrf()}}{sim\_apply() Wrappers: sim\_setx(), sim\_ame(), sim\_adrf()}}\label{sim_apply-wrappers-sim_setx-sim_ame-sim_adrf}}
 
-\texttt{sim\_apply()} can be used to compute the simulated sampling distribution for an arbitrary derived quantity of interest, but there are some quantities that are common in applied research and may otherwise be somewhat challenging to program by hand, so \pkg{clarify} provides shortcut functions to make computing these quantities simple. These functions include \texttt{sim\_setx()}, \texttt{sim\_ame()}, and \texttt{sim\_adrf()}. Each of these can be used only when regression models compatible with \pkg{clarify} are supplied to the original call to \texttt{sim()}.
+\texttt{sim\_apply()} can be used to compute the simulated sampling distribution for an arbitrary derived quantity of interest, but there are some quantities that are common in applied research and may otherwise be somewhat challenging to program by hand, so \CRANpkg{clarify} provides shortcut functions to make computing these quantities simple. These functions include \texttt{sim\_setx()}, \texttt{sim\_ame()}, and \texttt{sim\_adrf()}. Each of these can be used only when regression models compatible with \CRANpkg{clarify} are supplied to the original call to \texttt{sim()}.
 
 Like \texttt{sim\_apply()}, each of these functions is named \texttt{sim\_*()}, which signifies that they are to be used on an object produced by \texttt{sim()} (i.e., a \texttt{clarify\_sim} object). (Multiple calls to these functions can be applied to the same \texttt{clarify\_sim} object and combined; see the \texttt{cbind()} section below.) These functions are described below.
 
 \hypertarget{sim_setx-predictions-at-representative-values}{%
 \subsubsection{\texorpdfstring{\texttt{sim\_setx()}: predictions at representative values}{sim\_setx(): predictions at representative values}}\label{sim_setx-predictions-at-representative-values}}
 
-\texttt{sim\_setx()} provides an interface to compute predictions at representative and user-supplied values of the predictors. For example, we might want to know what the effect of treatment is for a ``typical'' individual, which corresponds to the contrast between two model-based predictions (i.e., one under treatment and one under control for a unit with ``typical'' covariate values). This functionality mirrors the \texttt{setx()} and \texttt{setx1()} functionality of \texttt{Zelig} (which is where its name originates) and provides similar functionality to functions in \pkg{modelbased}, \pkg{emmeans}, \pkg{effects}, and \pkg{ggeffects}.
+\texttt{sim\_setx()} provides an interface to compute predictions at representative and user-supplied values of the predictors. For example, we might want to know what the effect of treatment is for a ``typical'' individual, which corresponds to the contrast between two model-based predictions (i.e., one under treatment and one under control for a unit with ``typical'' covariate values). This functionality mirrors the \texttt{setx()} and \texttt{setx1()} functionality of \texttt{Zelig} (which is where its name originates) and provides similar functionality to functions in \CRANpkg{modelbased}, \CRANpkg{emmeans}, \CRANpkg{effects}, and \CRANpkg{ggeffects}.
 
-For each predictor, the user can specify whether they want predictions at specific values or at ``typical'' values, which are defined in \pkg{clarify} as the mode for unordered categorical and binary variables, the median for ordered categorical variables, and the mean for continuous variables. Predictions for multiple predictor combinations can be requested by specifying values that will be used to create a grid of predictor values, or the grid itself can be supplied as a data frame of desired predictor profiles. In addition, the ``first difference'', defined here as the difference between predictions for two predictor combinations, can be computed.
+For each predictor, the user can specify whether they want predictions at specific values or at ``typical'' values, which are defined in \CRANpkg{clarify} as the mode for unordered categorical and binary variables, the median for ordered categorical variables, and the mean for continuous variables. Predictions for multiple predictor combinations can be requested by specifying values that will be used to create a grid of predictor values, or the grid itself can be supplied as a data frame of desired predictor profiles. In addition, the ``first difference'', defined here as the difference between predictions for two predictor combinations, can be computed.
 
 The arguments to \texttt{sim\_setx()} are as follows:
 
@@ -342,7 +346,7 @@ sim_setx(sim = , x = , x1 = , outcome = , type = , verbose = , cl = )
   \texttt{cl} -- an argument that controls parallel processing, which can be the number of cores to use or a cluster object resulting from \texttt{parallel::makeCluster()}.
 \end{itemize}
 
-Here, we'll use \texttt{sim\_setx()} to examine predicted values of the outcome for control and treated units, at \texttt{re75} set to 0 and 20000, and \texttt{race} set to ``black''.
+Here, we will use \texttt{sim\_setx()} to examine predicted values of the outcome for control and treated units, at \texttt{re75} set to 0 and 20000, and \texttt{race} set to ``black''.
 
 \begin{verbatim}
 est3 <- sim_setx(s,
@@ -385,7 +389,7 @@ attr(est3, "setx")
 #> treat = 1, re75 = 20000 20000
 \end{verbatim}
 
-We can plot the distributions of the simulated values using \texttt{plot()}, which also separates the predictions by the predictor values (it's often clearer without the uncertainty bounds). The \texttt{var} argument controls which variable is used for faceting the plots.
+We can plot the distributions of the simulated values using \texttt{plot()}, which also separates the predictions by the predictor values (it is often clearer without the uncertainty bounds). The \texttt{var} argument controls which variable is used for faceting the plots.
 
 \begin{verbatim}
 plot(est3, var = "re75", ci = FALSE)
@@ -413,7 +417,7 @@ plot(est4)
 
 \begin{center}\includegraphics{figures/unnamed-chunk-16-1} \end{center}
 
-We'll return to display average dose-response functions using \texttt{sim\_adrf()} later.
+We will return to display average dose-response functions using \texttt{sim\_adrf()} later.
 
 Finally, we can use \texttt{sim\_setx()} to compute first differences, the contrast between two covariate combinations. We supply one covariate profile to \texttt{x} and another to \texttt{x1}, and \texttt{sim\_setx()} simulates the two predicted values and their difference. Below, we simulate first difference for a treated and control unit who have \texttt{re75} of 0 and typical values of all other covariates:
 
@@ -442,7 +446,7 @@ It is possible to compute first differences without using \texttt{x1} using \tex
 \hypertarget{sim_ame-average-adjusted-predictions-and-average-marginal-effects}{%
 \subsubsection{\texorpdfstring{\texttt{sim\_ame()}: average adjusted predictions and average marginal effects}{sim\_ame(): average adjusted predictions and average marginal effects}}\label{sim_ame-average-adjusted-predictions-and-average-marginal-effects}}
 
-Using predicted values and effects at representative values is one way to summarize regression models, but another way is to compute average adjusted predictions (AAPs), contrasts of AAPs, and average marginal effects (AMEs). The definitions for these terms may vary and the names for these concepts differ across sources, but here we define AAPs as the average of the predicted values for all units after setting one predictor to a chosen value, and we define AMEs for binary predictors as the contrast of two AAPs and for continuous predictors as the average of instantaneous rate of change in the AAP corresponding to a small change in the predictor from its observed values across all units\footnote{In \pkg{marginaleffects}, AAPs are computed using \texttt{avg\_predictions()}, AMEs for binary variables are computed using \texttt{avg\_comparisons()}, and AMEs for continuous variables are computed using \texttt{avg\_slopes()}. AAPs are sometimes known as average ``counterfactual'' predictions.}.
+Using predicted values and effects at representative values is one way to summarize regression models, but another way is to compute average adjusted predictions (AAPs), contrasts of AAPs, and average marginal effects (AMEs). The definitions for these terms may vary and the names for these concepts differ across sources, but here we define AAPs as the average of the predicted values for all units after setting one predictor to a chosen value, and we define AMEs for binary predictors as the contrast of two AAPs and for continuous predictors as the average of instantaneous rate of change in the AAP corresponding to a small change in the predictor from its observed values across all units\footnote{In \CRANpkg{marginaleffects}, AAPs are computed using \texttt{avg\_predictions()}, AMEs for binary variables are computed using \texttt{avg\_comparisons()}, and AMEs for continuous variables are computed using \texttt{avg\_slopes()}. AAPs are sometimes known as average ``counterfactual'' predictions.} (Long and Freese 2014).
 
 The arguments to \texttt{sim\_ame()} are as follows:
 
@@ -474,7 +478,7 @@ sim_ame(sim = , var = , subset = , by = , contrast = , outcome = ,
   \texttt{cl} -- an argument that controls parallel processing, which can be the number of cores to use or a cluster object resulting from \texttt{parallel::makeCluster()}.
 \end{itemize}
 
-Here, we'll use \texttt{sim\_ame()} to compute the AME of \texttt{treat} just among those who were treated (in causal inference, this is known as the average treatment effect in the treated, or ATT (Greifer and Stuart 2023)). We'll request our estimate to be on the risk ratio scale.
+Here, we will use \texttt{sim\_ame()} to compute the AME of \texttt{treat} just among those who were treated (in causal inference, this is known as the average treatment effect in the treated, or ATT (Greifer and Stuart 2023)). We will request our estimate to be on the risk ratio scale.
 
 \begin{verbatim}
 est6 <- sim_ame(s,
@@ -484,7 +488,7 @@ est6 <- sim_ame(s,
                 verbose = FALSE)
 \end{verbatim}
 
-We can use \texttt{summary()} to display the estimates and their uncertainty intervals. Here, we'll also use \texttt{null} to include a test for the null hypothesis that the risk ratio is equal to 1.
+We can use \texttt{summary()} to display the estimates and their uncertainty intervals. Here, we will also use \texttt{null} to include a test for the null hypothesis that the risk ratio is equal to 1.
 
 \begin{verbatim}
 summary(est6, null = c(`RR` = 1))
@@ -501,7 +505,7 @@ Here we see the estimates for the AAPs, \texttt{E{[}Y(0){]}} for the expected va
 
 If we instead wanted the risk difference or odds ratio, we would not have to re-compute the AAPs. Instead, we can use \texttt{transform()} to compute a new derived quantity from the computed AAPs. The section on \texttt{transform()} demonstrates this.
 
-We can compute the AME for a continuous predictor. Here, we'll consider \texttt{age} (just for demonstration; this analysis does not have a valid interpretation).
+We can compute the AME for a continuous predictor. Here, we will consider \texttt{age} (just for demonstration; this analysis does not have a valid interpretation).
 
 \begin{verbatim}
 est7 <- sim_ame(s,
@@ -522,7 +526,7 @@ summary(est7)
 
 The AME is named \texttt{E{[}dY/d(age){]}}, which signifies that a derivative has been computed (more precisely, the average of the unit-specific derivatives). This estimate can be interpreted like a slope in a linear regression model, but as a single summary of the effect of a predictor it is often too coarse to capture nonlinear relationships. The section below explains how to compute average dose-response functions for continuous predictors, which provide a more complete picture of their effects on an outcome.
 
-Below, we'll examine effect modification of the ATT by the predictor \texttt{married} using the \texttt{by} argument to estimate AAPs and their ratio within levels of \texttt{married}:
+Below, we will examine effect modification of the ATT by the predictor \texttt{married} using the \texttt{by} argument to estimate AAPs and their ratio within levels of \texttt{married}:
 
 \begin{verbatim}
 est6b <- sim_ame(s,
@@ -588,7 +592,7 @@ sim_adrf(sim = , var = , subset = , by = , contrast = , at = ,
   \texttt{cl} -- an argument that controls parallel processing, which can be the number of cores to use or a cluster object resulting from \texttt{parallel::makeCluster()}.
 \end{itemize}
 
-Here, we'll consider \texttt{age} (just for demonstration; this analysis does not have a valid interpretation) and compute the ADRF and AMEF of \texttt{age} on the outcome. We'll only examine ages between 18 and 50, even though the range of \texttt{age} goes slightly beyond these values. First, we'll compute the ADRF of \texttt{age}, which examines how the outcome would vary on average if one set all unit's value of \texttt{age} to each value between 18 and 50 (here we only use even ages to speed up computation).
+Here, we will consider \texttt{age} (just for demonstration; this analysis does not have a valid interpretation) and compute the ADRF and AMEF of \texttt{age} on the outcome. We will only examine ages between 18 and 50, even though the range of \texttt{age} goes slightly beyond these values. First, we will compute the ADRF of \texttt{age}, which examines how the outcome would vary on average if one set all unit's value of \texttt{age} to each value between 18 and 50 (here we only use even ages to speed up computation).
 
 \begin{verbatim}
 age_seq <- seq(18, 50, by = 2)
@@ -624,7 +628,7 @@ summary(est8, parm = 1:4)
 #> E[Y(24)]    0.788 0.749  0.817
 \end{verbatim}
 
-Next we'll compute the AMEF, the effect of \texttt{age} at each level of \texttt{age}.
+Next we will compute the AMEF, the effect of \texttt{age} at each level of \texttt{age}.
 
 \begin{verbatim}
 est9 <- sim_adrf(s,
@@ -645,7 +649,7 @@ plot(est9)
 From the plot, we can see the AME of \texttt{age} decreases slightly but is mostly constant across values of \texttt{age}, and the uncertainty intervals for the AMEs consistently exclude 0.
 
 \hypertarget{transforming-and-combining-estimates}{%
-\subsection{Transforming and combining estimates}\label{transforming-and-combining-estimates}}
+\subsection{Transforming and Combining Estimates}\label{transforming-and-combining-estimates}}
 
 Often, our quantities of interest are not just the outputs of the functions above, but comparisons between them. For example, to test for moderation of a treatment effect, we may want to compare AMEs in multiple groups defined by the moderator. Or, it might be that we are interested in an effect described using a different effect measure than the one originally produced; for example, we may decide we want the risk difference AME after computing the risk ratio AME. The functions \texttt{transform()} and \texttt{cbind()} allow users to transform quantities in a single \texttt{clarify\_est} object and combine two \texttt{clarify\_est} objects. These are essential for computing quantities that themselves are derived from the derived quantities computed by the \texttt{sim\_*()} functions.
 
@@ -659,7 +663,7 @@ lalonde <- transform(lalonde,
                      re78_0 = ifelse(re78 == 0, 1, 0))
 \end{verbatim}
 
-Similarly, to compute a derived or transformed quantity from a \texttt{clarify\_est} object, we can use \texttt{transform()}. Here, we'll compute the risk difference AME of \texttt{treat}; previously, we used \texttt{sim\_ame()} to compute the AAPs and the risk ratio.
+Similarly, to compute a derived or transformed quantity from a \texttt{clarify\_est} object, we can use \texttt{transform()}. Here, we will compute the risk difference AME of \texttt{treat}; previously, we used \texttt{sim\_ame()} to compute the AAPs and the risk ratio.
 
 \begin{verbatim}
 est6 <- transform(est6,
@@ -668,7 +672,7 @@ est6 <- transform(est6,
 
 Note that we used tics (`) around the names of the AAPs; this is necessary when they contain special characters like parentheses or brackets.
 
-When we run \texttt{summary()} on the output, the new quantity, which we named ``RD'', will be displayed along with the other estimates. We'll also set a null value for this quantity.
+When we run \texttt{summary()} on the output, the new quantity, which we named ``RD'', will be displayed along with the other estimates. We will also set a null value for this quantity.
 
 \begin{verbatim}
 summary(est6, null = c(`RR` = 1, `RD` = 0))
@@ -682,7 +686,7 @@ summary(est6, null = c(`RR` = 1, `RD` = 0))
 #> RD        0.0685 -0.0380  0.1574    0.21
 \end{verbatim}
 
-One benefit of using simulation-based inference with p-values computed from inverting the confidence intervals is that the p-values for the risk difference and risk ratio (and any other effect measure for comparing a pair of values) will always exactly align, thereby ensuring inference does not depend on the effect measure used.
+One benefit of using simulation-based inference with p-values computed from inverting the confidence intervals is that the p-values for the risk difference and risk ratio (and any other effect measure for comparing a pair of values) will always exactly align, thereby ensuring inference does not depend on the effect measure used. In contrast, Wald-type inference (based either on the simulation-derived standard error or the delta method) is not invariant to transformations of the quantity of interest.
 
 The same value would be computed if we were to have called \texttt{sim\_ame()} on the same \texttt{clarify\_sim} object and requested the risk difference using \texttt{contrast\ =\ "diff"}; using \texttt{transform()} saves time because the AAPs are already computed and stored in the \texttt{clarify\_est} object.
 
@@ -709,7 +713,7 @@ est6b |>
 \hypertarget{cbind}{%
 \subsubsection{\texorpdfstring{\texttt{cbind()}}{cbind()}}\label{cbind}}
 
-\texttt{cbind()} is another generic R function that is typically used to combine two or more datasets columnwise (i.e., to widen a dataset). In \pkg{clarify}, \texttt{cbind()} can be used to combine two \texttt{clarify\_est} objects so that the estimates can be examined jointly and so that it is possible to compare them directly. For example, let's say we computed AMEs in two subgroups using \texttt{subset} and wanted to compare them. To do so, we call \texttt{sim\_ame()} twice, one for each subset (though in practice it is more effective to use \texttt{by}; this is just for illustration):
+\texttt{cbind()} is another generic R function that is typically used to combine two or more datasets columnwise (i.e., to widen a dataset). In \CRANpkg{clarify}, \texttt{cbind()} can be used to combine two \texttt{clarify\_est} objects so that the estimates can be examined jointly and so that it is possible to compare them directly. For example, if we were to compute AMEs in two subgroups using \texttt{subset} and wanted to compare them, we would call \texttt{sim\_ame()} twice, one for each subset (though in practice it is more effective to use \texttt{by}; this is just for illustration), as demonstrated below:
 
 \begin{verbatim}
 # AME of treat with race = "black"
@@ -739,9 +743,9 @@ summary(est10h)
 #> Diff      0.0704 -0.0215  0.1382
 \end{verbatim}
 
-Here, we computed the risk difference for the subgroups \texttt{race\ =\ "black"} and \texttt{race\ =\ "hispan"}. If we wanted to compare the risk differences, we could combine them and compute a new quantity equal to their difference. We'll do that below.
+Here, we computed the risk difference for the subgroups \texttt{race\ =\ "black"} and \texttt{race\ =\ "hispan"}. If we wanted to compare the risk differences, we could combine them and compute a new quantity equal to their difference. We will do that below.
 
-First, we need to rename to quantities in each object so they don't overlap; we can do so using \texttt{names()}, which has a special method for \texttt{clarify\_est} objects.
+First, we need to rename to quantities in each object so they do not overlap; we can do so using \texttt{names()}, which has a special method for \texttt{clarify\_est} objects.
 
 \begin{verbatim}
 names(est10b) <- paste(names(est10b), "b", sep = "_")
@@ -781,13 +785,13 @@ summary(est10, parm = "Dh - Db")
 Importantly, \texttt{cbind()} can only be used to join together \texttt{clarify\_est} objects computed using the same simulated coefficients (i.e., resulting from the same call to \texttt{sim()}). This preserves the covariance among the estimated quantities, which is critical for valid inference. That is, \texttt{sim()} should only be called once per model, and all derived quantities should be computed using its output.
 
 \hypertarget{using-with-multiply-imputed-data}{%
-\subsection{\texorpdfstring{Using \pkg{clarify} with multiply imputed data}{Using  with multiply imputed data}}\label{using-with-multiply-imputed-data}}
+\subsection{\texorpdfstring{Using \CRANpkg{clarify} with Multiply Imputed Data}{Using  with Multiply Imputed Data}}\label{using-with-multiply-imputed-data}}
 
 Multiple imputation is a popular method of estimating quantities of interest in the presence of missing data and involves creating multiple versions of the original dataset each with the missing values imputed with estimates from an imputation model. Simulation-based inference in multiply imputed data is relatively straightforward. Simulated coefficients are drawn from the model estimated in each imputed dataset separately, and then the simulated coefficients are pooled into a single set of simulated coefficients. In Bayesian terms, this would be considered ``mixing draws'' and is the recommended approach for Bayesian analysis with multiply imputed data (Zhou and Reiter 2010).
 
-Using \pkg{clarify} with multiply imputed data is simple. Rather than using \texttt{sim()}, we use the function \texttt{misim()}. \texttt{misim()} functions just like \texttt{sim()} except that it takes in a list of model fits (i.e., containing a model fit to each imputed dataset) or an object containing such a list (e.g., a \texttt{mira} object from \texttt{mice::with()} or a \texttt{mimira} object from \texttt{MatchThem::with()}). \texttt{misim()} simulates coefficient distributions within each imputed dataset and then appends them together to a form a single combined set of coefficient draws.
+Using \CRANpkg{clarify} with multiply imputed data is simple. Rather than using \texttt{sim()}, we use the function \texttt{misim()}. \texttt{misim()} functions just like \texttt{sim()} except that it takes in a list of model fits (i.e., containing a model fit to each imputed dataset) or an object containing such a list (e.g., a \texttt{mira} object from \texttt{mice::with()} or a \texttt{mimira} object from \texttt{MatchThem::with()}). \texttt{misim()} simulates coefficient distributions within each imputed dataset and then appends them together to a form a single combined set of coefficient draws.
 
-\texttt{sim\_apply()} and its wrappers accept the output of \texttt{misim()} and compute the desired quantity using each set of coefficients. When these function rely on using a dataset (e.g., \texttt{sim\_ame()}, which averages predicted outcomes across all units in the dataset used to fit the model), they automatically know to associate a given coefficient draw with the imputed dataset that was used to fit the model that produced that draw. In user-written functions supplied to the \texttt{FUN} argument of \texttt{sim\_apply()}, it is important to correctly extract the dataset from the model fit. This is demonstrated below.
+\texttt{sim\_apply()} and its wrappers accept the output of \texttt{misim()} and compute the desired quantity using each set of coefficients. When these functions rely on using a dataset (e.g., \texttt{sim\_ame()}, which averages predicted outcomes across all units in the dataset used to fit the model), they automatically know to associate a given coefficient draw with the imputed dataset that was used to fit the model that produced that draw. In user-written functions supplied to the \texttt{FUN} argument of \texttt{sim\_apply()}, it is important to correctly extract the dataset from the model fit. This is demonstrated below.
 
 The final estimates of the quantity of interest is computed as the mean of the estimates computed in each imputed dataset (i.e., using the original coefficients, not the simulated ones), which is the same quantity that would be computed using standard pooling rules. This is not always valid for noncollapsible estimates, like ratios, and so care should be taken to ensure the mean of the resulting estimates has a valid interpretation (this is related to the transformation-induced bias described by Rainey (2017)).
 
@@ -806,7 +810,7 @@ misim(fitlist = , n = , vcov = , coefs = , dist = )
   \texttt{vcov}, \texttt{coefs}, \texttt{dist} -- the same as with \texttt{sim()}, except that a list of such arguments can be supplied to be applied to each imputed dataset.
 \end{itemize}
 
-Below we illustrate using \texttt{misim()} and \texttt{sim\_apply()} with multiply imputed data. We'll use the \texttt{africa} dataset from the \pkg{Amelia} package.
+Below we illustrate using \texttt{misim()} and \texttt{sim\_apply()} with multiply imputed data. We will use the \texttt{africa} dataset from the \CRANpkg{Amelia} package.
 
 \begin{verbatim}
 library(Amelia)
@@ -831,7 +835,7 @@ si
 #>  - sampled distributions: multivariate t(116)
 \end{verbatim}
 
-The function we'll be applying to each imputed dataset will be one that computes the average marginal effect of \texttt{infl}. (We'll run the same analysis afterward using \texttt{sim\_ame()}.)
+The function we will be applying to each imputed dataset will be one that computes the average marginal effect of \texttt{infl}. (We will run the same analysis afterward using \texttt{sim\_ame()}.)
 
 \begin{verbatim}
 sim_fun <- function(fit) {
@@ -873,25 +877,23 @@ summary(est_mi2)
 
 We get the same results, as expected.
 
-Note that \texttt{misim()} is compatible with model fit objects from \pkg{mice}, \pkg{Amelia}, \pkg{MatchThem}, and any other package that produces a list of model fit objects with each corresponding to the output of a model fit to an imputed dataset.
+Note that \texttt{misim()} is compatible with model fit objects from \CRANpkg{mice}, \CRANpkg{Amelia}, \CRANpkg{MatchThem}, and any other package that produces a list of model fit objects with each corresponding to the output of a model fit to an imputed dataset.
 
 \hypertarget{comparison-to-other-packages}{%
-\subsection{Comparison to other packages}\label{comparison-to-other-packages}}
+\subsection{Comparison to Other Packages}\label{comparison-to-other-packages}}
 
-Several packages offer methods for computing interpretable quantities form regression models, including \pkg{emmeans}, \pkg{margins}, \pkg{modelbased}, and \pkg{marginaleffects}. Many of the quantities computed by these packages can also be computed by \pkg{clarify}, the primary difference being that \pkg{clarify} uses simulation-based inference rather than delta method-based inference.
+Several packages offer methods for computing interpretable quantities form regression models, including \CRANpkg{emmeans}, \CRANpkg{margins}, \CRANpkg{modelbased}, and \CRANpkg{marginaleffects}. Many of the quantities computed by these packages can also be computed by \CRANpkg{clarify}, the primary difference being that \CRANpkg{clarify} uses simulation-based inference rather than delta method-based inference.
 
-\pkg{marginaleffects} offers the most similar functionality to \pkg{clarify}, and \pkg{clarify} depends on functionality provided by \pkg{marginaleffects} to accommodate a wide variety of regression models. \pkg{marginaleffects} also offers simulation-based inference using \texttt{marginaleffects::inferences()} and support for arbitrary user-specified post-estimation functions using \texttt{marginaleffects::hypotheses()}. However, \pkg{clarify} and \texttt{marignalefefcts} differ in several ways. The largest difference is that \pkg{clarify} supports iterative building of more and more complex hypotheses through the \texttt{transform()} method, which quickly computes new quantities and transformation from the existing computed quantities, whereas \pkg{marginaleffects} only supports a single transformation and, as of version 0.13.0, cannot use simulation-based inference for these quantities.
+\CRANpkg{marginaleffects} offers the most similar functionality to \CRANpkg{clarify}, and \CRANpkg{clarify} depends on functionality provided by \CRANpkg{marginaleffects} to accommodate a wide variety of regression models. \CRANpkg{marginaleffects} also offers simulation-based inference using \texttt{marginaleffects::inferences()} and support for arbitrary user-specified post-estimation functions using \texttt{marginaleffects::hypotheses()}. However, \CRANpkg{clarify} and \texttt{marignalefefcts} differ in several ways. The largest difference is that \CRANpkg{clarify} supports iterative building of more and more complex hypotheses through the \texttt{transform()} method, which quickly computes new quantities and transformation from the existing computed quantities, whereas \CRANpkg{marginaleffects} only supports a single transformation and, as of version 0.13.0, cannot use simulation-based inference for these quantities.
 
-Because of \pkg{clarify}'s focus on simulation, it provides functionality directly aimed at improving simulation-based inference, including plots to assess the normality of the distributions of simulated values (important for assessing whether Wald-type confidence intervals and p-values are valid) and support for parallel processing. \pkg{clarify} also provides support for simulation-based inference of multiply imputed data, which does not require any special pooling rules and does not require normality of the derived quantities.
+Because of \CRANpkg{clarify}'s focus on simulation, it provides functionality directly aimed at improving simulation-based inference, including plots to assess the normality of the distributions of simulated values (important for assessing whether Wald-type confidence intervals and p-values are valid) and support for parallel processing. \CRANpkg{clarify} also provides support for simulation-based inference of multiply imputed data, which does not require any special pooling rules and does not require normality of the derived quantities.
 
-There are areas and cases where \pkg{marginaleffects} may be the better choice than \pkg{clarify} or where the differences between the packages are of little consequence. \pkg{marginaleffects} focuses on providing a complete framework for post-estimation using model predictions, whereas \pkg{clarify} is primarily focused on supporting user-defined functions, with commonly used estimators offered as a convenience. In cases where the delta method is an acceptable approximation (e.g., for quantities computed from linear models or other quantities known to be approximately normally distributed in finite samples), using the delta method through \pkg{marginaleffects} will be much faster, more accurate, and more replicable than the simulation-based inference \pkg{clarify} provides. For the quantities easily computed by \pkg{marginaleffects} that support simulation-based inference through \texttt{marginaleffects::inferences()}, using \pkg{marginaleffects} can provide a more familiar and flexible syntax than \pkg{clarify} might offer.
-
-Note that as both packages continue to develop, these differences may grow or shrink. The differences above are meant to highlight the current differences and differences in philosophy and emphasis of the two packages. Ultimately, the user should use the package that supports their desired syntax and mode of inference.
+There are areas and cases where \CRANpkg{marginaleffects} may be the better choice than \CRANpkg{clarify} or where the differences between the packages are of little consequence. \CRANpkg{marginaleffects} focuses on providing a complete framework for post-estimation using model predictions, whereas \CRANpkg{clarify} is primarily focused on supporting user-defined functions, with commonly used estimators offered as a convenience. In cases where the delta method is an acceptable approximation (e.g., for quantities computed from linear models or other quantities known to be approximately normally distributed in finite samples), using the delta method through \CRANpkg{marginaleffects} will be much faster, more accurate, and more replicable than the simulation-based inference \CRANpkg{clarify} provides. For the quantities easily computed by \CRANpkg{marginaleffects} that support simulation-based inference through \texttt{marginaleffects::inferences()}, using \CRANpkg{marginaleffects} can provide a more familiar and flexible syntax than \CRANpkg{clarify} might offer. Ultimately, the user should use the package that supports their desired syntax and mode of inference.
 
 \hypertarget{conclusion}{%
 \subsection{Conclusion}\label{conclusion}}
 
-\pkg{clarify} provides utilities to facilitate simulation-based inference of deriving quantities form regression models. This framework avoids some of the approximations of the more common delta method, in particular the first-order approximation to the asymptotic variance and the approximation that the sampling distribution fo the derived quantity is Normal. \pkg{clarify} supports simulation-based inference of arbitrary derived quantities as well as common ones including average adjusted predictions, average marginal effects, and predictions at representative values. These enhance the utility and interpretability of regression models without requiring analysts to sacrifice parameterization for interpretability.
+\CRANpkg{clarify} provides functionality to facilitate simulation-based inference of deriving quantities from regression models. This framework avoids some of the approximations of the more common delta method, in particular the first-order approximation to the asymptotic variance and the approximation that the sampling distribution of the derived quantity is Normal. \CRANpkg{clarify} supports simulation-based inference of arbitrary derived quantities as well as common ones including average adjusted predictions, average marginal effects, and predictions at representative values. These enhance the usefulness and interpretability of regression models without requiring analysts to sacrifice parameterization for interpretability.
 
 \hypertarget{references}{%
 \section*{References}\label{references}}
@@ -913,6 +915,9 @@ Imai, Kosuke, Gary King, and Olivia Lau. 2008. {``Toward a Common Framework for 
 
 \leavevmode\vadjust pre{\hypertarget{ref-kingMakingMostStatistical2000}{}}%
 King, Gary, Michael Tomz, and Jason Wittenberg. 2000. {``Making the Most of Statistical Analyses: Improving Interpretation and Presentation.''} \emph{American Journal of Political Science} 44 (2): 347--61. \url{https://doi.org/10.2307/2669316}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-longRegressionModelsCategorical2014}{}}%
+Long, J. Scott, and Jeremy Freese. 2014. \emph{Regression Models for Categorical Dependent Variables Using Stata}. Third edition. College Station, Texas: Stata Press Publication, StataCorp LP.
 
 \leavevmode\vadjust pre{\hypertarget{ref-rainey2017}{}}%
 Rainey, Carlisle. 2017. {``Transformation-Induced Bias: Unbiased Coefficients Do Not Imply Unbiased Quantities of Interest.''} \emph{Political Analysis} 25 (3): 402--9. \url{https://doi.org/10.1017/pan.2017.11}.

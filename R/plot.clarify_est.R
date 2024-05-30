@@ -1,6 +1,13 @@
 #' @exportS3Method plot clarify_est
 #' @rdname summary.clarify_est
-plot.clarify_est <- function(x, parm, ci = TRUE, level = .95, method = "quantile", reference = FALSE, ncol = 3, ...) {
+plot.clarify_est <- function(x,
+                             parm,
+                             ci = TRUE,
+                             level = .95,
+                             method = "quantile",
+                             reference = FALSE,
+                             ncol = 3,
+                             ...) {
 
   chk::chk_flag(ci)
   chk::chk_flag(reference)
@@ -39,15 +46,20 @@ plot.clarify_est <- function(x, parm, ci = TRUE, level = .95, method = "quantile
 
   if (reference) {
     #Add normal density and mean line
-    ref_means <- data.frame(est = factor(levels(est_long$est), levels = levels(est_long$est)),
-                            mean = tapply(est_long$val, est_long$est, mean),
-                            height = dnorm(0, 0, tapply(est_long$val, est_long$est, sd)))
+    ref_means_and_medians <- data.frame(
+      est = factor(levels(est_long$est), levels = levels(est_long$est)),
+      mean = tapply(est_long$val, est_long$est, mean),
+      height = dnorm(0, 0, tapply(est_long$val, est_long$est, sd)),
+      median = tapply(est_long$val, est_long$est, median))
 
     p <- p + geom_density(data = est_long, mapping = aes(x = .data$val),
                           stat = StatNormal, color = "red") +
       geom_segment(aes(x = .data$mean, xend = .data$mean,
                        y = 0, yend = .data$height),
-                   data = ref_means, color = "red")
+                   data = ref_means_and_medians, color = "red") +
+      geom_segment(aes(x = .data$median, xend = .data$median,
+                       y = 0, yend = .2 * .data$height),
+                   data = ref_means_and_medians, color = "blue")
   }
 
   p +

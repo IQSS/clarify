@@ -1,4 +1,6 @@
 test_that("misim() works with lists of regressions", {
+  skip_if(!file.exists(test_path("fixtures", "model_list.rds")))
+
   m <- readRDS(test_path("fixtures", "model_list.rds"))
 
   s <- misim(m, n = 5)
@@ -58,6 +60,8 @@ test_that("misim() works with lists of regressions", {
 })
 
 test_that("misim() works with mira objects", {
+  skip_if(!file.exists(test_path("fixtures", "mira.rds")))
+
   m <- readRDS(test_path("fixtures", "mira.rds"))
 
   s <- misim(m, n = 5)
@@ -117,6 +121,8 @@ test_that("misim() works with mira objects", {
 })
 
 test_that("misim() works with mimira objects", {
+  skip_if(!file.exists(test_path("fixtures", "mimira.rds")))
+
   m <- readRDS(test_path("fixtures", "mimira.rds"))
 
   s <- misim(m, n = 5)
@@ -177,6 +183,8 @@ test_that("misim() works with mimira objects", {
 })
 
 test_that("sim_ame() works with misim() and glm()", {
+  skip_if(!file.exists(test_path("fixtures", "model_list.rds")))
+
   m <- readRDS(test_path("fixtures", "model_list.rds"))
 
   s <- misim(m, n = 5)
@@ -188,7 +196,7 @@ test_that("sim_ame() works with misim() and glm()", {
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 2)
   expect_identical(names(e), c("E[Y(0)]", "E[Y(1)]"))
-  expect_identical(attr(e, "var"), "treat")
+  expect_identical(attr(e, "var"), list(treat = 0:1))
 
   e <- sim_ame(s, "treat", contrast = "log(rr)", verbose = FALSE)
 
@@ -197,7 +205,7 @@ test_that("sim_ame() works with misim() and glm()", {
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
   expect_identical(names(e), c("E[Y(0)]", "E[Y(1)]", "log(RR)"))
-  expect_identical(attr(e, "var"), "treat")
+  expect_identical(attr(e, "var"), list(treat = 0:1))
 
   expect_warning(sim_ame(s, "race", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -208,7 +216,7 @@ test_that("sim_ame() works with misim() and glm()", {
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
   expect_identical(names(e), c("E[Y(black)]", "E[Y(hispan)]", "E[Y(white)]"))
-  expect_identical(attr(e, "var"), "race")
+  expect_identical(attr(e, "var"), list(race = c("black", "hispan", "white")))
 
   e <- sim_ame(s, list(race = c("black", "white")), contrast = "nnt", verbose = FALSE)
   expect_good_clarify_est(e)
@@ -216,7 +224,7 @@ test_that("sim_ame() works with misim() and glm()", {
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 3)
   expect_identical(names(e), c("E[Y(black)]", "E[Y(white)]", "NNT"))
-  expect_identical(attr(e, "var"), "race")
+  expect_identical(attr(e, "var"), list(race = c("black", "white")))
 
   #Continuous variable
   e <- sim_ame(s, "age", verbose = FALSE)
@@ -225,7 +233,7 @@ test_that("sim_ame() works with misim() and glm()", {
   expect_equal(attr(e, "sim_hash"), attr(s, "sim_hash"))
   expect_equal(ncol(e), 1)
   expect_identical(names(e), "E[dY/d(age)]")
-  expect_identical(attr(e, "var"), "age")
+  expect_identical(attr(e, "var"), list(age = NULL))
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
                  "`contrast` is ignored")
@@ -242,10 +250,8 @@ test_that("sim_ame() works with misim() and glm()", {
                "not present in the original model")
   expect_error(sim_ame(s, "raceAAA", verbose = FALSE),
                "not present in the original model")
-  expect_error(sim_ame(s, c("race", "treat"), verbose = FALSE),
-               "desired focal variable or a named list")
-  expect_error(sim_ame(s, list(race = "black", treat = 0:1), verbose = FALSE),
-               "desired focal variable or a named list")
+  expect_no_error(sim_ame(s, c("race", "treat"), verbose = FALSE))
+  expect_no_error(sim_ame(s, list(race = "black", treat = 0:1), verbose = FALSE))
   expect_error(sim_ame(s, list(0:1), verbose = FALSE),
                "desired focal variable or a named list")
 

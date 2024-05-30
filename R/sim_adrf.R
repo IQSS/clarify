@@ -19,8 +19,6 @@
 #'
 #' The AMEF is the derivative of the ADRF; if we call the derivative of the ADRF at each point a "treatment effect" (i.e., the rate at which the outcome changes corresponding to a small change in the predictor, or "treatment"), the AMEF is a function that relates the size of the treatment effect to the level of the treatment. The shape of the AMEF is usually of less importance than the value of the AMEF at each level of the predictor, which corresponds to the size of the treatment effect at the corresponding level. The AMEF is computed by computing the ADRF at each level of the focal predictor specified in `at`, shifting the predictor value by a tiny amount (control by `eps`), and computing the ratio of the change in the outcome to the shift, then averaging this value across all units. This quantity is related the the average marginal effect of a continuous predictor as computed by [`sim_ame()`], but rather than average these treatment effects across all observed levels of the treatment, the AMEF is a function evaluated at each possible level of the treatment. The "tiny amount" used is `eps` times the standard deviation of `var`.
 #'
-#' If unit-level weights are included in the model fit (and discoverable using [insight::get_weights()]), all means will be computed as weighted means.
-#'
 #' @return
 #' A `clarify_adrf` object, which inherits from `clarify_est` and is similar to
 #' the output of `sim_apply()`, with the additional attributes `"var"` containing
@@ -32,7 +30,7 @@
 #'   quantities for simulation-based inference; [summary.clarify_est()] for computing
 #'   p-values and confidence intervals for the estimated quantities.
 #'
-#' `marginaleffects::marginaleffects()` and `marginaleffects::predictions()` for delta method-based implementations of computing average marginal effects and average marginal means.
+#' [marginaleffects::avg_slopes()] and [marginaleffects::avg_predictions()] for delta method-based implementations of computing average marginal effects and average marginal means.
 #'
 #' @examples
 #' data("lalonde", package = "MatchIt")
@@ -191,7 +189,7 @@ sim_adrf <- function(sim,
         vapply(at, function(x) {
           dat[[var]][] <- x
           pred <- clarify_predict(fit, newdata = dat, group = outcome, type = type)
-          weighted.mean(.get_p(pred), attr(fit, "weights"))
+          mean(.get_p(pred))
         }, numeric(1L))
       }
 
@@ -206,13 +204,12 @@ sim_adrf <- function(sim,
 
         unlist(lapply(levels(by_var), function(b) {
           in_b <- by_var == b
-          w_b <- attr(fit, "weights")[in_b]
 
           vapply(at, function(x) {
             dat[[var]][] <- x
             pred <- clarify_predict(fit, newdata = dat[in_b,, drop = FALSE],
                                     group = outcome, type = type)
-            weighted.mean(.get_p(pred), w_b)
+            mean(.get_p(pred))
           }, numeric(1L))
         }))
       }
@@ -238,15 +235,14 @@ sim_adrf <- function(sim,
         ind <- seq_len(nrow(dat))
         dat2 <- dat[c(ind, ind),, drop = FALSE]
 
-        weights <- attr(fit, "weights")
 
         vapply(at, function(x) {
           dat2[[var]][ind] <- x - eps / 2
           dat2[[var]][-ind] <- x + eps / 2
           pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
           p <- .get_p(pred)
-          m0 <- weighted.mean(p[ind], weights)
-          m1 <- weighted.mean(p[-ind], weights)
+          m0 <- mean(p[ind])
+          m1 <- mean(p[-ind])
           (m1 - m0) / eps
         }, numeric(1L))
       }
@@ -263,19 +259,16 @@ sim_adrf <- function(sim,
         ind <- seq_len(nrow(dat))
         dat2 <- dat[c(ind, ind),, drop = FALSE]
 
-        weights <- attr(fit, "weights")
-
         unlist(lapply(levels(by_var), function(b) {
           in_b <- by_var == b
-          w_b <- attr(fit, "weights")[in_b]
 
           vapply(at, function(x) {
             dat2[[var]][ind] <- x - eps / 2
             dat2[[var]][-ind] <- x + eps / 2
             pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
             p <- .get_p(pred)
-            m0 <- weighted.mean(p[ind][in_b], w_b)
-            m1 <- weighted.mean(p[-ind][in_b], w_b)
+            m0 <- mean(p[ind][in_b])
+            m1 <- mean(p[-ind][in_b])
             (m1 - m0) / eps
           }, numeric(1L))
         }))

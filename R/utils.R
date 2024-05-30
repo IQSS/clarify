@@ -191,7 +191,7 @@ pkg_caller_call <- function(start = 1) {
 }
 
 .wrn <- function(..., immediate = TRUE) {
-  if (immediate && !isTRUE(all.equal(getOption("warn"), 1))) {
+  if (immediate && isTRUE(all.equal(getOption("warn"), 0))) {
     op <- options(warn = 1)
     on.exit(options(op))
   }
