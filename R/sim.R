@@ -52,9 +52,11 @@ sim <- function(fit,
                 coefs = NULL,
                 dist = NULL) {
 
-  if (missing(fit)) fit <- NULL
+  if (missing(fit)) {
+    fit <- NULL
+  }
 
-  if (!is.null(fit)) {
+  if (is_not_null(fit)) {
     if (!insight::is_regression_model(fit)) {
       .wrn("`fit` was not detected to be a regression model; proceed with caution")
     }
@@ -66,7 +68,7 @@ sim <- function(fit,
   chk::chk_count(n)
 
   coef_supplied <- {
-    if (is.null(coefs)) "null"
+    if (is_null(coefs)) "null"
     else if (is.function(coefs)) "fun"
     else if (check_valid_coef(coefs)) "num"
     else {
@@ -75,7 +77,7 @@ sim <- function(fit,
   }
 
   vcov_supplied <- {
-    if (is.null(vcov)) "null"
+    if (is_null(vcov)) "null"
     else if (is.matrix(vcov)) "num"
     else "marginaleffects_code"
   }
@@ -94,7 +96,7 @@ sim <- function(fit,
               fit = fit)
 
   attr(out, "dist") <- attr(sampler, "dist")
-  attr(out, "use_fit") <- !is.null(fit)
+  attr(out, "use_fit") <- is_not_null(fit)
   attr(out, "sim_hash") <- rlang::hash(out$sim.coefs)
   class(out) <- "clarify_sim"
 
@@ -106,9 +108,12 @@ print.clarify_sim <- function(x, ...) {
   cat("A `clarify_sim` object\n")
   cat(sprintf(" - %s coefficients, %s simulated values\n", ncol(x$sim.coefs), nrow(x$sim.coefs)))
   cat(sprintf(" - sampled distribution: multivariate %s\n", attr(x, "dist")))
-  if (!is.null(x$fit)) {
-    cat(" - original fitting function call:\n\n")
-    print(insight::get_call(x$fit))
+  if (is_not_null(x$fit)) {
+    fcall <- insight::get_call(x$fit)
+    if (is_not_null(fcall)) {
+      cat(" - original fitting function call:\n\n")
+      print(fcall)
+    }
   }
 
   invisible(x)
@@ -118,7 +123,7 @@ print.clarify_sim <- function(x, ...) {
 #`n`, `mu`, and `cov`; name of distribution is stored in attr(., "dist")
 get_sampling_dist <- function(fit = NULL, dist = NULL) {
 
-  if (!is.null(dist)) {
+  if (is_not_null(dist)) {
     chk::chk_string(dist)
     dist <- tolower(dist)
     if (startsWith(dist, "t(") && endsWith(dist, ")")) {
@@ -136,7 +141,7 @@ get_sampling_dist <- function(fit = NULL, dist = NULL) {
       .err("`dist` must be \"normal\" or \"t({#})\", where `{#}` corresponds to the desired degrees of freedom")
     }
   }
-  else if (is.null(fit)) {
+  else if (is_null(fit)) {
     dist <- "normal"
   }
   else {
@@ -174,20 +179,23 @@ get_sampling_dist <- function(fit = NULL, dist = NULL) {
 #Extracts coefs based on given inputs
 process_coefs <- function(coefs, fit = NULL, coef_supplied) {
   if (coef_supplied == "null") {
-    if (is.null(fit)) {
+    if (is_null(fit)) {
       .err("`coefs` must be supplied when `fit` is not specified")
     }
+
     coefs <- marginaleffects::get_coef(fit)
+
     if (!check_valid_coef(coefs)) {
       .err("a valid set of coefficients could not be extracted automatically; please supply coefficients to the `coefs` argument and a covariance matrix to the `vcov` argument")
     }
   }
   if (coef_supplied == "fun") {
-    if (is.null(fit)) {
+    if (is_null(fit)) {
       .err("`fit` must be supplied when `coefs` is a function")
     }
 
     coefs <- try_chk(coefs(fit))
+
     if (!check_valid_coef(coefs)) {
       .err("the output of the function supplied to `coefs` must be a numeric vector")
     }
@@ -206,10 +214,12 @@ process_coefs <- function(coefs, fit = NULL, coef_supplied) {
 #Extracts vcov based on given inputs
 process_vcov <- function(vcov, fit = NULL, vcov_supplied) {
   if (vcov_supplied == "null") {
-    if (is.null(fit)) {
+    if (is_null(fit)) {
       .err("`vcov` must be supplied when `fit` is not specified")
     }
+
     vcov <- marginaleffects::get_vcov(fit)
+
     if (!check_valid_vcov(vcov)) {
       .err("a valid covariance matrix could not be extracted automatically; please supply an argument to `vcov`")
     }
@@ -220,11 +230,12 @@ process_vcov <- function(vcov, fit = NULL, vcov_supplied) {
     }
   }
   else {
-    if (is.null(fit)) {
+    if (is_null(fit)) {
       .err("`fit` must be supplied when `vcov` is a not supplied as a matrix")
     }
 
     vcov <- marginaleffects::get_vcov(fit, vcov)
+
     if (!check_valid_vcov(vcov)) {
       .err("a valid covariance matrix could not be extracted using the argument supplied to `vcov`")
     }

@@ -78,17 +78,22 @@ transform.clarify_est <- function(`_data`, ...) {
                          available_b)
 
   for (i in seq_along(dots)[-1]) {
-    if (!is.null(dots[[i]]))
+    if (is_not_null(dots[[i]])) {
       dots[[i]] <- do.call("substitute", list(dots[[i]], names_list))
+    }
   }
 
   e <- try(eval(dots, as.data.frame(`_data`), parent.frame()), silent = TRUE)
 
-  if (is_error(e)) .err(conditionMessage(attr(e, "condition")), tidy = FALSE)
+  if (is_error(e)) {
+    .err(conditionMessage(attr(e, "condition")), tidy = FALSE)
+  }
 
   n <- nrow(`_data`)
-  if (!all(vapply(e, function(e.) length(e.) == 0 || (length(e.) == n && is.numeric(e.)), logical(1L)))) {
-    .err("all transformations must be vector operations of the variables in the original `clarify_est` object")
+  for (e. in e) {
+    if (is_not_null(e.) && (length(e.) != n || !is.numeric(e.))) {
+      .err("all transformations must be vector operations of the variables in the original `clarify_est` object")
+    }
   }
 
   e_original <- eval(dots, as.list(attr(`_data`, "original")), parent.frame())

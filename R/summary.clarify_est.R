@@ -71,9 +71,9 @@ summary.clarify_est <- function(object,
                                 null = NA,
                                 ...) {
 
-  if (is.null(attr(object, "original")) ||
-      is.null(ncol(object)) ||
-      !identical(ncol(object), length(attr(object, "original"))) ||
+  if (is_null(attr(object, "original")) ||
+      is_null(ncol(object)) ||
+      ncol(object) != length(attr(object, "original")) ||
       !identical(names(object), names(attr(object, "original")))) {
     .err("the `clarify_est` object is malformed, possibly due to tampering")
   }
@@ -93,8 +93,9 @@ summary.clarify_est <- function(object,
 
   test <- !all(is.na(null))
 
-  nas <- anyNA(object[parm])
-  if (nas) .wrn("NA values present among the estimates")
+  if (nas <- anyNA(object[parm])) {
+    .wrn("NA values present among the estimates")
+  }
 
   ans <- cbind(Estimate = original_est[parm],
                confint(object, parm = parm, level = level,
@@ -113,10 +114,14 @@ summary.clarify_est <- function(object,
     else if (method == "quantile") {
       ns <- {
         if (nas) colSums(!is.na(object[, parm, drop = FALSE]))
-        else rep(nrow(object), length(parm))
+        else rep.int(nrow(object), length(parm))
       }
+
       p <- vapply(seq_along(parm), function(i) {
-        if (is.na(null[i])) return(NA_real_)
+        if (is.na(null[i])) {
+          return(NA_real_)
+        }
+
         x <- object[, parm[i]]
         2 * min(sum(x <= null[i], na.rm = nas),
                 sum(x >= null[i], na.rm = nas)) / ns[i]
@@ -179,8 +184,9 @@ confint.clarify_est <- function(object,
   ci <- array(NA, dim = c(length(parm), 2L),
               dimnames = list(est_names, pct))
 
-  nas <- anyNA(object[parm])
-  if (nas) .wrn("`NA` values present among the estimates")
+  if (nas <- anyNA(object[parm])) {
+    .wrn("`NA` values present among the estimates")
+  }
 
   if (method == "quantile") {
     object <- drop_sim_class(object)

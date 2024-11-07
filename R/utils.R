@@ -1,72 +1,97 @@
 #Utilities
-word_list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE, quotes = FALSE) {
+
+#Turn a vector into a string with "," and "and" or "or" for clean messages.
+word_list <- function(word.list = NULL, and.or = "and", is.are = FALSE, quotes = FALSE) {
   #When given a vector of strings, creates a string of the form "a and b"
   #or "a, b, and c"
   #If is.are, adds "is" or "are" appropriately
-  L <- length(word.list)
-  word.list <- add_quotes(word.list, quotes)
 
-  if (L == 0) {
+  word.list <- setdiff(word.list, c(NA_character_, ""))
+
+  if (is_null(word.list)) {
     out <- ""
     attr(out, "plural") <- FALSE
+    return(out)
+  }
+
+  word.list <- add_quotes(word.list, quotes)
+
+  L <- length(word.list)
+
+  if (L == 1L) {
+    out <- word.list
+    if (is.are) out <- paste(out, "is")
+    attr(out, "plural") <- FALSE
+    return(out)
+  }
+
+  if (is_null(and.or) || isFALSE(and.or)) {
+    out <- paste(word.list, collapse = ", ")
   }
   else {
-    word.list <- word.list[!word.list %in% c(NA_character_, "")]
-    L <- length(word.list)
-    if (L == 0) {
-      out <- ""
-      attr(out, "plural") <- FALSE
-    }
-    else if (L == 1) {
-      out <- word.list
-      if (is.are) out <- paste(out, "is")
-      attr(out, "plural") <- FALSE
+    and.or <- match_arg(and.or, c("and", "or"))
+
+    if (L == 2L) {
+      out <- sprintf("%s %s %s",
+                     word.list[1L],
+                     and.or,
+                     word.list[2L])
     }
     else {
-      and.or <- match_arg(and.or)
-      if (L == 2) {
-        out <- paste(word.list, collapse = paste0(" ", and.or, " "))
-      }
-      else {
-        out <- paste(paste(word.list[seq_len(L - 1)], collapse = ", "),
-                     word.list[L], sep = paste0(", ", and.or, " "))
-
-      }
-      if (is.are) out <- paste(out, "are")
-      attr(out, "plural") <- TRUE
+      out <- sprintf("%s, %s %s",
+                     paste(word.list[-L], collapse = ", "),
+                     and.or,
+                     word.list[L])
     }
-
   }
+
+  if (is.are) {
+    out <- sprintf("%s are", out)
+  }
+
+  attr(out, "plural") <- TRUE
 
   out
 }
 
-#Add quotation marks around a string.
+#Add quotes to a string
 add_quotes <- function(x, quotes = 2L) {
-  if (!isFALSE(quotes)) {
-    if (isTRUE(quotes)) quotes <- 2
-
-    if (chk::vld_string(quotes)) x <- paste0(quotes, x, quotes)
-    else if (chk::vld_whole_number(quotes)) {
-      if (as.integer(quotes) == 0) return(x)
-      else if (as.integer(quotes) == 1) x <- paste0("\'", x, "\'")
-      else if (as.integer(quotes) == 2) x <- paste0("\"", x, "\"")
-      else stop("`quotes` must be boolean, 1, 2, or a string.")
-    }
-    else {
-      stop("'quotes' must be boolean, 1, 2, or a string.")
-    }
+  if (isFALSE(quotes)) {
+    return(x)
   }
+
+  if (isTRUE(quotes))
+    quotes <- '"'
+
+  if (chk::vld_string(quotes)) {
+    return(paste0(quotes, x, quotes))
+  }
+
+  if (!chk::vld_count(quotes) || quotes > 2) {
+    stop("`quotes` must be boolean, 1, 2, or a string.")
+  }
+
+  if (quotes == 0L) {
+    return(x)
+  }
+
+  x <- {
+    if (quotes == 1) sprintf("'%s'", x)
+    else sprintf('"%s"', x)
+  }
+
   x
 }
 
-#More informative and cleaner version of base::match.arg. From WeightIt with edits.
+#More informative and cleaner version of base::match.arg(). Uses chk.
 match_arg <- function(arg, choices, several.ok = FALSE) {
   #Replaces match.arg() but gives cleaner error message and processing
   #of arg.
-  if (missing(arg))
-    stop("No argument was supplied to match_arg().")
-  arg.name <- deparse1(substitute(arg))
+  if (missing(arg)) {
+    stop("No argument was supplied to match_arg.")
+  }
+
+  arg.name <- deparse1(substitute(arg), width.cutoff = 500L)
 
   if (missing(choices)) {
     formal.args <- formals(sys.function(sysP <- sys.parent()))
@@ -74,27 +99,29 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
                     envir = sys.frame(sysP))
   }
 
-  if (is.null(arg)) return(choices[1L])
-  else if (!is.character(arg))
-    stop(sprintf("The argument to `%s` must be NULL or a character vector", arg.name), call. = FALSE)
-
-  if (!several.ok) {
-    if (identical(arg, choices)) return(arg[1L])
-    if (length(arg) > 1L) {
-      stop(sprintf("The argument to `%s` must be of length 1", arg.name), call. = FALSE)
-    }
+  if (is_null(arg)) {
+    return(choices[1L])
   }
-  else if (length(arg) == 0) {
-    stop(sprintf("The argument to `%s` must be of length >= 1", arg.name), call. = FALSE)
+
+  if (several.ok) {
+    chk::chk_character(arg, x_name = add_quotes(arg.name, "`"))
+  }
+  else {
+    chk::chk_string(arg, x_name = add_quotes(arg.name, "`"))
+
+    if (identical(arg, choices)) {
+      return(arg[1L])
+    }
   }
 
   i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
-  if (all(i == 0L))
-    stop(sprintf("The argument to `%s` should be %s%s.",
+
+  if (all(i == 0L)) {
+    .err(sprintf("the argument to `%s` should be %s%s",
                  arg.name,
                  ngettext(length(choices), "", if (several.ok) "at least one of " else "one of "),
-                 word_list(choices, and.or = "or", quotes = 2)),
-         call. = FALSE)
+                 word_list(choices, and.or = "or", quotes = 2)))
+  }
 
   i <- i[i > 0L]
 
@@ -109,7 +136,11 @@ fmt.prc <- function(probs, digits = 3) {
 #Check if all values are the same
 all_the_same <- function(x) {
   if (is.list(x)) {
-    for (i in x) if (!identical(i, x[[1]])) return(FALSE)
+    for (i in x) {
+      if (!identical(i, x[[1]])) {
+        return(FALSE)
+      }
+    }
     return(TRUE)
   }
 
@@ -117,13 +148,22 @@ all_the_same <- function(x) {
     return(abs(max(x) - min(x)) < 1e-9)
   }
 
-  length(unique(x)) == 1
+  length(unique(x)) == 1L
 }
 
 #Tidy tryCatching
 try_chk <- function(expr) {
-  tryCatch(expr,
-           error = function(e) .err(conditionMessage(e)))
+  tryCatch({
+    withCallingHandlers({
+      expr
+    },
+    warning = function(w) {
+      .wrn(conditionMessage(w), tidy = FALSE)
+      invokeRestart("muffleWarning")
+    })},
+    error = function(e) {
+      .err(conditionMessage(e), tidy = FALSE)
+    })
 }
 
 #mode
@@ -138,18 +178,25 @@ Mode <- function(v, na.rm = TRUE) {
     }
   }
 
-  if (length(v) == 0) return(v)
+  if (is_null(v)) {
+    return(v)
+  }
+
   if (is.factor(v)) {
-    if (nlevels(v) == 1) return(levels(v)[1])
+    if (nlevels(v) == 1L) {
+      return(levels(v)[1])
+    }
+
     mode <- levels(v)[which.max(tabulate(v, nbins = nlevels(v)))]
-    mode <- factor(mode, levels = levels(v))
+    return(factor(mode, levels = levels(v)))
   }
-  else {
-    uv <- unique(v)
-    if (length(uv) == 1) return(uv)
-    mode <- uv[which.max(tabulate(match(v, uv)))]
+
+  uv <- unique(v)
+  if (length(uv) == 1L) {
+    return(uv)
   }
-  mode
+
+  uv[which.max(tabulate(match(v, uv)))]
 }
 
 #Recursively search a list for a value (key) and return location of value
@@ -161,7 +208,9 @@ list.search <- function(x, key) {
 
     if (is.list(x[[i]])) {
       l <- list.search(x[[i]], key)
-      if (!is.null(l)) return(c(i, l))
+      if (is_not_null(l)) {
+        return(c(i, l))
+      }
     }
   }
 
@@ -172,6 +221,9 @@ list.search <- function(x, key) {
 is_error <- function(x) {
   inherits(x, "try-error")
 }
+
+is_null <- function(x) {length(x) == 0L}
+is_not_null <- function(x) {!is_null(x)}
 
 pkg_caller_call <- function(start = 1) {
   package.funs <- c(getNamespaceExports(utils::packageName()),
@@ -186,16 +238,22 @@ pkg_caller_call <- function(start = 1) {
   rlang::caller_call(e_max)
 }
 
-.err <- function(...) {
-  chk::err(..., call = pkg_caller_call(start = 2))
+.err <- function(..., n = NULL, tidy = TRUE) {
+  m <- chk::message_chk(..., n = n, tidy = tidy)
+  rlang::abort(paste(strwrap(m), collapse = "\n"),
+               call = pkg_caller_call(start = 2))
 }
-
-.wrn <- function(..., immediate = TRUE) {
-  if (immediate && isTRUE(all.equal(getOption("warn"), 0))) {
+.wrn <- function(..., n = NULL, tidy = TRUE, immediate = TRUE) {
+  if (immediate && isTRUE(all.equal(0, getOption("warn")))) {
     op <- options(warn = 1)
     on.exit(options(op))
   }
-  chk::wrn(...)
+  m <- chk::message_chk(..., n = n, tidy = tidy)
+  rlang::warn(paste(strwrap(m), collapse = "\n"))
+}
+.msg <- function(..., n = NULL, tidy = TRUE) {
+  m <- chk::message_chk(..., n = n, tidy = tidy)
+  rlang::inform(paste(strwrap(m), collapse = "\n"), tidy = FALSE)
 }
 
 drop_sim_class <- function(x) {

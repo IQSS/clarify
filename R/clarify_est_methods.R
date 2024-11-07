@@ -10,17 +10,21 @@ names.clarify_est <- function(x) {
   x <- drop_sim_class(x)
   colnames(x) <- value
   names(attr(x, "original")) <- value
+
   for (i in names(attributes(x))) {
     if (identical(names(attr(x, i)), original_names)) {
       names(attr(x, i)) <- value
     }
+
     if (identical(rownames(attr(x, i)), original_names)) {
       rownames(attr(x, i)) <- value
     }
+
     if (identical(colnames(attr(x, i)), original_names)) {
       colnames(attr(x, i)) <- value
     }
   }
+
   class(x) <- original_class
   x
 }
@@ -102,7 +106,10 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
 
   Narg <- nargs()
 
-  if (Narg == 1) return(x)
+  if (Narg == 1L) {
+    return(x)
+  }
+
   if (Narg > 2) {
     .err("`clarify_est` objects can only by subset as obj[.], not obj[., .]")
   }
@@ -188,7 +195,7 @@ str.clarify_est <- function(object,
                              ch = "| __truncated__") {
     ok <- {
       if (anyNA(nx)) !is.na(nx)
-    else TRUE
+      else TRUE
     }
 
     if (any(lrg <- ok & nx > nchar.max)) {

@@ -91,7 +91,8 @@ StatNormal <- ggplot2::ggproto("StatNormal", ggplot2::Stat,
                                  data <- ggplot2::flip_data(data, flipped_aes)
                                  if (trim) {
                                    range <- range(data$x, na.rm = TRUE)
-                                 } else {
+                                 }
+                                 else {
                                    range <- scales[[flipped_names(flipped_aes)$x]]$dimension()
                                  }
 
@@ -105,7 +106,7 @@ StatNormal <- ggplot2::ggproto("StatNormal", ggplot2::Stat,
 compute_norm_dens <- function(x, w, from, to, n = 512) {
   nx <- length(x)
   if (is.null(w)) {
-    w <- rep(1, nx)
+    w <- rep.int(1, nx)
   }
 
   nax <- is.na(x)

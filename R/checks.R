@@ -2,7 +2,7 @@ process_FUN <- function(FUN, use_fit = TRUE) {
   chk::chk_function(FUN)
   FUN_arg_names <- names(formals(FUN))
 
-  if (length(FUN_arg_names) == 0) {
+  if (is_null(FUN_arg_names)) {
     .err("`FUN` must accept one or more arguments")
   }
 
@@ -23,7 +23,7 @@ process_FUN <- function(FUN, use_fit = TRUE) {
 }
 
 check_transform <- function(transform = NULL) {
-  if (is.null(transform)) return(NULL)
+  if (is_null(transform)) return(NULL)
 
   transform_name <- {
     if (is.character(transform)) transform
@@ -38,13 +38,13 @@ check_transform <- function(transform = NULL) {
 }
 
 check_valid_coef <- function(coef) {
-  length(coef) > 0 &&
+  is_not_null(coef) &&
     is.numeric(coef) &&
-    (is.null(dim(coef)) || (length(dim(coef)) == 2 && any(dim(coef) == 1)))
+    (is_null(dim(coef)) || (length(dim(coef)) == 2L && any(dim(coef) == 1L)))
 }
 
 check_valid_vcov <- function(vcov) {
-  length(vcov) > 0 &&
+  is_not_null(vcov) &&
     is.numeric(vcov) &&
     is.matrix(vcov) &&
     length(dim(vcov)) == 2L &&
@@ -53,8 +53,10 @@ check_valid_vcov <- function(vcov) {
 }
 
 check_symmetric_cov <- function(x) {
-  if (length(dim(x)) != 2 ||
-      !identical(dim(x)[1], dim(x)[2])) return(FALSE)
+  if (length(dim(x)) != 2L ||
+      !identical(dim(x)[1L], dim(x)[2L])) {
+    return(FALSE)
+  }
 
   r <- cov2cor(x)
 
@@ -132,7 +134,7 @@ check_coefs_vcov_length_mi <- function(vcov, coefs, vcov_supplied, coef_supplied
       paste0("imputation%s ", word_list(as.character(bad_imps)))
   }
 
-  if (length(bad_imps) > 0) {
+  if (is_not_null(bad_imps)) {
     if (coef_supplied == "null") {
       if (vcov_supplied == "null") {
         .err("in ", in.imps, ", the covariance matrix extracted from the model has dimensions different from the number of coefficients extracted from the model. You may need to supply your own function to extract one or both of these", n = length(bad_imps))
@@ -173,7 +175,7 @@ check_fitlist <- function(fitlist) {
   if (!is.list(fitlist) ||
       any(vapply(fitlist, function(f) {
         b <- try(coef(f))
-        is_error(b) || is.null(b) || all(is.na(b))
+        is_error(b) || is_null(b) || all(is.na(b))
       }, logical(1L)))) {
     .err("`fitlist` must be a list of model fits or a `mira` object")
   }
@@ -186,7 +188,7 @@ check_ests.list <- function(est, test) {
     .wrn("some simulations produced no estimates; these estimates have been replaced by `NA`",
          immediate = FALSE)
     est[l == 0] <- lapply(which(l == 0), function(i) {
-      rep(NA_real_, length(test))
+      rep.int(NA_real_, length(test))
     })
   }
 
@@ -201,7 +203,8 @@ check_ests <- function(ests) {
   if (length(non_finites) == length(ests)) {
     .err("no finite estimates were produced")
   }
-  if (length(non_finites) > 0) {
+
+  if (is_not_null(non_finites)) {
     .wrn("some non-finite values were found among the estimates, which can invalidate inferences",
          immediate = FALSE)
   }
@@ -209,7 +212,9 @@ check_ests <- function(ests) {
 
 process_parm <- function(object, parm) {
   #Returns numeric parm
-  if (missing(parm)) parm <- seq_len(ncol(object))
+  if (missing(parm)) {
+    parm <- seq_len(ncol(object))
+  }
 
   if (is.character(parm)) {
     ind <- match(parm, names(object))
@@ -223,12 +228,12 @@ process_parm <- function(object, parm) {
   else if (is.numeric(parm)) {
     chk::chk_whole_numeric(parm)
     if (any(parm < 1) || any(parm > ncol(object))) {
-      if (ncol(object) != 1) {
+      if (ncol(object) != 1L) {
         .err(sprintf("all values in `parm` must be between 1 and %s", ncol(object)))
       }
 
       .wrn("ignoring `parm` because only one estimate is available")
-      parm <- 1
+      parm <- 1L
     }
   }
   else {
@@ -239,14 +244,15 @@ process_parm <- function(object, parm) {
 }
 
 process_null <- function(null, object, parm) {
-  if (length(null) == 0 || (is.atomic(null) && all(is.na(null)))) {
+  if (is_null(null) || (is.atomic(null) && all(is.na(null)))) {
     null <- NA_real_
   }
-  chk::chk_numeric(null)
+  else {
+    chk::chk_numeric(null)
+  }
 
-
-  if (!is.null(names(null))) {
-    null0 <- setNames(rep(NA_real_, length(parm)), names(object)[parm])
+  if (is_not_null(names(null))) {
+    null0 <- setNames(rep.int(NA_real_, length(parm)), names(object)[parm])
 
     if (!all(names(null) %in% names(null0))) {
       if (all(seq_len(ncol(object)) %in% parm)) {
@@ -259,8 +265,8 @@ process_null <- function(null, object, parm) {
 
     null0[names(null)] <- null
   }
-  else if (length(null) == 1) {
-    null0 <- setNames(rep(null, length(parm)), names(object)[parm])
+  else if (length(null) == 1L) {
+    null0 <- setNames(rep.int(null, length(parm)), names(object)[parm])
   }
   else if (length(null) == length(parm)) {
     null0 <- setNames(null, names(object)[parm])
@@ -278,7 +284,11 @@ check_classes <- function(olddata, newdata) {
   new <- vapply(newdata, stats::.MFclass, character(1L))
   old <- vapply(olddata, stats::.MFclass, character(1L))
   new <- new[names(new) %in% names(old)]
-  if (length(new) == 0L) return(invisible(NULL))
+
+  if (is_null(new)) {
+    return(invisible(NULL))
+  }
+
   old <- old[names(new)]
   old[old == "ordered"] <- "factor"
   new[new == "ordered"] <- "factor"
@@ -307,6 +317,7 @@ check_sim_apply_wrapper_ready <- function(sim) {
     .err(sprintf("`%s()` can only be used when a model fit was supplied to the original call to `sim()`",
                  fun))
   }
+
   if (inherits(sim, "clarify_misim")) {
     if (!all(vapply(sim$fit, insight::is_regression_model, logical(1L)))) {
       .err(sprintf("`%s()` can only be used with regression models",

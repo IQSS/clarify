@@ -33,37 +33,39 @@ plot.clarify_setx <- function(x,
 
   newdata <- attr(x, "setx")
 
-  if (nrow(newdata) == 1) {
-    if (!is.null(var)) {
+  if (nrow(newdata) == 1L) {
+    if (is_not_null(var)) {
       .wrn("ignoring `var` because no variables vary over predictions")
     }
+
     return(plot.clarify_est(x, parm = 1, ci = ci, level = level,
                             method = method, reference = reference, ...))
   }
 
   if (isTRUE(attr(x, "fd"))) {
-    if (!is.null(var)) {
+    if (is_not_null(var)) {
       .wrn("ignoring `var`")
     }
+
     return(plot.clarify_est(x, parm = 1:3, ci = ci, level = level,
                             method = method, reference = reference, ...))
   }
 
   len_unique_newdata <- vapply(newdata, function(v) length(unique(v)), integer(1L))
-  varying <- names(newdata)[len_unique_newdata > 1]
+  varying <- names(newdata)[len_unique_newdata > 1L]
 
-  if (length(varying) == 1) {
-    if (!is.null(var) && !identical(var, varying)) {
+  if (length(varying) == 1L) {
+    if (is_not_null(var) && !identical(var, varying)) {
       .wrn("ignoring `var` because only one variable varies over predictions")
     }
     var <- varying
   }
-  else if (is.null(var)) {
-    if (any(len_unique_newdata[varying] > 2)) {
+  else if (is_null(var)) {
+    if (any(len_unique_newdata[varying] > 2L)) {
       var <- attr(newdata, "set_preds")[which.max(len_unique_newdata[attr(newdata, "set_preds")])]
     }
     else {
-      var <- attr(newdata, "set_preds")[attr(newdata, "set_preds") %in% varying][1]
+      var <- attr(newdata, "set_preds")[attr(newdata, "set_preds") %in% varying][1L]
     }
   }
   else {
@@ -76,7 +78,7 @@ plot.clarify_setx <- function(x,
   non_var_varying <- setdiff(varying, var)
 
   p <- {
-    if (len_unique_newdata[var] == 2 || chk::vld_character_or_factor(newdata[[var]]))
+    if (len_unique_newdata[var] == 2L || chk::vld_character_or_factor(newdata[[var]]))
       setx_sim_plot(x, var, non_var_varying, ci = ci,
                     level = level, method = method, ...)
     else
@@ -111,15 +113,17 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
                              by.x = "est", by.y = 0)
   original_est_long[[var]] <- paste0(var, " = ", add_quotes(original_est_long[[var]], chk::vld_character_or_factor(original_est_long[[var]])))
 
-  if (length(non_var_varying) > 0) {
+  if (is_not_null(non_var_varying)) {
     non_var_varying_f <- do.call("paste", c(lapply(non_var_varying, function(i) {
       paste0(i, " = ", add_quotes(est_long[[i]], chk::vld_character_or_factor(est_long[[i]])))
     }), list(sep = ", ")))
+
     non_var_varying_f <- factor(non_var_varying_f, levels = unique(non_var_varying_f))
 
     non_var_varying_f_o <- do.call("paste", c(lapply(non_var_varying, function(i) {
       paste0(i, " = ", add_quotes(original_est_long[[i]], chk::vld_character_or_factor(original_est_long[[i]])))
     }), list(sep = ", ")))
+
     non_var_varying_f_o <- factor(non_var_varying_f_o, levels = unique(non_var_varying_f_o))
   }
   else {
@@ -145,7 +149,7 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
                      by.x = "est", by.y = 0)
     ci_long[[var]] <- paste0(var, " = ", add_quotes(ci_long[[var]], chk::vld_character_or_factor(ci_long[[var]])))
 
-    if (length(non_var_varying) > 0) {
+    if (is_not_null(non_var_varying)) {
       non_var_varying_f_ci <- do.call("paste", c(lapply(non_var_varying, function(i) {
         paste0(i, " = ", add_quotes(ci_long[[i]], chk::vld_character_or_factor(ci_long[[i]])))
       }), list(sep = ", ")))
@@ -172,10 +176,11 @@ setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
 
   newdata <- attr(x, "setx")
 
-  if (length(non_var_varying)) {
+  if (is_not_null(non_var_varying)) {
     non_var_varying_f <- do.call("paste", c(lapply(non_var_varying, function(i) {
       paste0(i, " = ", add_quotes(newdata[[i]], chk::vld_character_or_factor(newdata[[i]])))
     }), list(sep = ", ")))
+
     non_var_varying_f <- factor(non_var_varying_f, levels = unique(non_var_varying_f))
   }
   else {

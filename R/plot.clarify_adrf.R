@@ -33,7 +33,7 @@ plot.clarify_adrf <- function(x,
   by <- attr(x, "by")
 
   if (missing(baseline)) {
-    baseline <- !is.null(contrast) && contrast == "amef"
+    baseline <- is_not_null(contrast) && contrast == "amef"
   }
   else {
     chk::chk_flag(baseline)
@@ -46,10 +46,11 @@ plot.clarify_adrf <- function(x,
       data.frame(Estimate = coef(x))
   }
 
-  if (!is.null(by)) {
+  if (is_not_null(by)) {
     s$by_var <- factor(.extract_by_values(x))
-    if (nlevels(s$by_var) == 1)
+    if (nlevels(s$by_var) == 1L) {
       by <- NULL
+    }
   }
 
   p <- ggplot(mapping = aes(x = at))
@@ -58,7 +59,7 @@ plot.clarify_adrf <- function(x,
     p <- p + geom_hline(yintercept = 0)
   }
 
-  if (is.null(by)) {
+  if (is_null(by)) {
     p <- p + geom_line(aes(y = s$Estimate),
                        color = color) +
       labs(x = var, y = "E[Y|X]")
@@ -69,7 +70,7 @@ plot.clarify_adrf <- function(x,
   }
 
   if (ci) {
-    if (is.null(by)) {
+    if (is_null(by)) {
       p <- p +
         geom_ribbon(aes(ymin = s[[2]], ymax = s[[3]]),
                     alpha = .3, fill = color)
@@ -82,8 +83,8 @@ plot.clarify_adrf <- function(x,
         labs(fill = paste(by, collapse = ", "))
     }
   }
-  p + labs(x = var, y = if (!is.null(attr(x, "contrast"))) switch(attr(x, "contrast"), "adrf" = sprintf("E[Y(%s)]", var),
-                                                                  "amef" = sprintf("E[dY/d(%s)]", var))) +
+  p + labs(x = var, y = if (is_not_null(attr(x, "contrast"))) switch(attr(x, "contrast"), "adrf" = sprintf("E[Y(%s)]", var),
+                                                                     "amef" = sprintf("E[dY/d(%s)]", var))) +
     theme_bw()
 }
 
