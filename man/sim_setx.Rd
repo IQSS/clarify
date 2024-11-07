@@ -12,7 +12,8 @@ sim_setx(
   outcome = NULL,
   type = NULL,
   verbose = TRUE,
-  cl = NULL
+  cl = NULL,
+  ...
 )
 
 \method{print}{clarify_setx}(x, digits = NULL, max.ests = 6, ...)
@@ -21,10 +22,7 @@ sim_setx(
 \item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or
 \code{\link[=misim]{misim()}}.}
 
-\item{x}{a data.frame containing a reference grid of predictor values or a named list of values each predictor should take defining such a
-reference grid, e.g., \code{list(v1 = 1:4, v2 = c("A", "B"))}.
-Any omitted predictors are fixed at a "typical" value. See Details.
-When \code{x1} is specified, \code{x} should identify a single reference unit.
+\item{x}{a data.frame containing a reference grid of predictor values or a named list of values each predictor should take defining such a reference grid, e.g., \code{list(v1 = 1:4, v2 = c("A", "B"))}. Any omitted predictors are fixed at a "typical" value. See Details. When \code{x1} is specified, \code{x} should identify a single reference unit.
 
 For \code{print()}, a \code{clarify_setx} object.}
 
@@ -44,11 +42,11 @@ integer to indicate the number of child-processes (integer values are
 ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for
 details. If \code{NULL}, no parallelization will take place.}
 
+\item{\dots}{for \code{sim_setx()}, additional arguments passed to \code{\link[marginaleffects:get_predict]{marginaleffects::get_predict()}} (and eventually to \code{predict()}) to compute predictions. For \code{print()}, ignored.}
+
 \item{digits}{the minimum number of significant digits to be used; passed to \code{\link[=print.data.frame]{print.data.frame()}}.}
 
 \item{max.ests}{the maximum number of estimates to display.}
-
-\item{...}{optional arguments passed to \code{FUN}.}
 }
 \value{
 a \code{clarify_setx} object, which inherits from \code{clarify_est} and is similar to the output of \code{sim_apply()}, with the following additional attributes:

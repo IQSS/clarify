@@ -15,7 +15,8 @@ sim_ame(
   type = NULL,
   eps = 1e-05,
   verbose = TRUE,
-  cl = NULL
+  cl = NULL,
+  ...
 )
 
 \method{print}{clarify_ame}(x, digits = NULL, max.ests = 6, ...)
@@ -68,13 +69,13 @@ integer to indicate the number of child-processes (integer values are
 ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for
 details. If \code{NULL}, no parallelization will take place.}
 
+\item{\dots}{for \code{sim_ame()}, additional arguments passed to \code{\link[marginaleffects:get_predict]{marginaleffects::get_predict()}} (and eventually to \code{predict()}) to compute predictions. For \code{print()}, ignored.}
+
 \item{x}{a \code{clarify_ame} object.}
 
 \item{digits}{the minimum number of significant digits to be used; passed to \code{\link[=print.data.frame]{print.data.frame()}}.}
 
 \item{max.ests}{the maximum number of estimates to display.}
-
-\item{...}{optional arguments passed to \code{FUN}.}
 }
 \value{
 A \code{clarify_ame} object, which inherits from \code{clarify_est} and is
