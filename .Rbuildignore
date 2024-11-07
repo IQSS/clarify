@@ -9,4 +9,6 @@
 ^\_dev$
 ^CRAN-SUBMISSION$
 ^clarify$
+^figures$
+^motivation-letter$
 ^tests/testthat/fixtures/mimira\.rds$
