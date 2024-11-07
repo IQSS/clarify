@@ -36,7 +36,7 @@ author:
     orcid: 0000-0002-5327-7631
 type: package
 output: 
-  rjtools::rjournal_web_article:
+  rjtools::rjournal_pdf_article:
     self_contained: yes
     toc: no
 bibliography: RJreferences.bib
@@ -62,7 +62,7 @@ if (!requireNamespace("Amelia")) {
 }
 ```
 
-## Introduction
+# Introduction
 
 Although regression models are frequently used in empirical research to study relationships among variables, often the quantity of substantive interest is not one of the coefficients of the model, but rather a quantity derived from the coefficients, such as predicted values or average marginal effects. Quantifying the uncertainty of these derived quantities (i.e., computing standard errors, confidence intervals, and p-values) requires additional processing. Several methods of doing so exist, including the delta method, the bootstrap, and simulation-based inference. \CRANpkg{clarify} implements simulation-based inference, which we describe below along with these other methods.
 
@@ -86,13 +86,13 @@ Another potential advantage quantile intervals can have over Wald-intervals is t
 
 [^1]: We thank an anonymous reviewer for pointing out a scenario in which this could occur: for a quantity of interest with a right-skewed sampling distribution, one would prefer an estimate to the right of the quantity's true value to have a confidence interval skewed to left to capture the bulk of the sampling distribution, but in practice a quantile confidence interval would also be skewed to the right. While a symmetric Wald-based interval may not have adequate coverage, the quantile-based interval could perform even worse.
 
-## Related Software
+# Related Software
 
-Similar functionality exists in the \pkg{CLARIFY} package in Stata[^2] [@tomzClarifySoftwareInterpreting2003] and used to be available in the `Zelig` R package [@imaiCommonFrameworkStatistical2008a], though there are differences in these implementations. \CRANpkg{clarify} provides additional flexibility by allowing the user to request any derived quantity, in addition to providing shortcuts for common quantities, including predictions at representative values, average marginal effects, and average dose-response functions (described below). \CRANpkg{clarify} relies on and can be seen as a companion to the \CRANpkg{marginaleffects} package [@arel-bundockMarginaleffectsPredictionsComparisons2024], which offers similar functionality but primarily uses the delta method for calculating uncertainty (though simulation-based inference is supported in a more limited capacity as well).
+Similar functionality exists in the \pkg{CLARIFY} package in Stata[^2] [@tomzClarifySoftwareInterpreting2003] and used to be available in the `Zelig` R package [@imaiCommonFrameworkStatistical2008a], though there are differences in these implementations. \CRANpkg{clarify} provides additional flexibility by allowing the user to request any derived quantity, in addition to providing shortcuts for common quantities, including predictions at representative values, average marginal effects, and average dose-response functions (described below). \CRANpkg{clarify} relies on and can be seen as a companion to the \CRANpkg{marginaleffects} package [@marginaleffectsforthcoming], which offers similar functionality but primarily uses the delta method for calculating uncertainty (though simulation-based inference is supported in a more limited capacity as well).
 
 [^2]: Despite the similar name, the R package \CRANpkg{clarify} and the Stata package \pkg{CLARIFY} differ in several ways, one of which is that the estimates reported by \CRANpkg{clarify} in R are those computed using the original model coefficients, whereas those reported by \pkg{CLARIFY} in Stata are those computed as the average of the simulated distribution. The R implementation avoids the "simulation-induced bias" described by @raineyCarefulConsiderationCLARIFY2023.
 
-## Using \CRANpkg{clarify}
+# Using \CRANpkg{clarify}
 
 There are four steps to using \CRANpkg{clarify}:
 
@@ -121,7 +121,7 @@ lalonde$re78_0 <- ifelse(lalonde$re78 > 0, 1, 0)
 head(lalonde)
 ```
 
-### 1. Fitting the model
+## 1. Fitting the model
 
 The first step is to fit the model. \CRANpkg{clarify} can operate on a large set of models (those supported by \CRANpkg{marginaleffects}), including generalized linear models, multinomial models, multivariate models, and instrumental variable models, many of which are available in other R packages. Even if \CRANpkg{clarify} does not offer direct support for a given model, there are ways to use its functionality regardless (explained in more detail below).
 
@@ -133,7 +133,7 @@ fit <- glm(re78_0 ~ treat * married + age + educ + race +
            family = binomial("probit"))
 ```
 
-### 2. Drawing from the coefficient distribution
+## 2. Drawing from the coefficient distribution
 
 After fitting the model, we will use `sim()` to draw coefficients from their sampling distribution. The sampling distribution is assumed to be multivariate Normal or multivariate T with appropriate degrees of freedom, with a mean vector equal to the estimated coefficients and a covariance matrix equal to the asymptotic covariance matrix extracted from the model. The arguments to `sim()` are listed below:
 
@@ -168,7 +168,7 @@ s <- sim(fit, n = 1000,
 s
 ```
 
-### 3. Computing derived quantities
+## 3. Computing derived quantities
 
 After sampling the coefficients, one can compute derived quantities on each set of sampled coefficients and store the result, which represents the "posterior" distribution of the derived quantity, as well as on the original coefficients, which are used as the final estimates. The core functionality is provided by `sim_apply()`, which accepts a `clarify_sim` object from `sim()` and a function to compute and return one or more derived quantities, then applies that function to each set of simulated coefficients. The arguments to `sim_apply()` are below:
 
@@ -184,7 +184,7 @@ sim_apply(sim = , FUN = , verbose = , cl = , ...)
 
 -   `cl` -- an argument that controls parallel processing, which can be the number of cores to use or a cluster object resulting from `parallel::makeCluster()`.
 
--   `...` - further arguments to `FUN`.
+-   `...` -- further arguments to `FUN`.
 
 The `FUN` argument can be specified in one of two ways: either as a function that takes in a model fit object (e.g., a `glm` or `lm` object, the output of a call to `glm()` or `lm()`) or a function that takes in a vector of coefficients. The latter will always work but the former only works for supported models. When the function takes in a model fit object, `sim_apply()` will first insert each set of sampled coefficients into the model fit object and then supply the modified model to `FUN`.
 
@@ -233,7 +233,7 @@ There are several functions in \CRANpkg{clarify} that serve as convenience wrapp
 
 These are described in their own sections below. In addition, there are functions that have methods for `clarify_est` objects, including `cbind()` for combining two `clarify_est` objects together and `transform()` for computing quantities that are derived from the already-computed derived quantities. These are also described in their own sections below.
 
-### 4. Summarize and visualize the simulated distribution
+## 4. Summarize and visualize the simulated distribution
 
 To examine the uncertainty around and perform inference on our estimated quantities, we can use `plot()` and `summary()` on the `clarify_est` object.
 
@@ -297,13 +297,13 @@ summary(est2, method = "wald", null = 0)
 
 The uncertainty intervals and p-values in the `summary()` output are computed using the Normal approximation because we set `method = "wald"`, and the p-value for the test that our estimate is equal to 0 is returned because we set `null = 0`. Note that the Normal approximation should be used only when the simulated posterior distribution is both close to Normal and centered around the estimate (i.e., when the mean of the simulated values [red vertical line] coincides with the estimate computed on the original coefficients [black vertical line]). In such cases, however, the delta method will likely perform as well, if not better, and all of its other benefits apply (i.e., it is computationally quicker and not subject to Monte Carlo error).
 
-## `sim_apply()` Wrappers: `sim_setx()`, `sim_ame()`, `sim_adrf()`
+# `sim_apply()` Wrappers: `sim_setx()`, `sim_ame()`, `sim_adrf()`
 
 `sim_apply()` can be used to compute the simulated posterior distribution for an arbitrary derived quantity of interest, but there are some quantities that are common in applied research and may otherwise be somewhat challenging to program by hand, so \CRANpkg{clarify} provides shortcut functions to make computing these quantities simple. These functions include `sim_setx()`, `sim_ame()`, and `sim_adrf()`. Each of these can be used only when regression models compatible with \CRANpkg{clarify} are supplied to the original call to `sim()`.
 
 Like `sim_apply()`, each of these functions is named `sim_*()`, which signifies that they are to be used on an object produced by `sim()` (i.e., a `clarify_sim` object). (Multiple calls to these functions can be applied to the same `clarify_sim` object and combined; see the `cbind()` section below.) These functions are described below.
 
-### `sim_setx()`: predictions at representative values
+## `sim_setx()`: predictions at representative values
 
 `sim_setx()` provides an interface to compute predictions at representative and user-supplied values of the predictors. For example, we might want to know what the effect of treatment is for a "typical" individual, which corresponds to the contrast between two model-based predictions (i.e., one under treatment and one under control for a unit with "typical" covariate values). This functionality mirrors the `setx()` and `setx1()` functionality of `Zelig` (which is where its name originates) and provides similar functionality to functions in \CRANpkg{modelbased}, \CRANpkg{emmeans}, \CRANpkg{effects}, and \CRANpkg{ggeffects}.
 
@@ -394,7 +394,7 @@ summary(est5)
 
 It is possible to compute first differences without using `x1` using `transform()`, which we describe later.
 
-### `sim_ame()`: average adjusted predictions and average marginal effects
+## `sim_ame()`: average adjusted predictions and average marginal effects
 
 Using predicted values and effects at representative values is one way to summarize regression models, but another way is to compute average adjusted predictions (AAPs), contrasts of AAPs, and average marginal effects (AMEs). The definitions for these terms may vary and the names for these concepts differ across sources, but here we define AAPs as the average of the predicted values for all units after setting one predictor to a chosen value, and we define AMEs for binary predictors as the contrast of two AAPs and for continuous predictors as the average of instantaneous rate of change in the AAP corresponding to a small change in the predictor from its observed values across all units[^4] [@longRegressionModelsCategorical2014].
 
@@ -478,7 +478,7 @@ summary(est6b)
 
 The presence of effect modification can be tested by testing the contrast between the effects computed within each level of the `by` variable; this demonstrated in the section on `transform()` below.
 
-### `sim_adrf()`: average dose-response functions
+## `sim_adrf()`: average dose-response functions
 
 A dose-response function for an individual is the relationship between the set value of a continuous focal predictor and the expected outcome. The average dose-response function (ADRF) is the average of the dose-response functions across all units. Essentially, it is a function that relates the value of the predictor to the corresponding AAP of the outcome, the average value of the outcome were all units to be set to that level of the predictor. ADRFs can be used to provide additional detail about the effect of a continuous predictor beyond a single AME.
 
@@ -559,11 +559,11 @@ plot(est9)
 
 From the plot, we can see the AME of `age` decreases slightly but is mostly constant across values of `age`, and the uncertainty intervals for the AMEs consistently exclude 0.
 
-## Transforming and Combining Estimates
+# Transforming and Combining Estimates
 
 Often, our quantities of interest are not just the outputs of the functions above, but comparisons between them. For example, to test for moderation of a treatment effect, we may want to compare AMEs in multiple groups defined by the moderator. Or, it might be that we are interested in an effect described using a different effect measure than the one originally produced; for example, we may decide we want the risk difference AME after computing the risk ratio AME. The functions `transform()` and `cbind()` allow users to transform quantities in a single `clarify_est` object and combine two `clarify_est` objects. These are essential for computing quantities that themselves are derived from the derived quantities computed by the `sim_*()` functions.
 
-### `transform()`
+## `transform()`
 
 `transform()` is a generic function in R that is typically used to create a new variable in a data frame that is a function of other columns. For example, to compute the binary outcome we used in our model, we could have run the following[^5]:
 
@@ -613,7 +613,7 @@ est6b |>
 
 `RR[1]/RR[0]` contains the ratio of the risk ratios for `married = 1` and `married = 0`. Here we also include a test for whether each of the risk ratios and their ratio differ from 1, which is equivalent to testing whether the risk ratios differ across levels of `married`.
 
-### `cbind()`
+## `cbind()`
 
 `cbind()` is another generic R function that is typically used to combine two or more datasets columnwise (i.e., to widen a dataset). In \CRANpkg{clarify}, `cbind()` can be used to combine two `clarify_est` objects so that the estimates can be examined jointly and so that it is possible to compare them directly. For example, if we were to compute AMEs in two subgroups using `subset` and wanted to compare them, we would call `sim_ame()` twice, one for each subset (though in practice it is more effective to use `by`; this is just for illustration), as demonstrated below:
 
@@ -655,7 +655,7 @@ summary(est10, parm = "Dh - Db")
 
 Importantly, `cbind()` can only be used to join together `clarify_est` objects computed using the same simulated coefficients (i.e., resulting from the same call to `sim()`). This preserves the covariance among the estimated quantities, which is critical for maintaining valid inference. That is, `sim()` should only be called once per model, and all derived quantities should be computed using its output.
 
-## Using \CRANpkg{clarify} with Multiply Imputed Data
+# Using \pkg{clarify} with Multiply Imputed Data
 
 ```{r amelia_load, include=F}
 amelia_ok <- requireNamespace("Amelia", quietly = TRUE)
@@ -738,9 +738,9 @@ We get the same results, as expected.
 
 Note that `misim()` is compatible with model fit objects from \CRANpkg{mice}, \CRANpkg{Amelia}, \CRANpkg{MatchThem}, and any other package that produces a list of model fit objects with each corresponding to the output of a model fit to an imputed dataset.
 
-## Comparison to Other Packages
+# Comparison to Other Packages
 
-Several packages offer methods for computing interpretable quantities form regression models, including \CRANpkg{emmeans} [@lenthEmmeansEstimatedMarginal2024], \CRANpkg{margins} [@leeperMarginsMarginalEffects2024], \CRANpkg{modelbased} [@makowskiEstimationModelbasedPredictions2020], and \CRANpkg{marginaleffects} [@arel-bundockMarginaleffectsPredictionsComparisons2024]. Many of the quantities computed by these packages can also be computed by \CRANpkg{clarify}, the primary difference being that \CRANpkg{clarify} uses simulation-based inference rather than delta method-based inference.
+Several packages offer methods for computing interpretable quantities form regression models, including \CRANpkg{emmeans} [@emmeans2024], \pkg{margins} [@margins2021], \CRANpkg{modelbased} [@modelbased2020], and \CRANpkg{marginaleffects} [@marginaleffectsforthcoming]. Many of the quantities computed by these packages can also be computed by \CRANpkg{clarify}, the primary difference being that \CRANpkg{clarify} uses simulation-based inference rather than delta method-based inference.
 
 \CRANpkg{marginaleffects} offers the most similar functionality to \CRANpkg{clarify}, and \CRANpkg{clarify} depends on functionality provided by \CRANpkg{marginaleffects} to accommodate a wide variety of regression models. \CRANpkg{marginaleffects} also offers simulation-based inference using `marginaleffects::inferences()` and support for arbitrary user-specified post-estimation functions using `marginaleffects::hypotheses()`. However, \CRANpkg{clarify} and `marignalefefcts` differ in several ways. The largest difference is that \CRANpkg{clarify} supports iterative building of more and more complex hypotheses through the `transform()` method, which quickly computes new quantities and transformation from the existing computed quantities, whereas \CRANpkg{marginaleffects} only supports a single transformation and, as of version 0.20.0, cannot use simulation-based inference for these quantities.
 
@@ -748,6 +748,6 @@ Because of \CRANpkg{clarify}'s focus on simulation, it provides functionality di
 
 There are areas and cases where \CRANpkg{marginaleffects} may be the better choice than \CRANpkg{clarify} or where the differences between the packages are of little consequence. \CRANpkg{marginaleffects} focuses on providing a complete framework for post-estimation using model predictions, whereas \CRANpkg{clarify} is primarily focused on supporting user-defined functions, with commonly used estimators offered as a convenience. In cases where the delta method is an acceptable approximation (e.g., for quantities computed from linear models or other quantities known to be approximately Normally distributed in finite samples), using the delta method through \CRANpkg{marginaleffects} will be much faster, more accurate, and more replicable than the simulation-based inference \CRANpkg{clarify} provides. For the quantities easily computed by \CRANpkg{marginaleffects} that support simulation-based inference through `marginaleffects::inferences()`, using \CRANpkg{marginaleffects} can provide a more familiar and flexible syntax than \CRANpkg{clarify} might offer. Ultimately, the user should use the package that supports their desired syntax and mode of inference.
 
-## Conclusion
+# Conclusion
 
 \CRANpkg{clarify} provides functionality to facilitate simulation-based inference of deriving quantities from regression models. This framework provides an alternative to the delta method that can yield confidence intervals with closer to nominal coverage for some quantities of interest. While we do not claim simulation-based inference should be universally preferred over delta method-based inference, there are cases in which it can retain some advantageous properties, and we hope the availability of these methods in \CRANpkg{clarify} encourages additional research on when those properties can be realized and facilitates empirical work that takes advantages of these properties.
