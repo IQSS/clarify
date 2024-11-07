@@ -1,33 +1,40 @@
-clarify_predict <- function(x, newdata = NULL, group = NULL, type = NULL) {
-  ord_mean <- identical(type, "mean") && isTRUE(insight::model_info(x)$is_ordinal)
+clarify_predict <- function(x, newdata = NULL, group = NULL, type = NULL, ...) {
 
-  if (ord_mean) {
-    type <- NULL
-    group <- NULL
-  }
-
-  args <- list(model = x, newdata = newdata, vcov = FALSE)
+  args <- list(model = x, vcov = FALSE, ...)
   args$type <- type
+  args$newdata <- newdata
 
   p <- try(do.call(marginaleffects::get_predict, args), silent = TRUE)
 
-  if (length(p) == 0L || is_error(p)) {
-    .err("predicted values could not be extracted from the model")
+  if (is_not_null(p) && !is_error(p)) {
+    if (is_not_null(group) && "group" %in% names(p)) {
+      p <- .subset_group(p, group)
+    }
+
+    return(p)
   }
+
+  ord_mean <- identical(type, "mean") && isTRUE(insight::model_info(x)$is_ordinal)
 
   if (ord_mean) {
-    p <- .get_ordinal_mean_preds(p)
-  }
-  else if (!is.null(group) && "group" %in% names(p)) {
-    p <- .subset_group(p, group)
+    args$type <- NULL
+
+    p <- try(do.call(marginaleffects::get_predict, args), silent = TRUE)
+
+    if (is_not_null(p) && !is_error(p)) {
+      return(.get_ordinal_mean_preds(p))
+    }
   }
 
-  p
+  .err("predicted values could not be extracted from the model")
 }
 
 .subset_group <- function(pred, group = NULL) {
-  if (is.null(group)) pred
-  else pred[pred$group == group, , drop = FALSE]
+  if (is_null(group)) {
+    return(pred)
+  }
+
+  pred[pred$group == group, , drop = FALSE]
 }
 
 .get_p <- function(pred) {
@@ -42,7 +49,7 @@ clarify_predict <- function(x, newdata = NULL, group = NULL, type = NULL) {
 
   if (anyNA(groups)) {
     nas <- is.na(groups)
-    gn <- rep(NA_real_, length(groups))
+    gn <- rep.int(NA_real_, length(groups))
 
     if (!anyNA(suppressWarnings(g <- as.numeric(groups[!nas])))) {
       gn[!nas] <- g

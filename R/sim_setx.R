@@ -9,10 +9,7 @@
 #' predictions.
 #'
 #' @inheritParams sim_apply
-#' @param x a data.frame containing a reference grid of predictor values or a named list of values each predictor should take defining such a
-#'   reference grid, e.g., `list(v1 = 1:4, v2 = c("A", "B"))`.
-#'   Any omitted predictors are fixed at a "typical" value. See Details.
-#'   When `x1` is specified, `x` should identify a single reference unit.
+#' @param x a data.frame containing a reference grid of predictor values or a named list of values each predictor should take defining such a reference grid, e.g., `list(v1 = 1:4, v2 = c("A", "B"))`. Any omitted predictors are fixed at a "typical" value. See Details. When `x1` is specified, `x` should identify a single reference unit.
 #'
 #'   For `print()`, a `clarify_setx` object.
 #' @param x1 a data.frame or named list of the value each predictor should take to compute the
@@ -20,6 +17,7 @@
 #'   only identify a single unit. See Details.
 #' @param outcome a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.
 #' @param type a string containing the type of predicted values (e.g., the link or the response). Passed to [marginaleffects::get_predict()] and eventually to `predict()` in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).
+#' @param \dots for `sim_setx()`, additional arguments passed to [marginaleffects::get_predict()] (and eventually to `predict()`) to compute predictions. For `print()`, ignored.
 #'
 #' @return a `clarify_setx` object, which inherits from `clarify_est` and is similar to the output of `sim_apply()`, with the following additional attributes:
 #' * `"setx"` - a data frame containing the values at which predictions are to be made
@@ -86,7 +84,8 @@ sim_setx <- function(sim,
                      outcome = NULL,
                      type = NULL,
                      verbose = TRUE,
-                     cl = NULL) {
+                     cl = NULL,
+                     ...) {
 
   check_sim_apply_wrapper_ready(sim)
 
@@ -107,15 +106,15 @@ sim_setx <- function(sim,
   #Test to make sure compatible
   if (is_misim) {
     test_dat <- .get_pred_data_from_fit(sim$fit[[1]])[1, , drop = FALSE]
-    test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
+    test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type, ...)
   }
   else {
     test_dat <- .get_pred_data_from_fit(sim$fit)[1, , drop = FALSE]
-    test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
+    test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type, ...)
   }
 
   if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1) {
-    if (is.null(outcome)) {
+    if (is_null(outcome)) {
       .err("`outcome` must be supplied with multivariate models and models with multi-category outcomes")
     }
     chk::chk_string(outcome)
@@ -124,24 +123,25 @@ sim_setx <- function(sim,
     }
   }
   else {
-    if (!is.null(outcome)) {
+    if (is_not_null(outcome)) {
       .wrn("`outcome` is ignored for univariate models")
     }
     outcome <- NULL
   }
 
-  fd <- length(x1) > 0
+  fd <- is_not_null(x1)
   if (fd) {
-    if (length(attr(newdata, "set_preds")) == 0) {
+    if (is_null(attr(newdata, "set_preds"))) {
       .err("when `x1` is specified, `x` must be specified")
     }
-    if (nrow(newdata) != 1) {
+
+    if (nrow(newdata) != 1L) {
       .err("when `x1` is specified, `x` must identify a single reference unit")
     }
 
     newdata_x1 <- process_x(x1, dat, "x1")
 
-    if (nrow(newdata_x1) != 1) {
+    if (nrow(newdata_x1) != 1L) {
       .err("`x1` must identify a single unit")
     }
 
@@ -157,10 +157,10 @@ sim_setx <- function(sim,
   }
 
   set_preds <- attr(newdata, "set_preds")
-  if (length(set_preds) > 0) {
+  if (is_not_null(set_preds)) {
     set_pred_lengths <- vapply(newdata[set_preds], function(i) length(unique(i)), integer(1L))
 
-    if (nrow(newdata) > 1) {
+    if (nrow(newdata) > 1L) {
       rownames(newdata) <- do.call("paste", c(lapply(set_preds[set_pred_lengths > 1], function(i) {
         paste0(i, " = ", add_quotes(newdata[[i]], chk::vld_character_or_factor(newdata[[i]])))
       }), list(sep = ", ")))
@@ -169,19 +169,20 @@ sim_setx <- function(sim,
   else {
     rownames(newdata) <- "Typical"
   }
+
   attr(newdata, "set_preds") <- set_preds
 
   #make FUN for sim_apply()
   FUN <- {
     if (fd)
       function(fit) {
-        pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
+        pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type, ...)
         p <- setNames(.get_p(pred), rownames(newdata))
         c(p, "FD" = unname(diff(p)))
       }
     else
       function(fit) {
-        pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type)
+        pred <- clarify_predict(fit, newdata = newdata, group = outcome, type = type, ...)
         setNames(.get_p(pred), rownames(newdata))
       }
   }
@@ -212,7 +213,7 @@ print.clarify_setx <- function(x, digits = NULL, max.ests = 6, ...) {
   }
 
   set_preds <- attr(attr(x, "setx"), "set_preds")
-  if (length(set_preds) > 0) {
+  if (is_not_null(set_preds)) {
     cat(sprintf("   + Predictors set: %s\n", paste(set_preds, collapse = ", ")))
     if (length(set_preds) != nrow(attr(x, "setx"))) {
       cat("   + All others set at typical values (see `help(\"sim_setx\")` for definition)\n")
@@ -232,13 +233,14 @@ print.clarify_setx <- function(x, digits = NULL, max.ests = 6, ...) {
   if (max.ests != length(attr(x, "original"))) {
     cat(sprintf("# ... and %s more\n", length(attr(x, "original")) - max.ests))
   }
+
   invisible(x)
 }
 
 process_x <- function(x, dat, arg_name) {
   x_okay <- TRUE
 
-  if (length(x) == 0) {
+  if (is_null(x)) {
     set_preds <- NULL
     auto_preds <- names(dat)
   }
@@ -246,12 +248,14 @@ process_x <- function(x, dat, arg_name) {
     set_preds <- names(x)[names(x) %in% names(dat)]
     auto_preds <- setdiff(names(dat), set_preds)
 
-    if (length(set_preds) == 0) {
+    if (is_null(set_preds)) {
       .wrn(sprintf("the data data.frame supplied to %s does not contain any variables that correspond to variables used in the original model", arg_name))
     }
   }
   else if (is.list(x)) {
-    if (is.null(names(x)) || any(names(x) == "")) x_okay <- FALSE
+    if (is_null(names(x)) || any(names(x) == "")) {
+      x_okay <- FALSE
+    }
     else if (!all(names(x) %in% names(dat))) {
       vars_not_in_model <- setdiff(names(x), names(dat))
       .err(sprintf("the variable%%s %s named in `%s` %%r not present in the original model",
@@ -284,10 +288,10 @@ process_x <- function(x, dat, arg_name) {
                                           stringsAsFactors = FALSE)))
   }
 
-  if (length(auto_preds) > 0) {
+  if (is_not_null(auto_preds)) {
     x_auto <- setNames(lapply(dat[auto_preds], function(p) {
       if (is.numeric(p)) {
-        if (length(unique(p)) == 2) Mode(p)
+        if (length(unique(p)) == 2L) Mode(p)
         else mean(p, na.rm = TRUE)
       }
       else if (is.ordered(p)) {

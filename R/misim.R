@@ -51,14 +51,16 @@ misim <- function(fitlist,
                   coefs = NULL,
                   dist = NULL) {
 
-  if (missing(fitlist)) fitlist <- NULL
+  if (missing(fitlist)) {
+    fitlist <- NULL
+  }
 
   if (inherits(fitlist, "mira")) {
     fitlist <- fitlist$analyses
   }
 
-  if (is.null(fitlist)) {
-    if (is.null(coefs) || is.null(vcov)) {
+  if (is_null(fitlist)) {
+    if (is_null(coefs) || is_null(vcov)) {
       .err("when `fitlist` is not supplied, arguments must be supplied to both `coefs` and `vcov`")
     }
     if (!is.list(coefs) && !is.list(vcov)) {
@@ -77,7 +79,7 @@ misim <- function(fitlist,
     coefs <- lapply(seq_len(nimp), function(i) coefs)
   }
   else if (length(coefs) != nimp) {
-    if (is.null(fitlist)) {
+    if (is_null(fitlist)) {
       .err("when `fitlist` is not supplied and `coefs` is supplied as a list, `coefs` must have as many entries as there are entries in `vcov`")
     }
     else {
@@ -86,7 +88,7 @@ misim <- function(fitlist,
   }
 
   coef_supplied <- {
-    if (all(vapply(coefs, is.null, logical(1L)))) "null"
+    if (all(vapply(coefs, is_null, logical(1L)))) "null"
     else if (all(vapply(coefs, is.function, logical(1L)))) "fun"
     else if (all(vapply(coefs, check_valid_coef, logical(1L)))) "num"
     else {
@@ -95,10 +97,10 @@ misim <- function(fitlist,
   }
 
   if (!is.list(vcov)) {
-    vcov <- lapply(seq_len(nimp), function(i) vcov)
+    vcov <- rep.int(list(vcov), nimp)
   }
   else if (length(vcov) != nimp) {
-    if (is.null(fitlist)) {
+    if (is_null(fitlist)) {
       .err("when `fitlist` is not supplied and `vcov` is supplied as a list, `vcov` must have as many entries as there are entries in `coefs`")
     }
     else {
@@ -107,7 +109,7 @@ misim <- function(fitlist,
   }
 
   vcov_supplied <- {
-    if (all(vapply(vcov, is.null, logical(1L)))) "null"
+    if (all(vapply(vcov, is_null, logical(1L)))) "null"
     else if (all(vapply(vcov, is.matrix, logical(1L)))) "num"
     else "marginaleffects_code"
   }
@@ -124,15 +126,15 @@ misim <- function(fitlist,
 
   chk::chk_count(n)
 
-  if (!is.null(dist)) {
-    if (length(dist) == 1) {
+  if (is_not_null(dist)) {
+    if (length(dist) == 1L) {
       dist <- lapply(seq_len(nimp), function(i) dist)
     }
-    else if (length(dist) != nimp) {
-      .err("when supplied as a vector, `dist` must have as many values as there are imputations")
+    else if (length(dist) == nimp) {
+      dist <- as.list(dist)
     }
     else {
-      dist <- as.list(dist)
+      .err("when supplied as a vector, `dist` must have as many values as there are imputations")
     }
   }
 
@@ -150,10 +152,11 @@ misim <- function(fitlist,
               imp = rep(seq_len(nimp), each = n))
 
   dists <- unlist(lapply(samplers, attr, "dist"))
+
   if (all_the_same(dists)) dists <- dists[1]
 
   attr(out, "dist") <- dists
-  attr(out, "use_fit") <- !is.null(fitlist)
+  attr(out, "use_fit") <- is_not_null(fitlist)
   attr(out, "sim_hash") <- rlang::hash(out$sim.coefs)
   class(out) <- c("clarify_misim", "clarify_sim")
 

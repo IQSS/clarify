@@ -13,6 +13,7 @@
 #' @param outcome a string containing the name of the outcome or outcome level for multivariate (multiple outcomes) or multi-category outcomes. Ignored for univariate (single outcome) and binary outcomes.
 #' @param type a string containing the type of predicted values (e.g., the link or the response). Passed to [marginaleffects::get_predict()] and eventually to `predict()` in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).
 #' @param eps when `contrast = "amef"`, the value by which to shift the value of `var` to approximate the derivative. See Details.
+#' @param \dots for `sim_adrf()`, additional arguments passed to [marginaleffects::get_predict()] (and eventually to `predict()`) to compute predictions. For `print()`, ignored.
 #'
 #' @details
 #' The ADRF is composed of average marginal means across levels of the focal predictor. For each level of the focal predictor, predicted values of the outcome are computed after setting the value of the predictor to that level, and those values of the outcome are averaged across all units in the sample to arrive at an average marginal mean. Thus, the ADRF represent the relationship between the "dose" (i.e., the level of the focal predictor) and the average "response" (i.e., the outcome variable). It is the continuous analog to the average marginal effect computed for a binary predictor, e.g., using [sim_ame()]. Although inference can be at each level of the predictor or between two levels of the predictor, typically a plot of the ADRF is the most useful relevant quantity. These can be requested using [plot.clarify_adrf()].
@@ -82,7 +83,8 @@ sim_adrf <- function(sim,
                      type = NULL,
                      eps = 1e-5,
                      verbose = TRUE,
-                     cl = NULL) {
+                     cl = NULL,
+                     ...) {
 
   check_sim_apply_wrapper_ready(sim)
 
@@ -113,7 +115,7 @@ sim_adrf <- function(sim,
                  var))
   }
 
-  if (!is.null(by)) {
+  if (is_not_null(by)) {
     if (is.character(by)) {
       by <- reformulate(by)
     }
@@ -126,7 +128,7 @@ sim_adrf <- function(sim,
   rm(dat)
 
   if (chk::vld_character_or_factor(var_val) ||
-      is.logical(var_val) || length(unique(var_val)) <= 2) {
+      is.logical(var_val) || length(unique(var_val)) <= 2L) {
     .err("the variable named in `var` must be a numeric variable taking on more than two values. Use `sim_ame()` instead")
   }
 
@@ -137,27 +139,31 @@ sim_adrf <- function(sim,
   #Test to make sure compatible
   if (is_misim) {
     test_dat <- .get_pred_data_from_fit(sim$fit[[1]])
-    test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type)
+    test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type, ...)
   }
   else {
     test_dat <- .get_pred_data_from_fit(sim$fit)
-    test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type)
+    test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type, ...)
   }
 
-  if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1) {
-    if (is.null(outcome)) {
+  if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1L) {
+    if (is_null(outcome)) {
       .err("`outcome` must be supplied with multivariate models and models with multi-category outcomes")
     }
+
     chk::chk_string(outcome)
+
     if (!outcome %in% unique_group) {
       .err("only the following values of `outcome` are allowed: ", paste(add_quotes(unique_group), collapse = ", "))
     }
+
     test_predict <- .subset_group(test_predict, outcome)
   }
   else {
-    if (!is.null(outcome)) {
+    if (is_not_null(outcome)) {
       .wrn("`outcome` is ignored for univariate models")
     }
+
     outcome <- NULL
   }
 
@@ -167,7 +173,7 @@ sim_adrf <- function(sim,
 
   min_var <- min(var_val)
   max_var <- max(var_val)
-  if (is.null(at)) {
+  if (is_null(at)) {
     chk::chk_count(n)
     # lims <- c(min_var - .01 * (max_var - min_var),
     #           max_var + .01 * (max_var - min_var))
@@ -183,12 +189,12 @@ sim_adrf <- function(sim,
   }
 
   if (contrast == "adrf") {
-    if (is.null(by)) {
+    if (is_null(by)) {
       FUN <- function(fit) {
         dat <- .get_pred_data_from_fit(fit)
         vapply(at, function(x) {
           dat[[var]][] <- x
-          pred <- clarify_predict(fit, newdata = dat, group = outcome, type = type)
+          pred <- clarify_predict(fit, newdata = dat, group = outcome, type = type, ...)
           mean(.get_p(pred))
         }, numeric(1L))
       }
@@ -208,7 +214,7 @@ sim_adrf <- function(sim,
           vapply(at, function(x) {
             dat[[var]][] <- x
             pred <- clarify_predict(fit, newdata = dat[in_b,, drop = FALSE],
-                                    group = outcome, type = type)
+                                    group = outcome, type = type, ...)
             mean(.get_p(pred))
           }, numeric(1L))
         }))
@@ -221,7 +227,7 @@ sim_adrf <- function(sim,
       names(out) <- unlist(lapply(by_levels, function(b) sprintf("E[Y(%s)|%s]", at, b)))
 
       attr(out, "by") <- attr(sim$fit, "by_name")
-      attr(out, "at") <- rep(at, length(by_levels))
+      attr(out, "at") <- rep.int(at, length(by_levels))
     }
   }
   else if (contrast == "amef") {
@@ -229,7 +235,7 @@ sim_adrf <- function(sim,
     chk::chk_gt(eps)
     eps <- eps * sd(var_val)
 
-    if (is.null(by)) {
+    if (is_null(by)) {
       FUN <- function(fit) {
         dat <- .get_pred_data_from_fit(fit)
         ind <- seq_len(nrow(dat))
@@ -239,7 +245,7 @@ sim_adrf <- function(sim,
         vapply(at, function(x) {
           dat2[[var]][ind] <- x - eps / 2
           dat2[[var]][-ind] <- x + eps / 2
-          pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
+          pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type, ...)
           p <- .get_p(pred)
           m0 <- mean(p[ind])
           m1 <- mean(p[-ind])
@@ -265,7 +271,7 @@ sim_adrf <- function(sim,
           vapply(at, function(x) {
             dat2[[var]][ind] <- x - eps / 2
             dat2[[var]][-ind] <- x + eps / 2
-            pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type)
+            pred <- clarify_predict(fit, newdata = dat2, group = outcome, type = type, ...)
             p <- .get_p(pred)
             m0 <- mean(p[ind][in_b])
             m1 <- mean(p[-ind][in_b])
@@ -282,7 +288,7 @@ sim_adrf <- function(sim,
       names(out) <- unlist(lapply(by_levels, function(b) sprintf("E[dY/d(%s)|%s,%s]", var, at, b)))
 
       attr(out, "by") <- attr(sim$fit, "by_name")
-      attr(out, "at") <- rep(at, length(by_levels))
+      attr(out, "at") <- rep.int(at, length(by_levels))
     }
   }
 
@@ -308,7 +314,7 @@ print.clarify_adrf <- function(x, digits = NULL, max.ests = 6, ...) {
   cat(sprintf(" - %s of `%s`\n", switch(attr(x, "contrast"), "adrf" = "Average dose-response function",
                                         "amef" = "Average marginal effect function"),
               attr(x, "var")))
-  if (!is.null(attr(x, "by"))) {
+  if (is_not_null(attr(x, "by"))) {
     cat(sprintf("   - within levels of %s\n", word_list(attr(x, "by"), quotes = "`")))
   }
   cat(sprintf(" - %s simulated values\n", nrow(x)))

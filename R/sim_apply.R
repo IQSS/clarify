@@ -141,7 +141,7 @@ sim_apply <- function(sim,
 
   missing.fun <- missing(FUN)
 
-  if (missing.fun || is.null(FUN)) {
+  if (missing.fun || is_null(FUN)) {
     if (verbose && missing.fun) {
       .wrn("`FUN` not supplied; returning simulated coefficients")
     }
@@ -183,7 +183,9 @@ sim_apply <- function(sim,
     # test <- apply(do.call("rbind", test), 2, median)
     test <- colMeans(do.call("rbind", test))
 
-    if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
+    if (is_null(names(test))) {
+      names(test) <- paste0("est", seq_along(test))
+    }
 
     ests.list <- pbapply::pblapply(seq_len(nrow(sim$sim.coefs)), function(i) {
       apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i, ], imp = sim$imp[i], ...)
@@ -199,7 +201,9 @@ sim_apply <- function(sim,
            conditionMessage(attr(test, "condition")))
     }
 
-    if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
+    if (is_null(names(test))) {
+      names(test) <- paste0("est", seq_along(test))
+    }
 
     ests.list <- pbapply::pblapply(seq_len(nrow(sim$sim.coefs)), function(i) {
       apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i, ], ...)
