@@ -13,7 +13,7 @@
   level = 0.95,
   method = "quantile",
   reference = FALSE,
-  ncol = 3,
+  ncol = 3L,
   ...
 )
 

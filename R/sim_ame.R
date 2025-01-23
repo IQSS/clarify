@@ -288,15 +288,15 @@ sim_ame <- function(sim,
 
   #Test to make sure compatible
   if (is_misim) {
-    test_dat <- .get_pred_data_from_fit(sim$fit[[1]])
-    test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type, ...)
+    test_dat <- .get_pred_data_from_fit(sim$fit[[1L]])
+    test_predict <- clarify_predict(sim$fit[[1L]], newdata = test_dat, group = NULL, type = type, ...)
   }
   else {
     test_dat <- .get_pred_data_from_fit(sim$fit)
     test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type, ...)
   }
 
-  if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1) {
+  if (hasName(test_predict, "group") && length(unique_group <- unique(test_predict$group)) > 1) {
     if (is_null(outcome)) {
       .err("`outcome` must be supplied with multivariate models and models with multi-category outcomes")
     }
@@ -382,10 +382,10 @@ sim_ame <- function(sim,
                                          (.b2 > .b1) * (1 - (1 - .b2) / (1 - .b1)) + (.b2 < .b1) * (.b2 / .b1 - 1),
                                        "or" = (.b2 / (1 - .b2)) / (.b1 / (1 - .b1)),
                                        "log(or)" = log((.b2 / (1 - .b2)) / (.b1 / (1 - .b1)))))
-        names(out)[3] <- .rename_contrast(contrast)
+        names(out)[3L] <- .rename_contrast(contrast)
       }
 
-      names(out)[seq_len(nrow(vars_grid))] <- apply(as.matrix(vars_grid), 1, function(g) {
+      names(out)[seq_len(nrow(vars_grid))] <- apply(as.matrix(vars_grid), 1L, function(g) {
         sprintf("E[Y(%s)]", paste(g, collapse = ","))
       })
     }
@@ -435,11 +435,11 @@ sim_ame <- function(sim,
                                              (.b2 < .b1) * (.b2 / .b1 - 1),
                                            "or" = (.b2 / (1 - .b2)) / (.b1 / (1 - .b1)),
                                            "log(or)" = log((.b2 / (1 - .b2)) / (.b1 / (1 - .b1)))))
-          names(out_i)[3] <- sprintf("%s[%s]", .rename_contrast(contrast), by_levels[i])
-          out <- cbind(out, out_i[3])
+          names(out_i)[3L] <- sprintf("%s[%s]", .rename_contrast(contrast), by_levels[i])
+          out <- cbind(out, out_i[3L])
         }
 
-        names(out)[(i - 1) * nrow(vars_grid) + seq_len(nrow(vars_grid))] <- apply(as.matrix(vars_grid), 1, function(g) {
+        names(out)[(i - 1) * nrow(vars_grid) + seq_len(nrow(vars_grid))] <- apply(as.matrix(vars_grid), 1L, function(g) {
           sprintf("E[Y(%s)|%s]", paste(g, collapse = ","), by_levels[i])
         })
       }
@@ -476,7 +476,7 @@ sim_ame <- function(sim,
           ind <- seq_len(nrow(dat))
 
           # Double dataset for numeric derivative
-          dat <- dat[rep.int(ind, 2),, drop = FALSE]
+          dat <- dat[rep.int(ind, 2L),, drop = FALSE]
           dat[[vars[cv]]][ind] <- dat[[vars[cv]]][ind] - eps / 2
           dat[[vars[cv]]][-ind] <- dat[[vars[cv]]][-ind] + eps / 2
 
@@ -510,7 +510,7 @@ sim_ame <- function(sim,
           })
 
           # Double dataset for numeric derivative
-          dat <- dat[rep.int(ind2, 2),, drop = FALSE]
+          dat <- dat[rep.int(ind2, 2L),, drop = FALSE]
 
           dat[[vars[cv]]][ind2] <- dat[[vars[cv]]][ind2] - eps / 2
           dat[[vars[cv]]][-ind2] <- dat[[vars[cv]]][-ind2] + eps / 2
@@ -526,7 +526,7 @@ sim_ame <- function(sim,
 
         out <- sim_apply(sim, FUN = FUN, verbose = verbose, cl = cl)
 
-        names(out) <- apply(as.matrix(vars_grid), 1, function(g) {
+        names(out) <- apply(as.matrix(vars_grid), 1L, function(g) {
           sprintf("E[dY(%s)/d(%s)]", paste(g, collapse = ","), vars[cv])
         })
       }
@@ -539,7 +539,7 @@ sim_ame <- function(sim,
           ind <- seq_len(nrow(dat))
 
           # Double dataset for numeric derivative
-          dat <- dat[rep.int(ind, 2),, drop = FALSE]
+          dat <- dat[rep.int(ind, 2L),, drop = FALSE]
           dat[[vars[cv]]][ind] <- dat[[vars[cv]]][ind] - eps / 2
           dat[[vars[cv]]][-ind] <- dat[[vars[cv]]][-ind] + eps / 2
 
@@ -581,7 +581,7 @@ sim_ame <- function(sim,
           })
 
           # Double dataset for numeric derivative
-          dat <- dat[rep.int(ind2, 2),, drop = FALSE]
+          dat <- dat[rep.int(ind2, 2L),, drop = FALSE]
 
           dat[[vars[cv]]][ind2] <- dat[[vars[cv]]][ind2] - eps / 2
           dat[[vars[cv]]][-ind2] <- dat[[vars[cv]]][-ind2] + eps / 2
@@ -603,7 +603,7 @@ sim_ame <- function(sim,
         by_levels <- levels(.get_by_from_fit(sim$fit))
 
         for (i in seq_along(by_levels)) {
-          names(out)[(i - 1) * nrow(vars_grid) + seq_len(nrow(vars_grid))] <- apply(as.matrix(vars_grid), 1, function(g) {
+          names(out)[(i - 1) * nrow(vars_grid) + seq_len(nrow(vars_grid))] <- apply(as.matrix(vars_grid), 1L, function(g) {
             sprintf("E[dY(%s)/d(%s)|%s]", paste(g, collapse = ","), vars[cv], by_levels[i])
           })
         }
@@ -687,7 +687,7 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6, ...) {
 
 .rename_contrast <- function(x) {
   if (is_null(x)) {
-    return(character(0))
+    return(character(0L))
   }
 
   vapply(tolower(x), switch, character(1L),
@@ -708,7 +708,7 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6, ...) {
   vars <- insight::find_predictors(fit, effects = "fixed", component = "all",
                                    flatten = TRUE)
   if (is_not_null(index.sub)) {
-    subset <- eval(index.sub, data, parent.frame(2))
+    subset <- eval(index.sub, data, parent.frame(2L))
 
     if (!chk::vld_atomic(subset)) {
       .err("`subset` must evaluate to an atomic vector")

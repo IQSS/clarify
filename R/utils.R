@@ -45,9 +45,7 @@ word_list <- function(word.list = NULL, and.or = "and", is.are = FALSE, quotes =
     }
   }
 
-  if (is.are) {
-    out <- sprintf("%s are", out)
-  }
+  if (is.are) out <- sprintf("%s are", out)
 
   attr(out, "plural") <- TRUE
 
@@ -60,18 +58,19 @@ add_quotes <- function(x, quotes = 2L) {
     return(x)
   }
 
-  if (isTRUE(quotes))
+  if (isTRUE(quotes)) {
     quotes <- '"'
+  }
 
   if (chk::vld_string(quotes)) {
-    return(paste0(quotes, x, quotes))
+    return(paste0(quotes, x, str_rev(quotes)))
   }
 
   if (!chk::vld_count(quotes) || quotes > 2) {
     stop("`quotes` must be boolean, 1, 2, or a string.")
   }
 
-  if (quotes == 0L) {
+  if (quotes == 0) {
     return(x)
   }
 
@@ -81,6 +80,11 @@ add_quotes <- function(x, quotes = 2L) {
   }
 
   x
+}
+
+#Reverse a string
+str_rev <- function(x) {
+  vapply(lapply(strsplit(x, NULL), rev), paste, character(1L), collapse = "")
 }
 
 #More informative and cleaner version of base::match.arg(). Uses chk.
@@ -108,28 +112,24 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
   }
   else {
     chk::chk_string(arg, x_name = add_quotes(arg.name, "`"))
-
     if (identical(arg, choices)) {
       return(arg[1L])
     }
   }
 
   i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
-
-  if (all(i == 0L)) {
+  if (all(i == 0L))
     .err(sprintf("the argument to `%s` should be %s%s",
                  arg.name,
                  ngettext(length(choices), "", if (several.ok) "at least one of " else "one of "),
                  word_list(choices, and.or = "or", quotes = 2)))
-  }
-
   i <- i[i > 0L]
 
   choices[i]
 }
 
 #Format percentage for CI labels
-fmt.prc <- function(probs, digits = 3) {
+fmt.prc <- function(probs, digits = 3L) {
   paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), "%")
 }
 
@@ -137,7 +137,7 @@ fmt.prc <- function(probs, digits = 3) {
 all_the_same <- function(x) {
   if (is.list(x)) {
     for (i in x) {
-      if (!identical(i, x[[1]])) {
+      if (!identical(i, x[[1L]])) {
         return(FALSE)
       }
     }
@@ -168,18 +168,19 @@ try_chk <- function(expr) {
 
 #mode
 Mode <- function(v, na.rm = TRUE) {
+  if (is_null(v)) {
+    return(v)
+  }
+
   if (anyNA(v)) {
-    if (na.rm) v <- v[!is.na(v)]
-    else {
+    if (!na.rm) {
       #Return NA, keeping type of `v`
-      v <- v[1]
+      v <- v[1L]
       is.na(v) <- TRUE
       return(v)
     }
-  }
 
-  if (is_null(v)) {
-    return(v)
+    v <- v[!is.na(v)]
   }
 
   if (is.factor(v)) {
@@ -199,24 +200,6 @@ Mode <- function(v, na.rm = TRUE) {
   uv[which.max(tabulate(match(v, uv)))]
 }
 
-#Recursively search a list for a value (key) and return location of value
-list.search <- function(x, key) {
-  for (i in seq_along(x)) {
-    if (identical(x[[i]], key)) {
-      return(i)
-    }
-
-    if (is.list(x[[i]])) {
-      l <- list.search(x[[i]], key)
-      if (is_not_null(l)) {
-        return(c(i, l))
-      }
-    }
-  }
-
-  NULL
-}
-
 #Checks if input is "try-error", i.e., failure of try()
 is_error <- function(x) {
   inherits(x, "try-error")
@@ -225,23 +208,30 @@ is_error <- function(x) {
 is_null <- function(x) {length(x) == 0L}
 is_not_null <- function(x) {!is_null(x)}
 
-pkg_caller_call <- function(start = 1) {
-  package.funs <- c(getNamespaceExports(utils::packageName()),
-                    .getNamespaceInfo(asNamespace(utils::packageName()), "S3methods")[, 3])
-  k <- start #skip checking pkg_caller_call()
-  e_max <- start
-  while (!is.null(e <- rlang::caller_call(k))) {
-    if (!is.null(n <- rlang::call_name(e)) &&
-        n %in% package.funs) e_max <- k
-    k <- k + 1
+pkg_caller_call <- function() {
+  pn <- utils::packageName()
+  package.funs <- c(getNamespaceExports(pn),
+                    .getNamespaceInfo(asNamespace(pn), "S3methods")[, 3])
+
+  for (i in seq_len(sys.nframe())) {
+    e <- sys.call(i)
+
+    if (is_null(n <- rlang::call_name(e))) {
+      next
+    }
+
+    if (n %in% package.funs) {
+      return(e)
+    }
   }
-  rlang::caller_call(e_max)
+
+  NULL
 }
 
 .err <- function(..., n = NULL, tidy = TRUE) {
   m <- chk::message_chk(..., n = n, tidy = tidy)
   rlang::abort(paste(strwrap(m), collapse = "\n"),
-               call = pkg_caller_call(start = 2))
+               call = pkg_caller_call())
 }
 .wrn <- function(..., n = NULL, tidy = TRUE, immediate = TRUE) {
   if (immediate && isTRUE(all.equal(0, getOption("warn")))) {

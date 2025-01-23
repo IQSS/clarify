@@ -110,9 +110,9 @@ sim_adrf <- function(sim,
       insight::get_predictors(sim$fit, verbose = FALSE)
   }
 
-  if (!var %in% names(dat)) {
-    .err(sprintf("the variable \"%s\" named in `var` is not present in the original model",
-                 var))
+  if (!hasName(dat, var)) {
+    .err(sprintf("the variable %s named in `var` is not present in the original model",
+                 add_quotes(var)))
   }
 
   if (is_not_null(by)) {
@@ -146,7 +146,7 @@ sim_adrf <- function(sim,
     test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type, ...)
   }
 
-  if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1L) {
+  if (hasName(test_predict, "group") && length(unique_group <- unique(test_predict$group)) > 1L) {
     if (is_null(outcome)) {
       .err("`outcome` must be supplied with multivariate models and models with multi-category outcomes")
     }
@@ -178,7 +178,7 @@ sim_adrf <- function(sim,
     # lims <- c(min_var - .01 * (max_var - min_var),
     #           max_var + .01 * (max_var - min_var))
     lims <- c(min_var, max_var)
-    at <- seq(lims[1], lims[2], length.out = n)
+    at <- seq(lims[1L], lims[2L], length.out = n)
   }
   else {
     chk::chk_numeric(at)

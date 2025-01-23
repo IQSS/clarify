@@ -110,7 +110,7 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
     return(x)
   }
 
-  if (Narg > 2) {
+  if (Narg > 2L) {
     .err("`clarify_est` objects can only by subset as obj[.], not obj[., .]")
   }
 
@@ -122,25 +122,30 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
   for (z in setdiff(names(attrs), c("names", "dimnames", "dim"))) {
     attr(x, z) <- attrs[[z]]
   }
+
   attr(x, "original") <- attr(x, "original")[i]
 
-  if ("at" %in% names(attrs)) {
+  if (hasName(attrs, "at")) {
     attr(x, "at") <- unname(setNames(attrs[["at"]], names(attrs[["original"]]))[i])
   }
-  if ("setx" %in% names(attrs)) {
+
+  if (hasName(attrs, "setx")) {
     attr(x, "setx") <- attrs[["setx"]][i, , drop = FALSE]
   }
 
   class(x) <- cl
+
   x
 }
 
 #' @exportS3Method as.matrix clarify_est
 as.matrix.clarify_est <- function(x, ...) {
   drop_sim_class(x)
+
   for (i in setdiff(names(attributes(x)), c("dimnames", "dim"))) {
     attr(x, i) <- NULL
   }
+
   x
 }
 

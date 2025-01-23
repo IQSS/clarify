@@ -127,7 +127,7 @@ get_sampling_dist <- function(fit = NULL, dist = NULL) {
     chk::chk_string(dist)
     dist <- tolower(dist)
     if (startsWith(dist, "t(") && endsWith(dist, ")")) {
-      df <- substr(dist, 3, nchar(dist) - 1)
+      df <- substr(dist, 3L, nchar(dist) - 1L)
       if (nchar(df) == 0 || anyNA(suppressWarnings(df <- as.numeric(df))) || !chk::vld_number(df)) {
         .err("when `dist` is supplied as t({#}), `{#}` must be a number")
       }

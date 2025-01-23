@@ -77,7 +77,7 @@ transform.clarify_est <- function(`_data`, ...) {
   names_list <- setNames(lapply(add_quotes(names(`_data`), "`"), str2lang),
                          available_b)
 
-  for (i in seq_along(dots)[-1]) {
+  for (i in seq_along(dots)[-1L]) {
     if (is_not_null(dots[[i]])) {
       dots[[i]] <- do.call("substitute", list(dots[[i]], names_list))
     }
@@ -102,7 +102,7 @@ transform.clarify_est <- function(`_data`, ...) {
   matched <- !is.na(inx)
 
   if (any(matched)) {
-    nulls <- lengths(e[matched]) == 0
+    nulls <- lengths(e[matched]) == 0L
 
     if (any(!nulls)) {
       for (i in seq_along(e)[matched][!nulls]) {
@@ -117,7 +117,7 @@ transform.clarify_est <- function(`_data`, ...) {
   }
 
   if (!all(matched)) {
-    nulls <- lengths(e[!matched]) == 0
+    nulls <- lengths(e[!matched]) == 0L
     if (any(!nulls)) {
       new_e <- as.matrix(do.call("cbind", e[!matched][!nulls]))
       attr(new_e, "original") <- do.call("c", e_original[!matched][!nulls])
@@ -133,7 +133,7 @@ transform.clarify_est <- function(`_data`, ...) {
 #' @exportS3Method cbind clarify_est
 #' @rdname transform.clarify_est
 cbind.clarify_est <- function(..., deparse.level = 1) {
-  if (...length() == 0) return(NULL)
+  if (...length() == 0L) return(NULL)
 
   for (i in seq_len(...length())) {
     if (!inherits(...elt(i), "clarify_est")) {
@@ -144,9 +144,10 @@ cbind.clarify_est <- function(..., deparse.level = 1) {
   obj <- list(...)
   hashes <- lapply(obj, attr, "sim_hash")
 
-  if (any(lengths(hashes) == 0) || any(!vapply(hashes, chk::vld_string, logical(1L)))) {
+  if (any(lengths(hashes) == 0L) || any(!vapply(hashes, chk::vld_string, logical(1L)))) {
     .err("all supplied objects must be unmodified `clarify_est` objects")
   }
+
   if (!all_the_same(unlist(hashes)) || !all_the_same(unlist(lapply(obj, nrow)))) {
     .err("all supplied objects must be calls of `sim_apply()` or its wrappers on the same `clarify_sim` object")
   }
@@ -154,7 +155,7 @@ cbind.clarify_est <- function(..., deparse.level = 1) {
   out <- do.call("cbind", lapply(obj, drop_sim_class))
 
   attr(out, "original") <- do.call("c", lapply(obj, attr, "original"))
-  attr(out, "sim_hash") <- hashes[[1]]
+  attr(out, "sim_hash") <- hashes[[1L]]
   class(out) <- c("clarify_est", class(out))
 
   out

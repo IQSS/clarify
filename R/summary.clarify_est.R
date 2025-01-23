@@ -106,7 +106,7 @@ summary.clarify_est <- function(object,
     object <- drop_sim_class(object)
 
     if (method == "wald") {
-      se <- apply(object[, parm, drop = FALSE], 2, sd, na.rm = TRUE)
+      se <- apply(object[, parm, drop = FALSE], 2L, sd, na.rm = TRUE)
       z <- (original_est[parm] - null) / se
       p <- 2 * pnorm(abs(z), lower.tail = FALSE)
       p[p < .Machine$double.eps] <- 0
@@ -190,7 +190,7 @@ confint.clarify_est <- function(object,
 
   if (method == "quantile") {
     object <- drop_sim_class(object)
-    ci[] <- t(apply(object[, parm, drop = FALSE], 2, quantile, probs = a,
+    ci[] <- t(apply(object[, parm, drop = FALSE], 2L, quantile, probs = a,
                     na.rm = nas, type = 8, names = FALSE))
   }
   else if (method == "wald") {
@@ -201,12 +201,12 @@ confint.clarify_est <- function(object,
   }
   else if (method == "optimal") {
     object <- drop_sim_class(object)
-    qseq <- seq(0, 1 - level, length.out = nrow(object))[-c(1, nrow(object))]
-    rowDiff <- function(x) {x[,2] - x[,1]}
-    ci[] <- t(apply(object[, parm, drop = FALSE], 2, function(x) {
+    qseq <- seq(0, 1 - level, length.out = nrow(object))[-c(1L, nrow(object))]
+    rowDiff <- function(x) {x[,2L] - x[,1L]}
+    ci[] <- t(apply(object[, parm, drop = FALSE], 2L, function(x) {
       ci.lengths <- rowDiff(matrix(quantile(x, probs = c(qseq, qseq + level),
                                             na.rm = nas, type = 8, names = FALSE),
-                                   ncol = 2))
+                                   ncol = 2L))
 
       best.q <- qseq[which.min(ci.lengths)]
       unname(quantile(x, probs = c(best.q, best.q + level),

@@ -38,7 +38,7 @@ plot.clarify_setx <- function(x,
       .wrn("ignoring `var` because no variables vary over predictions")
     }
 
-    return(plot.clarify_est(x, parm = 1, ci = ci, level = level,
+    return(plot.clarify_est(x, parm = 1L, ci = ci, level = level,
                             method = method, reference = reference, ...))
   }
 
@@ -191,7 +191,7 @@ setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
     if (ci)
       summary.clarify_est(x, level = level, method = method)[rownames(newdata), , drop = FALSE]
     else
-      matrix(coef(x)[rownames(newdata)], ncol = 1,
+      matrix(coef(x)[rownames(newdata)], ncol = 1L,
              dimnames = list(rownames(newdata), "Estimate"))
   }
 
@@ -205,7 +205,7 @@ setx_reg_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
 
   if (ci) {
     p <- p +
-      geom_ribbon(aes(ymin = .data[[colnames(s)[2]]], ymax = .data[[colnames(s)[3]]],
+      geom_ribbon(aes(ymin = .data[[colnames(s)[2L]]], ymax = .data[[colnames(s)[3L]]],
                       color = NULL),
                   alpha = .3)
   }

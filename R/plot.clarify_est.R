@@ -6,7 +6,7 @@ plot.clarify_est <- function(x,
                              level = .95,
                              method = "quantile",
                              reference = FALSE,
-                             ncol = 3,
+                             ncol = 3L,
                              ...) {
 
   chk::chk_flag(ci)

@@ -153,7 +153,9 @@ misim <- function(fitlist,
 
   dists <- unlist(lapply(samplers, attr, "dist"))
 
-  if (all_the_same(dists)) dists <- dists[1]
+  if (all_the_same(dists)) {
+    dists <- dists[1L]
+  }
 
   attr(out, "dist") <- dists
   attr(out, "use_fit") <- is_not_null(fitlist)
@@ -166,6 +168,7 @@ misim <- function(fitlist,
 #' @export
 print.clarify_misim <- function(x, ...) {
   obj <- deparse1(substitute(x))
+
   cat("A `clarify_misim` object\n")
   cat(sprintf(" - %s coefficients, %s imputations with %s simulated values each\n",
               ncol(x$sim.coefs), nrow(x$coefs), nrow(x$sim.coefs) / nrow(x$coefs)))

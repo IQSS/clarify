@@ -72,18 +72,19 @@ plot.clarify_adrf <- function(x,
   if (ci) {
     if (is_null(by)) {
       p <- p +
-        geom_ribbon(aes(ymin = s[[2]], ymax = s[[3]]),
+        geom_ribbon(aes(ymin = s[[2L]], ymax = s[[3L]]),
                     alpha = .3, fill = color)
     }
     else {
       p <- p +
-        geom_ribbon(aes(ymin = s[[2]], ymax = s[[3]],
+        geom_ribbon(aes(ymin = s[[2L]], ymax = s[[3L]],
                         fill = s$by_var),
                     alpha = .3) +
         labs(fill = paste(by, collapse = ", "))
     }
   }
-  p + labs(x = var, y = if (is_not_null(attr(x, "contrast"))) switch(attr(x, "contrast"), "adrf" = sprintf("E[Y(%s)]", var),
+  p + labs(x = var, y = if (is_not_null(attr(x, "contrast"))) switch(attr(x, "contrast"),
+                                                                     "adrf" = sprintf("E[Y(%s)]", var),
                                                                      "amef" = sprintf("E[dY/d(%s)]", var))) +
     theme_bw()
 }
@@ -91,13 +92,13 @@ plot.clarify_adrf <- function(x,
 .extract_by_values <- function(obj) {
   x <- names(obj)
 
-  if (identical(attr(obj, "contrast"), "amef"))
-    pattern <- "\\,([^]]+)\\]"
-  else
-    pattern <- "\\|([^]]+)\\]"
+  pattern <- {
+    if (identical(attr(obj, "contrast"), "amef")) "\\,([^]]+)\\]"
+    else "\\|([^]]+)\\]"
+  }
 
   matches <- regexpr(pattern, x, perl = TRUE)
   out <- regmatches(x, matches)
 
-  substr(out, 2, nchar(out) - 1)
+  substr(out, 2L, nchar(out) - 1L)
 }

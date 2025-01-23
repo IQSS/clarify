@@ -7,7 +7,7 @@ clarify_predict <- function(x, newdata = NULL, group = NULL, type = NULL, ...) {
   p <- try(do.call(marginaleffects::get_predict, args), silent = TRUE)
 
   if (is_not_null(p) && !is_error(p)) {
-    if (is_not_null(group) && "group" %in% names(p)) {
+    if (is_not_null(group) && hasName(p, "group")) {
       p <- .subset_group(p, group)
     }
 
@@ -38,13 +38,14 @@ clarify_predict <- function(x, newdata = NULL, group = NULL, type = NULL, ...) {
 }
 
 .get_p <- function(pred) {
-  if ("estimate" %in% names(pred)) pred[["estimate"]]
+  if (hasName(pred, "estimate")) pred[["estimate"]]
   else pred[["predicted"]]
 }
 
 .get_ordinal_mean_preds <- function(p) {
   ids <- unique(p$rowid)
   groups <- unique(p$group)
+
   m <- matrix(p$estimate, nrow = length(ids), ncol = length(groups))
 
   if (anyNA(groups)) {

@@ -105,15 +105,15 @@ sim_setx <- function(sim,
 
   #Test to make sure compatible
   if (is_misim) {
-    test_dat <- .get_pred_data_from_fit(sim$fit[[1]])[1, , drop = FALSE]
-    test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type, ...)
+    test_dat <- .get_pred_data_from_fit(sim$fit[[1L]])[1L, , drop = FALSE]
+    test_predict <- clarify_predict(sim$fit[[1L]], newdata = test_dat, group = NULL, type = type, ...)
   }
   else {
-    test_dat <- .get_pred_data_from_fit(sim$fit)[1, , drop = FALSE]
+    test_dat <- .get_pred_data_from_fit(sim$fit)[1L, , drop = FALSE]
     test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type, ...)
   }
 
-  if ("group" %in% names(test_predict) && length(unique_group <- unique(test_predict$group)) > 1) {
+  if (hasName(test_predict, "group") && length(unique_group <- unique(test_predict$group)) > 1) {
     if (is_null(outcome)) {
       .err("`outcome` must be supplied with multivariate models and models with multi-category outcomes")
     }

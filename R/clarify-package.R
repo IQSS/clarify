@@ -4,6 +4,6 @@
 ## usethis namespace: start
 #' @import stats
 #' @import ggplot2
-#' @importFrom utils str
+#' @import utils
 ## usethis namespace: end
 NULL
