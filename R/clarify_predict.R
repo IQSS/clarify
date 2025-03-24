@@ -52,19 +52,18 @@ clarify_predict <- function(x, newdata = NULL, group = NULL, type = NULL, ...) {
     nas <- is.na(groups)
     gn <- rep.int(NA_real_, length(groups))
 
-    if (!anyNA(suppressWarnings(g <- as.numeric(groups[!nas])))) {
-      gn[!nas] <- g
+    g <- suppressWarnings(as.numeric(groups[!nas]))
+    gn[!nas] <- {
+      if (anyNA(g)) seq_along(g)
+      else g
     }
-    else {
-      gn[!nas] <- seq_along(g)
-    }
+    groups <- gn
   }
   else {
-    if (!anyNA(suppressWarnings(g <- as.numeric(groups)))) {
-      groups <- g
-    }
-    else {
-      groups <- seq_along(g)
+    g <- suppressWarnings(as.numeric(groups))
+    groups <- {
+      if (anyNA(g)) seq_along(g)
+      else g
     }
   }
 

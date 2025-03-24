@@ -66,7 +66,7 @@ misim <- function(fitlist,
     if (!is.list(coefs) && !is.list(vcov)) {
       .err("when `fitlist` is not supplied, at least one of `coefs` or `vcov` must be a list")
     }
-    nimp <- if (!is.list(coefs)) length(vcov) else length(coefs)
+    nimp <- if (is.list(coefs)) length(coefs) else length(vcov)
   }
   else {
     check_fitlist(fitlist)
@@ -88,7 +88,7 @@ misim <- function(fitlist,
   }
 
   coef_supplied <- {
-    if (all(vapply(coefs, is_null, logical(1L)))) "null"
+    if (all(lengths(coefs) == 0L)) "null"
     else if (all(vapply(coefs, is.function, logical(1L)))) "fun"
     else if (all(vapply(coefs, check_valid_coef, logical(1L)))) "num"
     else {
@@ -151,7 +151,7 @@ misim <- function(fitlist,
               fit = fitlist,
               imp = rep(seq_len(nimp), each = n))
 
-  dists <- unlist(lapply(samplers, attr, "dist"))
+  dists <- unlist(lapply(samplers, attr, "dist", TRUE))
 
   if (all_the_same(dists)) {
     dists <- dists[1L]
@@ -173,8 +173,8 @@ print.clarify_misim <- function(x, ...) {
   cat(sprintf(" - %s coefficients, %s imputations with %s simulated values each\n",
               ncol(x$sim.coefs), nrow(x$coefs), nrow(x$sim.coefs) / nrow(x$coefs)))
   cat(" - sampled distributions: ")
-  if (length(attr(x, "dist")) == 1) {
-    cat(sprintf("multivariate %s\n", attr(x, "dist")))
+  if (length(attr(x, "dist", TRUE)) == 1) {
+    cat(sprintf("multivariate %s\n", attr(x, "dist", TRUE)))
   }
   else {
     cat("multiple different multivariate distributions")

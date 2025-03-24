@@ -31,7 +31,7 @@ plot.clarify_setx <- function(x,
                               reference = FALSE,
                               ...) {
 
-  newdata <- attr(x, "setx")
+  newdata <- attr(x, "setx", TRUE)
 
   if (nrow(newdata) == 1L) {
     if (is_not_null(var)) {
@@ -42,7 +42,7 @@ plot.clarify_setx <- function(x,
                             method = method, reference = reference, ...))
   }
 
-  if (isTRUE(attr(x, "fd"))) {
+  if (isTRUE(attr(x, "fd", TRUE))) {
     if (is_not_null(var)) {
       .wrn("ignoring `var`")
     }
@@ -61,11 +61,11 @@ plot.clarify_setx <- function(x,
     var <- varying
   }
   else if (is_null(var)) {
-    if (any(len_unique_newdata[varying] > 2L)) {
-      var <- attr(newdata, "set_preds")[which.max(len_unique_newdata[attr(newdata, "set_preds")])]
-    }
-    else {
-      var <- attr(newdata, "set_preds")[attr(newdata, "set_preds") %in% varying][1L]
+    var <- {
+      if (any(len_unique_newdata[varying] > 2L))
+        attr(newdata, "set_preds")[which.max(len_unique_newdata[attr(newdata, "set_preds")])]
+      else
+        attr(newdata, "set_preds")[attr(newdata, "set_preds") %in% varying][1L]
     }
   }
   else {
@@ -95,7 +95,7 @@ setx_sim_plot <- function(x, var, non_var_varying = NULL, ci = TRUE, level = .95
 
   chk::chk_flag(ci)
 
-  newdata <- attr(x, "setx")
+  newdata <- attr(x, "setx", TRUE)
   original_est <- coef(x)
   est_names <- rownames(newdata)
 

@@ -21,7 +21,7 @@ sim_adrf(
   ...
 )
 
-\method{print}{clarify_adrf}(x, digits = NULL, max.ests = 6, ...)
+\method{print}{clarify_adrf}(x, digits = NULL, max.ests = 6L, ...)
 }
 \arguments{
 \item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or

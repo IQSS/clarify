@@ -138,8 +138,8 @@ sim_adrf <- function(sim,
 
   #Test to make sure compatible
   if (is_misim) {
-    test_dat <- .get_pred_data_from_fit(sim$fit[[1]])
-    test_predict <- clarify_predict(sim$fit[[1]], newdata = test_dat, group = NULL, type = type, ...)
+    test_dat <- .get_pred_data_from_fit(sim$fit[[1L]])
+    test_predict <- clarify_predict(sim$fit[[1L]], newdata = test_dat, group = NULL, type = type, ...)
   }
   else {
     test_dat <- .get_pred_data_from_fit(sim$fit)
@@ -226,7 +226,7 @@ sim_adrf <- function(sim,
 
       names(out) <- unlist(lapply(by_levels, function(b) sprintf("E[Y(%s)|%s]", at, b)))
 
-      attr(out, "by") <- attr(sim$fit, "by_name")
+      attr(out, "by") <- attr(sim$fit, "by_name", TRUE)
       attr(out, "at") <- rep.int(at, length(by_levels))
     }
   }
@@ -239,7 +239,7 @@ sim_adrf <- function(sim,
       FUN <- function(fit) {
         dat <- .get_pred_data_from_fit(fit)
         ind <- seq_len(nrow(dat))
-        dat2 <- dat[c(ind, ind),, drop = FALSE]
+        dat2 <- dat[c(ind, ind), , drop = FALSE]
 
 
         vapply(at, function(x) {
@@ -263,7 +263,7 @@ sim_adrf <- function(sim,
         dat <- .get_pred_data_from_fit(fit)
         by_var <- .get_by_from_fit(fit)
         ind <- seq_len(nrow(dat))
-        dat2 <- dat[c(ind, ind),, drop = FALSE]
+        dat2 <- dat[c(ind, ind), , drop = FALSE]
 
         unlist(lapply(levels(by_var), function(b) {
           in_b <- by_var == b
@@ -287,7 +287,7 @@ sim_adrf <- function(sim,
 
       names(out) <- unlist(lapply(by_levels, function(b) sprintf("E[dY/d(%s)|%s,%s]", var, at, b)))
 
-      attr(out, "by") <- attr(sim$fit, "by_name")
+      attr(out, "by") <- attr(sim$fit, "by_name", TRUE)
       attr(out, "at") <- rep.int(at, length(by_levels))
     }
   }
@@ -304,37 +304,38 @@ sim_adrf <- function(sim,
 #' @param x a `clarify_adrf` object.
 #' @param digits the minimum number of significant digits to be used; passed to [print.data.frame()].
 #' @param max.ests the maximum number of estimates to display.
-print.clarify_adrf <- function(x, digits = NULL, max.ests = 6, ...) {
+print.clarify_adrf <- function(x, digits = NULL, max.ests = 6L, ...) {
   chk::chk_count(max.ests)
-  n.ests <- length(attr(x, "original"))
+  n.ests <- length(coef(x))
   max.ests <- min(max.ests, n.ests)
 
   cat("A `clarify_est` object (from `sim_adrf()`)\n")
 
-  cat(sprintf(" - %s of `%s`\n", switch(attr(x, "contrast"), "adrf" = "Average dose-response function",
+  cat(sprintf(" - %s of `%s`\n", switch(attr(x, "contrast", TRUE),
+                                        "adrf" = "Average dose-response function",
                                         "amef" = "Average marginal effect function"),
               attr(x, "var")))
-  if (is_not_null(attr(x, "by"))) {
-    cat(sprintf("   - within levels of %s\n", word_list(attr(x, "by"), quotes = "`")))
+  if (is_not_null(attr(x, "by", TRUE))) {
+    cat(sprintf("   - within levels of %s\n", word_list(attr(x, "by", TRUE), quotes = "`")))
   }
   cat(sprintf(" - %s simulated values\n", nrow(x)))
   cat(sprintf(" - %s %s estimated:", n.ests,
               ngettext(n.ests, "quantity", "quantities")))
 
   if (max.ests == n.ests) {
-    print.data.frame(data.frame(names(attr(x, "original")),
-                                attr(x, "original"),
+    print.data.frame(data.frame(names(coef(x)),
+                                coef(x),
                                 fix.empty.names	= FALSE),
                      row.names = FALSE, right = FALSE, digits = digits)
   }
   else {
-    print.data.frame(data.frame(names(attr(x, "original"))[seq_len(floor(max.ests / 2))],
-                                attr(x, "original")[seq_len(floor(max.ests / 2))],
+    print.data.frame(data.frame(names(coef(x))[seq_len(floor(max.ests / 2))],
+                                coef(x)[seq_len(floor(max.ests / 2))],
                                 fix.empty.names	= FALSE),
                      row.names = FALSE, right = FALSE, digits = digits)
     cat(sprintf("# ... and %s more", n.ests - floor(max.ests / 2) - ceiling(max.ests / 2)))
-    print.data.frame(data.frame(names(attr(x, "original"))[seq(n.ests - ceiling(max.ests / 2), n.ests)],
-                                attr(x, "original")[seq(n.ests - ceiling(max.ests / 2), n.ests)],
+    print.data.frame(data.frame(names(coef(x))[seq(n.ests - ceiling(max.ests / 2), n.ests)],
+                                coef(x)[seq(n.ests - ceiling(max.ests / 2), n.ests)],
                                 fix.empty.names	= FALSE),
                      row.names = FALSE, right = FALSE, digits = digits)
   }

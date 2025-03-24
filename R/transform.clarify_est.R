@@ -135,26 +135,35 @@ transform.clarify_est <- function(`_data`, ...) {
 cbind.clarify_est <- function(..., deparse.level = 1) {
   if (...length() == 0L) return(NULL)
 
-  for (i in seq_len(...length())) {
-    if (!inherits(...elt(i), "clarify_est")) {
+  hashes <- vector("list", ...length())
+  obj <- vector("list", ...length())
+  coefs <- vector("list", ...length())
+
+  for (i in seq_along(obj)) {
+    obj[[i]] <- ...elt(i)
+
+    if (!inherits(obj[[i]], "clarify_est")) {
       .err("all supplied objects must be `clarify_est` objects, the output of calls to `sim_apply()` or its wrappers")
     }
-  }
 
-  obj <- list(...)
-  hashes <- lapply(obj, attr, "sim_hash")
+    hashes[[i]] <- attr(obj[[i]], "sim_hash", TRUE)
 
-  if (any(lengths(hashes) == 0L) || any(!vapply(hashes, chk::vld_string, logical(1L)))) {
-    .err("all supplied objects must be unmodified `clarify_est` objects")
-  }
+    if (is_null(hashes[[i]]) || !chk::vld_string(hashes[[i]])) {
+      .err("all supplied objects must be unmodified `clarify_est` objects")
+    }
 
-  if (!all_the_same(unlist(hashes)) || !all_the_same(unlist(lapply(obj, nrow)))) {
-    .err("all supplied objects must be calls of `sim_apply()` or its wrappers on the same `clarify_sim` object")
+    if (i > 1L) {
+      if (hashes[[i]] != hashes[[1L]] || nrow(obj[[i]]) != nrow(obj[[1L]])) {
+        .err("all supplied objects must be calls of `sim_apply()` or its wrappers on the same `clarify_sim` object")
+      }
+    }
+
+    coefs[[i]] <- coef(obj[[i]])
   }
 
   out <- do.call("cbind", lapply(obj, drop_sim_class))
 
-  attr(out, "original") <- do.call("c", lapply(obj, attr, "original"))
+  attr(out, "original") <- unlist(coefs)
   attr(out, "sim_hash") <- hashes[[1L]]
   class(out) <- c("clarify_est", class(out))
 

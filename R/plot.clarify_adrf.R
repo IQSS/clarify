@@ -27,10 +27,10 @@ plot.clarify_adrf <- function(x,
                               color = "black",
                               ...) {
 
-  at <- attr(x, "at")
-  var <- attr(x, "var")
-  contrast <- attr(x, "contrast")
-  by <- attr(x, "by")
+  at <- attr(x, "at", TRUE)
+  var <- attr(x, "var", TRUE)
+  contrast <- attr(x, "contrast", TRUE)
+  by <- attr(x, "by", TRUE)
 
   if (missing(baseline)) {
     baseline <- is_not_null(contrast) && contrast == "amef"
@@ -66,7 +66,7 @@ plot.clarify_adrf <- function(x,
   }
   else {
     p <- p + geom_line(aes(y = s$Estimate, color = s$by_var)) +
-      labs(x = var, y = "E[Y|X]", color = paste(by, collapse = ", "))
+      labs(x = var, y = "E[Y|X]", color = toString(by))
   }
 
   if (ci) {
@@ -80,12 +80,13 @@ plot.clarify_adrf <- function(x,
         geom_ribbon(aes(ymin = s[[2L]], ymax = s[[3L]],
                         fill = s$by_var),
                     alpha = .3) +
-        labs(fill = paste(by, collapse = ", "))
+        labs(fill = toString(by))
     }
   }
-  p + labs(x = var, y = if (is_not_null(attr(x, "contrast"))) switch(attr(x, "contrast"),
-                                                                     "adrf" = sprintf("E[Y(%s)]", var),
-                                                                     "amef" = sprintf("E[dY/d(%s)]", var))) +
+  p + labs(x = var,
+           y = if (is_not_null(attr(x, "contrast", TRUE))) switch(attr(x, "contrast"),
+                                                                  "adrf" = sprintf("E[Y(%s)]", var),
+                                                                  "amef" = sprintf("E[dY/d(%s)]", var))) +
     theme_bw()
 }
 
@@ -93,7 +94,7 @@ plot.clarify_adrf <- function(x,
   x <- names(obj)
 
   pattern <- {
-    if (identical(attr(obj, "contrast"), "amef")) "\\,([^]]+)\\]"
+    if (identical(attr(obj, "contrast", TRUE), "amef")) "\\,([^]]+)\\]"
     else "\\|([^]]+)\\]"
   }
 

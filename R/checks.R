@@ -8,13 +8,13 @@ process_FUN <- function(FUN, use_fit = TRUE) {
 
   attr(FUN, "use_coefs") <- any(FUN_arg_names == "coefs")
 
-  if (!use_fit && !attr(FUN, "use_coefs")) {
+  if (!use_fit && !attr(FUN, "use_coefs", TRUE)) {
     .err("`FUN` must accept a `coefs` argument. See help(\"sim_apply\") for details")
   }
 
   attr(FUN, "use_fit") <- any(FUN_arg_names == "fit")
 
-  if (!use_fit && attr(FUN, "use_fit")) {
+  if (!use_fit && attr(FUN, "use_fit", TRUE)) {
     .wrn("the `fit` argument to `FUN` will be ignored. See help(\"sim_apply\") for details")
     attr(FUN, "use_fit") <- FALSE
   }
@@ -23,7 +23,9 @@ process_FUN <- function(FUN, use_fit = TRUE) {
 }
 
 check_transform <- function(transform = NULL) {
-  if (is_null(transform)) return(NULL)
+  if (is_null(transform)) {
+    return(NULL)
+  }
 
   transform_name <- {
     if (is.character(transform)) transform
@@ -72,32 +74,40 @@ check_coefs_vcov_length <- function(vcov, coefs, vcov_supplied, coef_supplied) {
         .err("the covariance matrix extracted from the model has dimensions different from the number of coefficients extracted from the model. You may need to supply your own function to extract one or both of these")
       }
       if (vcov_supplied == "fun") {
-        .err("the output of the function supplied to `vcov` must have dimensions equal to the number of coefficients extracted from the model (", length(coefs), ")")
+        .err(sprintf("the output of the function supplied to `vcov` must have dimensions equal to the number of coefficients extracted from the model (%s)",
+                     length(coefs)))
       }
       if (vcov_supplied == "num") {
-        .err("when supplied as a matrix, `vcov` must have dimensions equal to the number of coefficients extracted from the model (", length(coefs), ")")
+        .err(sprintf("when supplied as a matrix, `vcov` must have dimensions equal to the number of coefficients extracted from the model (%s)",
+                     length(coefs)))
       }
     }
     else if (coef_supplied == "fun") {
       if (vcov_supplied == "null") {
-        .err("the output of the function supplied to `coefs` must have length equal to the dimensions of the covariance matrix extracted from the model (", nrow(vcov), ")")
+        .err(sprintf("the output of the function supplied to `coefs` must have length equal to the dimensions of the covariance matrix extracted from the model (%s)",
+                     nrow(vcov)))
       }
       if (vcov_supplied == "fun") {
-        .err("the output of the function supplied to `vcov` must have dimensions equal to the length of the output of the function supplied to `coefs` (", length(coefs), ")")
+        .err(sprintf("the output of the function supplied to `vcov` must have dimensions equal to the length of the output of the function supplied to `coefs` (%s)",
+                     length(coefs)))
       }
       if (vcov_supplied == "num") {
-        .err("when supplied as a matrix, `vcov` must have dimensions equal to the length of the output of the function supplied to `coefs` (", length(coefs), ")")
+        .err(sprintf("when supplied as a matrix, `vcov` must have dimensions equal to the length of the output of the function supplied to `coefs` (%s)",
+                     length(coefs)))
       }
     }
     else if (coef_supplied == "num") {
       if (vcov_supplied == "null") {
-        .err("the coefficient vector supplied to `coefs` must have length equal to the dimensions of the covariance matrix extracted from the model (", nrow(vcov), ")")
+        .err(sprintf("the coefficient vector supplied to `coefs` must have length equal to the dimensions of the covariance matrix extracted from the model (%s)",
+                     nrow(vcov)))
       }
       if (vcov_supplied == "fun") {
-        .err("the output of the function supplied to `vcov` must have dimensions equal to the length of the coefficient vector supplied to `coefs` (", length(coefs), ")")
+        .err(sprintf("the output of the function supplied to `vcov` must have dimensions equal to the length of the coefficient vector supplied to `coefs` (%s)",
+                     length(coefs)))
       }
       if (vcov_supplied == "num") {
-        .err("when supplied as a matrix, `vcov` must have dimensions equal to the length of the coefficient vector supplied to `coefs` (", length(coefs), ")")
+        .err(sprintf("when supplied as a matrix, `vcov` must have dimensions equal to the length of the coefficient vector supplied to `coefs` (%s)",
+                     length(coefs)))
       }
     }
   }
@@ -174,7 +184,7 @@ check_coefs_vcov_length_mi <- function(vcov, coefs, vcov_supplied, coef_supplied
 check_fitlist <- function(fitlist) {
   if (!is.list(fitlist) ||
       any(vapply(fitlist, function(f) {
-        b <- try(coef(f))
+        b <- try(coef(f), silent = TRUE)
         is_error(b) || is_null(b) || all(is.na(b))
       }, logical(1L)))) {
     .err("`fitlist` must be a list of model fits or a `mira` object")
@@ -192,9 +202,8 @@ check_ests.list <- function(est, test) {
     })
   }
 
-  if (any(l != length(test))) {
-    .err("not all simulations produced estimates with the same length as the number of estimates computed from the original coefficients, indicating a problem in `FUN`",
-         immediate = FALSE)
+  if (!all(l == length(test))) {
+    .err("not all simulations produced estimates with the same length as the number of estimates computed from the original coefficients, indicating a problem in `FUN`")
   }
 }
 
@@ -295,25 +304,25 @@ check_classes <- function(olddata, newdata) {
   new[old == "factor" & new == "character"] <- "factor"
   new[old == "character" & new == "factor"] <- "character"
 
-  if (identical(old, new)) {
-    return(invisible(NULL))
+  if (!identical(old, new)) {
+    wrong <- old != new
+    if (sum(wrong) == 1)
+      .err(sprintf("variable '%s' was fit with type %s but type %s was supplied",
+                   names(old)[wrong], add_quotes(old[wrong]), add_quotes(new[wrong])))
+    else
+      .err(sprintf("variables %s were specified with different types from the original model fit",
+                   word_list(names(old)[wrong], quotes = TRUE)))
   }
 
-  wrong <- old != new
-  if (sum(wrong) == 1)
-    .err(sprintf("variable '%s' was fit with type \"%s\" but type \"%s\" was supplied",
-                 names(old)[wrong], old[wrong], new[wrong]))
-  else
-    .err(sprintf("variables %s were specified with different types from the original model fit",
-                 word_list(names(old)[wrong], quotes = TRUE)))
+  invisible(NULL)
 }
 
 check_sim_apply_wrapper_ready <- function(sim) {
-  fun <- deparse1(pkg_caller_call()[[1]])
+  fun <- deparse1(pkg_caller_call()[[1L]])
 
   chk::chk_is(sim, "clarify_sim")
 
-  if (!isTRUE(attr(sim, "use_fit"))) {
+  if (!isTRUE(attr(sim, "use_fit", TRUE))) {
     .err(sprintf("`%s()` can only be used when a model fit was supplied to the original call to `sim()`",
                  fun))
   }

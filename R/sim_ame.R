@@ -216,16 +216,17 @@ sim_ame <- function(sim,
 
   vals <- var
   if (is_null(names(vals))) {
-    names(vals) <- rep.int("", length(vals))
+    names(vals) <- character(length(vals))
   }
 
-  vals[names(vals) == "" & lengths(vals) == 0L] <- NULL
+  vals[!nzchar(names(vals)) & lengths(vals) == 0L] <- NULL
 
   if (is_null(vals)) {
     .err("`var` must be the name of the desired focal variable or a named list with its values")
   }
 
-  if (any(empty_names <- is.na(names(vals)) | names(vals) == "")) {
+  empty_names <- is.na(names(vals)) | !nzchar(names(vals))
+  if (any(empty_names)) {
     for (v in vals[empty_names]) {
       if (!chk::vld_string(v)) {
         .err("`var` must be the name of the desired focal variable or a named list with its values")
@@ -262,10 +263,14 @@ sim_ame <- function(sim,
 
   for (v in vars[var_types == "cat"]) {
     if (is_null(vals[[v]])) {
-      vals[[v]] <- if (is.factor(var_val[[v]])) levels(var_val[[v]]) else sort(unique(var_val[[v]]))
+      vals[[v]] <- {
+        if (is.factor(var_val[[v]])) levels(var_val[[v]])
+        else sort(unique(var_val[[v]]))
+      }
     }
     else if (chk::vld_character_or_factor(var_val[[v]]) && !all(vals[[v]] %in% var_val[[v]])) {
-      .err(sprintf("the values mentioned in `var[[\"%s\"]]` must be values `%s` takes on", v, v))
+      .err(sprintf("the values mentioned in `var[[%s]]` must be values `%s` takes on",
+                   add_quotes(v), v))
     }
   }
 
@@ -296,7 +301,7 @@ sim_ame <- function(sim,
     test_predict <- clarify_predict(sim$fit, newdata = test_dat, group = NULL, type = type, ...)
   }
 
-  if (hasName(test_predict, "group") && length(unique_group <- unique(test_predict$group)) > 1) {
+  if (hasName(test_predict, "group") && length(unique_group <- unique(test_predict$group)) > 1L) {
     if (is_null(outcome)) {
       .err("`outcome` must be supplied with multivariate models and models with multi-category outcomes")
     }
@@ -304,7 +309,8 @@ sim_ame <- function(sim,
     chk::chk_string(outcome)
 
     if (!outcome %in% unique_group) {
-      .err("only the following values of `outcome` are allowed: ", paste(add_quotes(unique_group), collapse = ", "))
+      .err("only the following values of `outcome` are allowed: ",
+           toString(add_quotes(unique_group)))
     }
 
     test_predict <- .subset_group(test_predict, outcome)
@@ -422,7 +428,7 @@ sim_ame <- function(sim,
 
       for (i in seq_along(by_levels)) {
         if (is_not_null(contrast)) {
-          out_i <- out[(i - 1) * nrow(vars_grid) + seq_len(nrow(vars_grid))]
+          out_i <- out[(i - 1L) * nrow(vars_grid) + seq_len(nrow(vars_grid))]
           out_i <- transform(out_i,
                              `.C` = switch(tolower(contrast),
                                            "diff" = , "rd" = .b2 - .b1,
@@ -439,7 +445,8 @@ sim_ame <- function(sim,
           out <- cbind(out, out_i[3L])
         }
 
-        names(out)[(i - 1) * nrow(vars_grid) + seq_len(nrow(vars_grid))] <- apply(as.matrix(vars_grid), 1L, function(g) {
+        ind <- (i - 1L) * nrow(vars_grid) + seq_len(nrow(vars_grid))
+        names(out)[ind] <- apply(as.matrix(vars_grid), 1L, function(g) {
           sprintf("E[Y(%s)|%s]", paste(g, collapse = ","), by_levels[i])
         })
       }
@@ -447,7 +454,8 @@ sim_ame <- function(sim,
       if (is_not_null(contrast)) {
         #Re-order contrasts to be with by-levels
         out <- out[unlist(lapply(seq_along(by_levels), function(i) {
-          c((i - 1) * nrow(vars_grid) + seq_len(nrow(vars_grid)), length(by_levels) * nrow(vars_grid) + i)
+          c((i - 1L) * nrow(vars_grid) + seq_len(nrow(vars_grid)),
+            length(by_levels) * nrow(vars_grid) + i)
         }))]
       }
 
@@ -476,7 +484,7 @@ sim_ame <- function(sim,
           ind <- seq_len(nrow(dat))
 
           # Double dataset for numeric derivative
-          dat <- dat[rep.int(ind, 2L),, drop = FALSE]
+          dat <- dat[rep.int(ind, 2L), , drop = FALSE]
           dat[[vars[cv]]][ind] <- dat[[vars[cv]]][ind] - eps / 2
           dat[[vars[cv]]][-ind] <- dat[[vars[cv]]][-ind] + eps / 2
 
@@ -506,11 +514,11 @@ sim_ame <- function(sim,
           }
 
           in_v <- lapply(seq_len(nrow(vars_grid)), function(i) {
-            (i - 1) * m + seq_len(m)
+            (i - 1L) * m + seq_len(m)
           })
 
           # Double dataset for numeric derivative
-          dat <- dat[rep.int(ind2, 2L),, drop = FALSE]
+          dat <- dat[rep.int(ind2, 2L), , drop = FALSE]
 
           dat[[vars[cv]]][ind2] <- dat[[vars[cv]]][ind2] - eps / 2
           dat[[vars[cv]]][-ind2] <- dat[[vars[cv]]][-ind2] + eps / 2
@@ -539,7 +547,7 @@ sim_ame <- function(sim,
           ind <- seq_len(nrow(dat))
 
           # Double dataset for numeric derivative
-          dat <- dat[rep.int(ind, 2L),, drop = FALSE]
+          dat <- dat[rep.int(ind, 2L), , drop = FALSE]
           dat[[vars[cv]]][ind] <- dat[[vars[cv]]][ind] - eps / 2
           dat[[vars[cv]]][-ind] <- dat[[vars[cv]]][-ind] + eps / 2
 
@@ -577,11 +585,11 @@ sim_ame <- function(sim,
           }
 
           in_v <- lapply(seq_len(nrow(vars_grid)), function(i) {
-            (i - 1) * m + seq_len(m)
+            (i - 1L) * m + seq_len(m)
           })
 
           # Double dataset for numeric derivative
-          dat <- dat[rep.int(ind2, 2L),, drop = FALSE]
+          dat <- dat[rep.int(ind2, 2L), , drop = FALSE]
 
           dat[[vars[cv]]][ind2] <- dat[[vars[cv]]][ind2] - eps / 2
           dat[[vars[cv]]][-ind2] <- dat[[vars[cv]]][-ind2] + eps / 2
@@ -603,7 +611,7 @@ sim_ame <- function(sim,
         by_levels <- levels(.get_by_from_fit(sim$fit))
 
         for (i in seq_along(by_levels)) {
-          names(out)[(i - 1) * nrow(vars_grid) + seq_len(nrow(vars_grid))] <- apply(as.matrix(vars_grid), 1L, function(g) {
+          names(out)[(i - 1L) * nrow(vars_grid) + seq_len(nrow(vars_grid))] <- apply(as.matrix(vars_grid), 1L, function(g) {
             sprintf("E[dY(%s)/d(%s)|%s]", paste(g, collapse = ","), vars[cv], by_levels[i])
           })
         }
@@ -623,13 +631,13 @@ sim_ame <- function(sim,
 #' @param x a `clarify_ame` object.
 #' @param digits the minimum number of significant digits to be used; passed to [print.data.frame()].
 #' @param max.ests the maximum number of estimates to display.
-print.clarify_ame <- function(x, digits = NULL, max.ests = 6, ...) {
+print.clarify_ame <- function(x, digits = NULL, max.ests = 6L, ...) {
   chk::chk_count(max.ests)
-  max.ests <- min(max.ests, length(attr(x, "original")))
+  max.ests <- min(max.ests, length(coef(x)))
 
   cat("A `clarify_est` object (from `sim_ame()`)\n")
 
-  vals <- attr(x, "var")
+  vals <- attr(x, "var", TRUE)
   cont_vals <- vals[lengths(vals) == 0L]
 
   if (is_not_null(cont_vals)) {
@@ -655,7 +663,8 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6, ...) {
       cat(sprintf("   - with %s\n", word_list(set_text)))
     }
     else {
-      cat(sprintf(" - Average adjusted predictions for %s\n", word_list(names(varying_vals), quotes = "`")))
+      cat(sprintf(" - Average adjusted predictions for %s\n",
+                  word_list(names(varying_vals), quotes = "`")))
       if (is_not_null(set_vals)) {
         set_text <- vapply(names(set_vals), function(i) {
           sprintf("`%s` set to %s", i,
@@ -667,19 +676,23 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6, ...) {
   }
 
   if (is_not_null(attr(x, "by"))) {
-    cat(sprintf("   - within levels of %s\n", word_list(attr(x, "by"), quotes = "`")))
+    cat(sprintf("   - within levels of %s\n",
+                word_list(attr(x, "by"), quotes = "`")))
   }
-  cat(sprintf(" - %s simulated values\n", nrow(x)))
-  cat(sprintf(" - %s %s estimated:", length(attr(x, "original")),
-              ngettext(length(attr(x, "original")), "quantity", "quantities")))
 
-  print.data.frame(data.frame(names(attr(x, "original"))[seq_len(max.ests)],
-                              attr(x, "original")[seq_len(max.ests)],
+  cat(sprintf(" - %s simulated values\n", nrow(x)))
+
+  cat(sprintf(" - %s %s estimated:", length(coef(x)),
+              ngettext(length(coef(x)), "quantity", "quantities")))
+
+  print.data.frame(data.frame(names(coef(x))[seq_len(max.ests)],
+                              coef(x)[seq_len(max.ests)],
                               fix.empty.names	= FALSE),
                    row.names = FALSE, right = FALSE, digits = digits)
 
-  if (max.ests != length(attr(x, "original"))) {
-    cat(sprintf("# ... and %s more\n", length(attr(x, "original")) - max.ests))
+  if (max.ests != length(coef(x))) {
+    cat(sprintf("# ... and %s more\n",
+                length(coef(x)) - max.ests))
   }
 
   invisible(x)
@@ -700,7 +713,9 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6, ...) {
 
 .attach_pred_data_to_fit <- function(fit, by = NULL, index.sub = NULL, is_fitlist = FALSE) {
   if (is_fitlist) {
-    return(lapply(fit, .attach_pred_data_to_fit, by = by, index.sub = index.sub))
+    fit <- lapply(fit, .attach_pred_data_to_fit, by = by, index.sub = index.sub)
+    attr(fit, "is_fitlist") <- TRUE
+    return(fit)
   }
 
   data <- insight::get_data(fit, verbose = FALSE)
@@ -719,7 +734,7 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6, ...) {
     }
 
     if (is_not_null(subset)) {
-      data <- data[subset, ]
+      data <- data[subset, , drop = FALSE]
       weights <- weights[subset]
     }
   }
@@ -737,9 +752,14 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6, ...) {
 }
 
 .get_pred_data_from_fit <- function(fit) {
-  attr(fit, "clarify_data")
+  attr(fit, "clarify_data", TRUE)
 }
 
 .get_by_from_fit <- function(fit) {
-  attr(fit, "by_var")
+  if (isTRUE(attr(fit, "is_fitlist", TRUE))) {
+    unlist(lapply(fit, .get_by_from_fit))
+  }
+  else {
+    attr(fit, "by_var", TRUE)
+  }
 }

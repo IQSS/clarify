@@ -1,6 +1,6 @@
 #' @exportS3Method names clarify_est
 names.clarify_est <- function(x) {
-  names(attr(x, "original"))
+  names(coef(x))
 }
 
 #' @exportS3Method `names<-` clarify_est
@@ -12,7 +12,7 @@ names.clarify_est <- function(x) {
   names(attr(x, "original")) <- value
 
   for (i in names(attributes(x))) {
-    if (identical(names(attr(x, i)), original_names)) {
+    if (identical(names(attr(x, i, TRUE)), original_names)) {
       names(attr(x, i)) <- value
     }
 
@@ -43,7 +43,7 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
     left <- drop_sim_class(e1)
     e1[] <- eval(f)
 
-    left <- attr(e1, "original")
+    left <- attr(e1, "original", TRUE)
     attr(e1, "original")[] <- eval(f)
     return(e1)
   }
@@ -84,9 +84,9 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
     e2[] < eval(f)
 
   if (e1_clarify_est)
-    left <- attr(e1, "original")
+    left <- attr(e1, "original", TRUE)
   if (e2_clarify_est)
-    right <- attr(e2, "original")
+    right <- attr(e2, "original", TRUE)
 
   if (e1_clarify_est) {
     attr(e1, "original")[] <- eval(f)
@@ -123,7 +123,7 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
     attr(x, z) <- attrs[[z]]
   }
 
-  attr(x, "original") <- attr(x, "original")[i]
+  attr(x, "original") <- attr(x, "original", TRUE)[i]
 
   if (hasName(attrs, "at")) {
     attr(x, "at") <- unname(setNames(attrs[["at"]], names(attrs[["original"]]))[i])
@@ -178,16 +178,16 @@ str.clarify_est <- function(object,
   oDefs <- c("vec.len", "digits.d", "strict.width", "formatNum",
              "drop.deparse.attr", "list.len", "deparse.lines")
   strO <- getOption("str")
-  if (!is.list(strO)) {
-    warning("invalid options(\"str\") -- using defaults instead")
-    strO <- utils::strOptions()
-  }
-  else {
+  if (is.list(strO)) {
     if (!all(names(strO) %in% oDefs))
       warning(gettextf("invalid components in options(\"str\"): %s",
                        paste(setdiff(names(strO), oDefs), collapse = ", ")),
               domain = NA)
     strO <- utils::modifyList(utils::strOptions(), strO)
+  }
+  else {
+    warning("invalid options(\"str\") -- using defaults instead")
+    strO <- utils::strOptions()
   }
 
   oo <- options(digits = digits.d)

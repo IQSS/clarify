@@ -226,7 +226,7 @@ sim_apply <- function(sim,
 #' @export
 print.clarify_est <- function(x, digits = NULL, max.ests = 6, ...) {
   chk::chk_count(max.ests)
-  max.ests <- min(max.ests, length(attr(x, "original")))
+  max.ests <- min(max.ests, length(coef(x)))
 
   cat(sprintf("A `clarify_est` object (from %s)\n",
               if (inherits(x, "clarify_ame")) "`sim_ame()`"
@@ -234,16 +234,16 @@ print.clarify_est <- function(x, digits = NULL, max.ests = 6, ...) {
               else "`sim_apply()`"))
 
   cat(sprintf(" - %s simulated values\n", nrow(x)))
-  cat(sprintf(" - %s %s estimated:", length(attr(x, "original")),
-              ngettext(length(attr(x, "original")), "quantity", "quantities")))
+  cat(sprintf(" - %s %s estimated:", length(coef(x)),
+              ngettext(length(coef(x)), "quantity", "quantities")))
 
-  print.data.frame(data.frame(names(attr(x, "original"))[seq_len(max.ests)],
-                              attr(x, "original")[seq_len(max.ests)],
+  print.data.frame(data.frame(names(coef(x))[seq_len(max.ests)],
+                              coef(x)[seq_len(max.ests)],
                               fix.empty.names	= FALSE),
                    row.names = FALSE, right = FALSE)
 
-  if (max.ests != length(attr(x, "original"))) {
-    cat(sprintf("# ... and %s more\n", length(attr(x, "original")) - max.ests))
+  if (max.ests != length(coef(x))) {
+    cat(sprintf("# ... and %s more\n", length(coef(x)) - max.ests))
   }
 
   invisible(x)

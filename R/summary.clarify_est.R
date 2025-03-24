@@ -71,10 +71,10 @@ summary.clarify_est <- function(object,
                                 null = NA,
                                 ...) {
 
-  if (is_null(attr(object, "original")) ||
+  if (is_null(coef(object)) ||
       is_null(ncol(object)) ||
-      ncol(object) != length(attr(object, "original")) ||
-      !identical(names(object), names(attr(object, "original")))) {
+      ncol(object) != length(coef(object)) ||
+      !identical(names(object), names(coef(object)))) {
     .err("the `clarify_est` object is malformed, possibly due to tampering")
   }
 
@@ -184,7 +184,8 @@ confint.clarify_est <- function(object,
   ci <- array(NA, dim = c(length(parm), 2L),
               dimnames = list(est_names, pct))
 
-  if (nas <- anyNA(object[parm])) {
+  nas <- anyNA(object[parm])
+  if (nas) {
     .wrn("`NA` values present among the estimates")
   }
 
@@ -228,7 +229,7 @@ confint.clarify_est <- function(object,
 
 #' @exportS3Method coef clarify_est
 coef.clarify_est <- function(object, ...) {
-  attr(object, "original")
+  attr(object, "original", TRUE)
 }
 
 #' @exportS3Method vcov clarify_est

@@ -202,7 +202,7 @@ sim_setx <- function(sim,
 #' @param max.ests the maximum number of estimates to display.
 print.clarify_setx <- function(x, digits = NULL, max.ests = 6, ...) {
   chk::chk_count(max.ests)
-  max.ests <- min(max.ests, length(attr(x, "original")))
+  max.ests <- min(max.ests, length(coef(x)))
 
   cat("A `clarify_est` object (from `sim_setx()`)\n")
   if (isTRUE(attr(x, "fd"))) {
@@ -224,14 +224,14 @@ print.clarify_setx <- function(x, digits = NULL, max.ests = 6, ...) {
   }
 
   cat(sprintf(" - %s simulated values\n", nrow(x)))
-  cat(sprintf(" - %s %s estimated:", length(attr(x, "original")),
-              ngettext(length(attr(x, "original")), "quantity", "quantities")))
-  print.data.frame(data.frame(names(attr(x, "original"))[seq_len(max.ests)],
-                              attr(x, "original")[seq_len(max.ests)],
+  cat(sprintf(" - %s %s estimated:", length(coef(x)),
+              ngettext(length(coef(x)), "quantity", "quantities")))
+  print.data.frame(data.frame(names(coef(x))[seq_len(max.ests)],
+                              coef(x)[seq_len(max.ests)],
                               fix.empty.names	= FALSE),
                    row.names = FALSE, right = FALSE)
-  if (max.ests != length(attr(x, "original"))) {
-    cat(sprintf("# ... and %s more\n", length(attr(x, "original")) - max.ests))
+  if (max.ests != length(coef(x))) {
+    cat(sprintf("# ... and %s more\n", length(coef(x)) - max.ests))
   }
 
   invisible(x)
@@ -253,7 +253,7 @@ process_x <- function(x, dat, arg_name) {
     }
   }
   else if (is.list(x)) {
-    if (is_null(names(x)) || any(names(x) == "")) {
+    if (is_null(names(x)) || !all(nzchar(names(x)))) {
       x_okay <- FALSE
     }
     else if (!all(names(x) %in% names(dat))) {

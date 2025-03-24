@@ -1,5 +1,10 @@
 # `clarify` (development version)
 
+* Fixed a bug when using `sim_ame()` after `misim()` with `by` specified. Thanks to Arvind Ilamaran for pointing out this bug.
+
+
+# `clarify` 0.2.2
+
 * `sim_setx()`, `sim_ame()`, and `sim_adrf()` now accept other arguments passed through `...`, which are passed to `marginaleffects::get_predict()` to compute predictions.
 
 * Documentation updates.
