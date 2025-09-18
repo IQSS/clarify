@@ -1,4 +1,7 @@
-# `clarify` (development version)
+clarify News and Updates
+======
+
+# `clarify` 0.2.3
 
 * Simultaneous confidence bands and p-values are now available by setting `simultaneous = TRUE` in calls to `summary()` or `plot()`.
 
