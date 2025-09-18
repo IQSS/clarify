@@ -7,6 +7,7 @@ plot.clarify_est <- function(x,
                              method = "quantile",
                              reference = FALSE,
                              ncol = 3L,
+                             simultaneous = FALSE,
                              ...) {
 
   chk::chk_flag(ci)
@@ -22,10 +23,13 @@ plot.clarify_est <- function(x,
 
   est_names <- est_names[parm]
 
-  est_long <- setNames(utils::stack(as.data.frame(as.matrix(x))[est_names]),
-                       c("val", "est"))
-  original_est_long <- setNames(utils::stack(original_est[est_names]),
-                                c("val", "est"))
+  est_long <- as.data.frame(as.matrix(x))[est_names] |>
+    stack() |>
+    setNames(c("val", "est"))
+
+  original_est_long <- original_est[est_names] |>
+    stack() |>
+    setNames(c("val", "est"))
 
   p <- ggplot() +
     geom_density(data = est_long, mapping = aes(x = .data$val),
@@ -36,10 +40,13 @@ plot.clarify_est <- function(x,
     facet_wrap(vars(.data$est), scales = "free", ncol = min(ncol, nlevels(original_est_long$est)))
 
   if (ci) {
-    ci <- confint(x, parm = parm, level = level,
-                  method = method)
+    ci_long <- confint(x, parm = parm, level = level,
+                       method = method, simultaneous = simultaneous) |>
+      t() |>
+      as.data.frame() |>
+      stack() |>
+      setNames(c("val", "est"))
 
-    ci_long <- setNames(utils::stack(as.data.frame(t(ci))), c("val", "est"))
     p <- p + geom_vline(data = ci_long, mapping = aes(xintercept = .data$val),
                         linetype = 2)
   }
@@ -52,8 +59,9 @@ plot.clarify_est <- function(x,
       height = dnorm(0, 0, tapply(est_long$val, est_long$est, sd)),
       median = tapply(est_long$val, est_long$est, median))
 
-    p <- p + geom_density(data = est_long, mapping = aes(x = .data$val),
-                          stat = StatNormal, color = "red") +
+    p <- p +
+      geom_density(data = est_long, mapping = aes(x = .data$val),
+                   stat = StatNormal, color = "red") +
       geom_segment(aes(x = .data$mean, xend = .data$mean,
                        y = 0, yend = .data$height),
                    data = ref_means_and_medians, color = "red") +
@@ -62,8 +70,7 @@ plot.clarify_est <- function(x,
                    data = ref_means_and_medians, color = "blue")
   }
 
-  p +
-    labs(x = "Estimate", y = "Density") +
+  p + labs(x = "Estimate", y = "Density") +
     theme_bw() +
     theme(panel.grid = element_blank())
 }
@@ -71,9 +78,9 @@ plot.clarify_est <- function(x,
 #Stat for normal reference density
 StatNormal <- ggplot2::ggproto("StatNormal", ggplot2::Stat,
                                required_aes = "x|y",
-                               default_aes = aes(x = ggplot2::after_stat(density),
-                                                 y = ggplot2::after_stat(density),
-                                                 fill = NA, weight = NULL),
+                               default_aes = ggplot2::aes(x = ggplot2::after_stat(density),
+                                                          y = ggplot2::after_stat(density),
+                                                          fill = NA, weight = NULL),
                                setup_params = function(data, params) {
                                  params$flipped_aes <- ggplot2::has_flipped_aes(data, params, main_is_orthogonal = FALSE, main_is_continuous = TRUE)
 

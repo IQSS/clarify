@@ -1,18 +1,10 @@
 #' Compute average marginal effects
 #'
-#' @description
-#' `sim_ame()` is a wrapper for [sim_apply()] that computes average
-#' marginal effects, the average effect of changing a single variable from one
-#' value to another (i.e., from one category to another for categorical
-#' variables or a tiny change for continuous variables).
+#' `sim_ame()` is a wrapper for [sim_apply()] that computes average marginal effects, the average effect of changing a single variable from one value to another (i.e., from one category to another for categorical variables or a tiny change for continuous variables).
 #'
 #' @inheritParams sim_apply
-#' @param var either the names of the variables for which marginal effects are
-#'   to be computed or a named list containing the values the variables should
-#'   take. See Details.
-#' @param subset optional; a vector used to subset the data used to compute the
-#'   marginal effects. This will be evaluated within the original dataset used
-#'   to fit the model using [subset()], so nonstandard evaluation is allowed.
+#' @param var either the names of the variables for which marginal effects are to be computed or a named list containing the values the variables should take. See Details.
+#' @param subset optional; a vector used to subset the data used to compute the marginal effects. This will be evaluated within the original dataset used to fit the model using [subset()], so nonstandard evaluation is allowed.
 #' @param by a one-sided formula or character vector containing the names of
 #'   variables for which to stratify the estimates. Each quantity will be
 #'   computed within each level of the complete cross of the variables specified
@@ -37,6 +29,7 @@
 #' @param eps when the variable named in `var` is continuous, the value by which
 #'   to change the variable values to approximate the derivative. See Details.
 #' @param \dots for `sim_ame()`, additional arguments passed to [marginaleffects::get_predict()] (and eventually to `predict()`) to compute predictions. For `print()`, ignored.
+#' @param x a `clarify_ame` object.
 #'
 #' @details
 #' `sim_ame()` computes average adjusted predictions or average marginal effects depending on which variables are named in `var` and how they are specified. Canonically, `var` should be specified as a named list with the value(s) each variable should be set to. For example, specifying `var = list(x1 = 0:1)` computes average adjusted predictions setting `x1` to 0 and 1. Specifying a variable's values as `NULL`, e.g., `list(x1 = NULL)`, is equivalent to requesting average adjusted predictions at each unique value of the variable when that variable is binary or a factor or character and requests the average marginal effect of that variable otherwise. Specifying an unnamed entry in the list with a string containing the value of that variable, e.g., `list("x1")` is equivalent to specifying `list(x1 = NULL)`. Similarly, supplying a vector with the names of the variables is equivalent to specifying a list, e.g., `var = "x1"` is equivalent to `var = list(x1 = NULL)`.
@@ -77,7 +70,7 @@
 #' average marginal means will be denoted in the below formulas as `E[Y(0)]` and
 #' `E[Y(1)]`, respectively.
 #'
-#' | `contrast`      | **Description**                      | **Formula**                                     |
+#' | `contrast`      | **Description**                  | **Formula**                                 |
 #' | --------------- | -------------------------------- | ------------------------------------------- |
 #' | `"diff"`/`"rd"` | Mean/risk difference             | `E[Y(1)] - E[Y(0)]`                         |
 #' | `"rr"`/`"irr"`  | Risk ratio/incidence rate ratio  | `E[Y(1)] / E[Y(0)]`                         |
@@ -92,7 +85,8 @@
 #' The `log(.)` versions are defined by taking the [log()] (natural log) of the
 #' corresponding effect measure.
 #'
-#' @return A `clarify_ame` object, which inherits from `clarify_est` and is
+#' @returns
+#' A `clarify_ame` object, which inherits from `clarify_est` and is
 #' similar to the output of `sim_apply()`, with the additional attributes
 #' `"var"` containing the variable values specified in `var` and `"by"` containing the
 #' names of the variables specified in `by` (if any). The average adjusted
@@ -104,14 +98,12 @@
 #' `{b}` is a comma-separated list of of values of the `by` variables at which
 #' the quantity is computed. See examples.
 #'
-#' @seealso [sim_apply()], which provides a general interface to computing any
-#'   quantities for simulation-based inference; [plot.clarify_est()] for plotting the
-#'   output of a call to `sim_ame()`; [summary.clarify_est()] for computing
-#'   p-values and confidence intervals for the estimated quantities.
+#' @seealso
+#' [sim_apply()], which provides a general interface to computing any quantities for simulation-based inference; [plot.clarify_est()] for plotting the output of a call to `sim_ame()`; [summary.clarify_est()] for computing p-values and confidence intervals for the estimated quantities.
 #'
 #'  [marginaleffects::avg_predictions()], [marginaleffects::avg_comparisons()] and [marginaleffects::avg_slopes()] for delta method-based implementations of computing average marginal effects.
 #'
-#' @examples
+#' @examplesIf rlang::is_installed("MatchIt")
 #' data("lalonde", package = "MatchIt")
 #'
 #' # Fit the model
@@ -227,10 +219,8 @@ sim_ame <- function(sim,
 
   empty_names <- is.na(names(vals)) | !nzchar(names(vals))
   if (any(empty_names)) {
-    for (v in vals[empty_names]) {
-      if (!chk::vld_string(v)) {
-        .err("`var` must be the name of the desired focal variable or a named list with its values")
-      }
+    if (!all_apply(vals[empty_names], chk::vld_string)) {
+      .err("`var` must be the name of the desired focal variable or a named list with its values")
     }
 
     names(vals)[empty_names] <- unlist(vals[empty_names])
@@ -248,7 +238,7 @@ sim_ame <- function(sim,
 
   if (!all(vars %in% names(dat))) {
     .err(sprintf("the variable%%s %s named in `var` %%r not present in the original model",
-                 word_list(vars[!vars %in% names(dat)], quotes = TRUE)),
+                 word_list(setdiff(vars, names(dat)), quotes = TRUE)),
          n = sum(!vars %in% names(dat)))
   }
 
@@ -257,7 +247,7 @@ sim_ame <- function(sim,
 
   var_types <- vapply(vars, function(v) {
     if (is_not_null(vals[[v]]) || chk::vld_character_or_factor(var_val[[v]]) ||
-        is.logical(var_val[[v]]) || length(unique(var_val[[v]])) <= 2) "cat"
+        is.logical(var_val[[v]]) || length(unique(var_val[[v]])) <= 2L) "cat"
     else "cont"
   }, character(1L))
 
@@ -283,7 +273,7 @@ sim_ame <- function(sim,
     }
   }
 
-  if (sum(var_types == "cont") > 1) {
+  if (sum(var_types == "cont") > 1L) {
     .err("only one continuous variable can be supplied to `var`")
   }
 
@@ -330,10 +320,10 @@ sim_ame <- function(sim,
   if (all(var_types == "cat")) {
     vars_grid <- do.call("expand.grid", vals)
 
-    if (nrow(vars_grid) < 2) {
+    if (nrow(vars_grid) < 2L) {
       contrast <- NULL
     }
-    else if (nrow(vars_grid) == 2) {
+    else if (nrow(vars_grid) == 2L) {
       if (is_not_null(contrast)) {
         chk::chk_string(contrast)
         contrast <- tolower(contrast)
@@ -342,7 +332,7 @@ sim_ame <- function(sim,
       }
     }
     else if (is_not_null(contrast)) {
-      if (sum(lengths(vals) >= 2) > 1)
+      if (sum(lengths(vals) >= 2L) > 1L)
         .wrn("`contrast` is ignored when multiple focal variables takes on two or more levels")
       else
         .wrn("`contrast` is ignored when any focal variable takes on more than two levels")
@@ -366,7 +356,8 @@ sim_ame <- function(sim,
           (i - 1) * m + seq_len(m)
         })
 
-        p <- .get_p(clarify_predict(fit, newdata = dat, group = outcome, type = type, ...))
+        p <- clarify_predict(fit, newdata = dat, group = outcome, type = type, ...) |>
+          .get_p()
 
         vapply(in_v, function(in_v_i) {
           mean(p[in_v_i])
@@ -408,7 +399,8 @@ sim_ame <- function(sim,
           dat2[[v]][] <- rep(vars_grid[[v]], each = m)
         }
 
-        p <- .get_p(clarify_predict(fit, newdata = dat2, group = outcome, type = type, ...))
+        p <- clarify_predict(fit, newdata = dat2, group = outcome, type = type, ...) |>
+          .get_p()
 
         in_v <- lapply(seq_len(nrow(vars_grid)), function(i) {
           (i - 1) * m + seq_len(m)
@@ -459,7 +451,7 @@ sim_ame <- function(sim,
         }))]
       }
 
-      attr(out, "by") <- attr(sim$fit, "by_name")
+      attr(out, "by") <- .attr(sim$fit, "by_name")
     }
   }
   else {
@@ -488,7 +480,8 @@ sim_ame <- function(sim,
           dat[[vars[cv]]][ind] <- dat[[vars[cv]]][ind] - eps / 2
           dat[[vars[cv]]][-ind] <- dat[[vars[cv]]][-ind] + eps / 2
 
-          p <- .get_p(clarify_predict(fit, newdata = dat, group = outcome, type = type, ...))
+          p <- clarify_predict(fit, newdata = dat, group = outcome, type = type, ...) |>
+            .get_p()
 
           m0 <- mean(p[ind])
           m1 <- mean(p[-ind])
@@ -523,7 +516,8 @@ sim_ame <- function(sim,
           dat[[vars[cv]]][ind2] <- dat[[vars[cv]]][ind2] - eps / 2
           dat[[vars[cv]]][-ind2] <- dat[[vars[cv]]][-ind2] + eps / 2
 
-          p <- .get_p(clarify_predict(fit, newdata = dat, group = outcome, type = type, ...))
+          p <- clarify_predict(fit, newdata = dat, group = outcome, type = type, ...) |>
+            .get_p()
 
           vapply(in_v, function(in_v_i) {
             m0 <- mean(p[ind2][in_v_i])
@@ -551,13 +545,15 @@ sim_ame <- function(sim,
           dat[[vars[cv]]][ind] <- dat[[vars[cv]]][ind] - eps / 2
           dat[[vars[cv]]][-ind] <- dat[[vars[cv]]][-ind] + eps / 2
 
-          p <- .get_p(clarify_predict(fit, newdata = dat, group = outcome, type = type, ...))
+          p <- clarify_predict(fit, newdata = dat, group = outcome, type = type, ...) |>
+            .get_p()
 
           vapply(levels(by_var), function(b) {
             in_b <- which(by_var == b)
 
             m0 <- mean(p[ind][in_b])
             m1 <- mean(p[-ind][in_b])
+
             (m1 - m0) / eps
           }, numeric(1L))
 
@@ -594,7 +590,8 @@ sim_ame <- function(sim,
           dat[[vars[cv]]][ind2] <- dat[[vars[cv]]][ind2] - eps / 2
           dat[[vars[cv]]][-ind2] <- dat[[vars[cv]]][-ind2] + eps / 2
 
-          p <- .get_p(clarify_predict(fit, newdata = dat, group = outcome, type = type, ...))
+          p <- clarify_predict(fit, newdata = dat, group = outcome, type = type, ...) |>
+            .get_p()
 
           unlist(lapply(levels(by_var), function(b) {
             in_b <- which(by_var == b)
@@ -617,32 +614,34 @@ sim_ame <- function(sim,
         }
       }
 
-      attr(out, "by") <- attr(sim$fit, "by_name")
+      attr(out, "by") <- .attr(sim$fit, "by_name")
     }
   }
 
   attr(out, "var") <- vals
   class(out) <- c("clarify_ame", class(out))
+
   out
 }
 
 #' @exportS3Method print clarify_ame
 #' @rdname sim_ame
-#' @param x a `clarify_ame` object.
-#' @param digits the minimum number of significant digits to be used; passed to [print.data.frame()].
-#' @param max.ests the maximum number of estimates to display.
-print.clarify_ame <- function(x, digits = NULL, max.ests = 6L, ...) {
+print.clarify_ame <- function(x, digits = 4L, max.ests = 6L, ...) {
+  chk::chk_whole_number(digits)
   chk::chk_count(max.ests)
-  max.ests <- min(max.ests, length(coef(x)))
+
+  n.ests <- length(coef(x))
+  max.ests <- min(max.ests, n.ests)
 
   cat("A `clarify_est` object (from `sim_ame()`)\n")
 
-  vals <- attr(x, "var", TRUE)
+  vals <- .attr(x, "var")
   cont_vals <- vals[lengths(vals) == 0L]
 
   if (is_not_null(cont_vals)) {
     set_vals <- vals[lengths(vals) > 0L]
-    cat(sprintf(" - Average marginal effect of %s\n", word_list(names(cont_vals), quotes = "`")))
+    cat(sprintf(" - Average marginal effect of %s\n",
+                word_list(names(cont_vals), quotes = "`")))
     if (is_not_null(set_vals)) {
       set_text <- vapply(names(set_vals), function(i) {
         sprintf("`%s` set to %s", i,
@@ -654,6 +653,7 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6L, ...) {
   else {
     set_vals <- vals[lengths(vals) == 1L]
     varying_vals <- vals[lengths(vals) > 1L]
+
     if (is_null(varying_vals)) {
       cat(" - Average adjusted predictions\n")
       set_text <- vapply(names(set_vals), function(i) {
@@ -675,25 +675,21 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6L, ...) {
     }
   }
 
-  if (is_not_null(attr(x, "by"))) {
+  if (is_not_null(.attr(x, "by"))) {
     cat(sprintf("   - within levels of %s\n",
-                word_list(attr(x, "by"), quotes = "`")))
+                word_list(.attr(x, "by"), quotes = "`")))
   }
 
   cat(sprintf(" - %s simulated values\n", nrow(x)))
 
-  cat(sprintf(" - %s %s estimated:", length(coef(x)),
-              ngettext(length(coef(x)), "quantity", "quantities")))
+  cat(sprintf(" - %s %s estimated:", n.ests,
+              ngettext(n.ests, "quantity", "quantities")))
 
-  print.data.frame(data.frame(names(coef(x))[seq_len(max.ests)],
-                              coef(x)[seq_len(max.ests)],
-                              fix.empty.names	= FALSE),
-                   row.names = FALSE, right = FALSE, digits = digits)
-
-  if (max.ests != length(coef(x))) {
-    cat(sprintf("# ... and %s more\n",
-                length(coef(x)) - max.ests))
-  }
+  data.frame(names(coef(x)),
+             coef(x),
+             fix.empty.names = FALSE) |>
+    .print_estimate_table(digits = digits,
+                          topn = floor(max.ests / 2))
 
   invisible(x)
 }
@@ -743,7 +739,7 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6L, ...) {
   attr(fit, "weights") <- weights
 
   if (is_not_null(by)) {
-    by_mf <- model.frame(update(by, NULL ~ .), data = data)
+    by_mf <- update(by, NULL ~ .) |> model.frame(data = data)
     attr(fit, "by_var") <- factor(do.call("paste", c(as.list(by_mf), sep = ",")))
     attr(fit, "by_name") <- names(by_mf)
   }
@@ -752,14 +748,14 @@ print.clarify_ame <- function(x, digits = NULL, max.ests = 6L, ...) {
 }
 
 .get_pred_data_from_fit <- function(fit) {
-  attr(fit, "clarify_data", TRUE)
+  .attr(fit, "clarify_data")
 }
 
 .get_by_from_fit <- function(fit) {
-  if (isTRUE(attr(fit, "is_fitlist", TRUE))) {
+  if (isTRUE(.attr(fit, "is_fitlist"))) {
     unlist(lapply(fit, .get_by_from_fit))
   }
   else {
-    attr(fit, "by_var", TRUE)
+    .attr(fit, "by_var")
   }
 }
