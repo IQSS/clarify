@@ -8,7 +8,7 @@
 ^\.github$
 ^\_dev$
 ^CRAN-SUBMISSION$
-^clarify$
+^rjournal_paper
 ^figures$
 ^motivation-letter$
 ^tests/testthat/fixtures/mimira\.rds$

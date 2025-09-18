@@ -1,7 +1,14 @@
 # `clarify` (development version)
 
+* Simultaneous confidence bands and p-values are now available by setting `simultaneous = TRUE` in calls to `summary()` or `plot()`.
+
 * Fixed a bug when using `sim_ame()` after `misim()` with `by` specified. Thanks to Arvind Ilamaran for pointing out this bug.
 
+* Added references to the published article in *The R Journal*, including in the package citation (`citation("clarify")`).
+
+* Fixed an issue where sampling from a t-distribution used a slightly incorrect covariance matrix, leading to intervals that could be a tiny bit too wide in small samples.
+
+* Now using a new random number generator that is more tolerant of nearly singular covariance matrices. The removes a dependence on `mvnfast`. Results from prior versions of `clarify` will not be reproducible using this and future versions, even when using the same seed.
 
 # `clarify` 0.2.2
 
