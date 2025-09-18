@@ -2,26 +2,29 @@
 % Please edit documentation in R/sim_apply.R
 \name{sim_apply}
 \alias{sim_apply}
+\alias{print.clarify_est}
 \title{Apply a function to simulated parameter values}
 \usage{
 sim_apply(sim, FUN, verbose = TRUE, cl = NULL, ...)
+
+\method{print}{clarify_est}(x, digits = 4L, max.ests = 6L, ...)
 }
 \arguments{
-\item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or
-\code{\link[=misim]{misim()}}.}
+\item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or \code{\link[=misim]{misim()}}.}
 
-\item{FUN}{a function to be applied to each set of simulated coefficients.
-See Details.}
+\item{FUN}{a function to be applied to each set of simulated coefficients. See Details.}
 
-\item{verbose}{\code{logical}; whether to display a text progress bar indicating
-progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
+\item{verbose}{\code{logical}; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
 
-\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an
-integer to indicate the number of child-processes (integer values are
-ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for
-details. If \code{NULL}, no parallelization will take place.}
+\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
 
-\item{...}{optional arguments passed to \code{FUN}.}
+\item{...}{for \code{sim_apply()}, optional arguments passed to \code{FUN}. For \code{print()}, ignored.}
+
+\item{x}{a \code{clarify_est} object.}
+
+\item{digits}{the minimum number of significant digits to be used; passed to \code{\link[=print.data.frame]{print.data.frame()}}.}
+
+\item{max.ests}{the maximum number of estimates to display.}
 }
 \value{
 A \code{clarify_est} object, which is a matrix with a column for each
@@ -31,19 +34,10 @@ in the attribute \code{"original"}. The \code{"sim_hash"} attribute contains the
 simulation hash produced by \code{sim()}.
 }
 \description{
-\code{sim_apply()} applies a function that produces quantities of
-interest to each set of simulated coefficients produced by \code{\link[=sim]{sim()}}; these
-calculated quantities form the posterior sampling distribution for the
-quantities of interest. Capabilities are available for parallelization.
+\code{sim_apply()} applies a function that produces quantities of interest to each set of simulated coefficients produced by \code{\link[=sim]{sim()}}; these calculated quantities form the posterior sampling distribution for the quantities of interest. Capabilities are available for parallelization.
 }
 \details{
-\code{sim_apply()} applies a function, \code{FUN}, to each set of simulated
-coefficients, similar to \code{\link[=apply]{apply()}}. This function should return a numeric
-vector containing one or more estimated quantities. This should be a named
-vector to more easily keep track of the meaning of each estimated quantity.
-Care should be taken to ensure that the returned vector is the same length
-each time \code{FUN} is called. \code{NA}s are allowed in the output but should be
-avoided if possible.
+\code{sim_apply()} applies a function, \code{FUN}, to each set of simulated coefficients, similar to \code{\link[=apply]{apply()}}. This function should return a numeric vector containing one or more estimated quantities. This should be a named vector to more easily keep track of the meaning of each estimated quantity. Care should be taken to ensure that the returned vector is the same length each time \code{FUN} is called. \code{NA}s are allowed in the output but should be avoided if possible.
 
 The arguments to \code{FUN} can be specified in a few ways. If \code{FUN} has an
 argument called \code{coefs}, a simulated set of coefficients will be passed to
@@ -91,7 +85,7 @@ can be transformed from their log versions using
 }
 }
 \examples{
-
+\dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "MatchIt")
 fit <- lm(re78 ~ treat + age + race + nodegree + re74,
           data = lalonde)
@@ -135,7 +129,7 @@ est <- transform(est,
                  `wh - his` = `racewhite` - `racehispan`)
 
 summary(est, parm = "wh - his")
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \itemize{

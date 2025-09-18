@@ -1,6 +1,6 @@
 #' @exportS3Method names clarify_est
 names.clarify_est <- function(x) {
-  names(attr(x, "original"))
+  names(coef(x))
 }
 
 #' @exportS3Method `names<-` clarify_est
@@ -10,17 +10,21 @@ names.clarify_est <- function(x) {
   x <- drop_sim_class(x)
   colnames(x) <- value
   names(attr(x, "original")) <- value
+
   for (i in names(attributes(x))) {
-    if (identical(names(attr(x, i)), original_names)) {
+    if (identical(names(.attr(x, i)), original_names)) {
       names(attr(x, i)) <- value
     }
-    if (identical(rownames(attr(x, i)), original_names)) {
+
+    if (identical(rownames(.attr(x, i)), original_names)) {
       rownames(attr(x, i)) <- value
     }
-    if (identical(colnames(attr(x, i)), original_names)) {
+
+    if (identical(colnames(.attr(x, i)), original_names)) {
       colnames(attr(x, i)) <- value
     }
   }
+
   class(x) <- original_class
   x
 }
@@ -39,7 +43,7 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
     left <- drop_sim_class(e1)
     e1[] <- eval(f)
 
-    left <- attr(e1, "original")
+    left <- .attr(e1, "original")
     attr(e1, "original")[] <- eval(f)
     return(e1)
   }
@@ -55,17 +59,17 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
                    .Generic))
     }
 
-    if (!identical(attr(e1, "hash"), attr(e2, "hash"))) {
+    if (!identical(.attr(e1, "hash"), .attr(e2, "hash"))) {
       .err(sprintf("`%s` can only be used on `clarify_est` objects originating from calls applied to the same `clarify-sim` object",
                    .Generic))
     }
 
-    if (any(dim(e2) != dim(e1))) {
+    if (!all(dim(e2) == dim(e1))) {
       .err(sprintf("`%s` can only be used on `clarify_est` objects with an equal number of estimated quantities",
                    .Generic))
     }
 
-    if (!identical(attr(e1, "at"), attr(e2, "at"))) {
+    if (!identical(.attr(e1, "at"), .attr(e2, "at"))) {
       .err(sprintf("`%s` can only be used on `clarify_adrf` objects with the same values of `at`",
                    .Generic))
     }
@@ -77,12 +81,12 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
   if (e1_clarify_est)
     e1[] <- eval(f)
   else
-    e2[] < eval(f)
+    e2[] <- eval(f)
 
   if (e1_clarify_est)
-    left <- attr(e1, "original")
+    left <- .attr(e1, "original")
   if (e2_clarify_est)
-    right <- attr(e2, "original")
+    right <- .attr(e2, "original")
 
   if (e1_clarify_est) {
     attr(e1, "original")[] <- eval(f)
@@ -92,7 +96,7 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
   }
 
   attr(e2, "original")[] <- eval(f)
-  attr(e1, "contrast") <- NULL
+  attr(e2, "contrast") <- NULL
   # class(e2) <- "clarify_est"
   e2
 }
@@ -102,8 +106,11 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
 
   Narg <- nargs()
 
-  if (Narg == 1) return(x)
-  if (Narg > 2) {
+  if (Narg == 1L) {
+    return(x)
+  }
+
+  if (Narg > 2L) {
     .err("`clarify_est` objects can only by subset as obj[.], not obj[., .]")
   }
 
@@ -115,31 +122,37 @@ Ops.clarify_est <- function(e1, e2 = NULL) {
   for (z in setdiff(names(attrs), c("names", "dimnames", "dim"))) {
     attr(x, z) <- attrs[[z]]
   }
-  attr(x, "original") <- attr(x, "original")[i]
 
-  if ("at" %in% names(attrs)) {
-    attr(x, "at") <- unname(setNames(attrs[["at"]], names(attrs[["original"]]))[i])
+  attr(x, "original") <- .attr(x, "original")[i]
+
+  if (hasName(attrs, "at")) {
+    attr(x, "at") <- setNames(attrs[["at"]], names(attrs[["original"]]))[i] |>
+      unname()
   }
-  if ("setx" %in% names(attrs)) {
+
+  if (hasName(attrs, "setx")) {
     attr(x, "setx") <- attrs[["setx"]][i, , drop = FALSE]
   }
 
   class(x) <- cl
+
   x
 }
 
 #' @exportS3Method as.matrix clarify_est
 as.matrix.clarify_est <- function(x, ...) {
   drop_sim_class(x)
+
   for (i in setdiff(names(attributes(x)), c("dimnames", "dim"))) {
     attr(x, i) <- NULL
   }
+
   x
 }
 
 #' @exportS3Method as.data.frame clarify_est
 as.data.frame.clarify_est <- function(x, ...) {
-  as.data.frame(as.matrix(x), ...)
+  as.matrix(x) |> as.data.frame(...)
 }
 
 #' @exportS3Method dimnames clarify_est
@@ -166,16 +179,16 @@ str.clarify_est <- function(object,
   oDefs <- c("vec.len", "digits.d", "strict.width", "formatNum",
              "drop.deparse.attr", "list.len", "deparse.lines")
   strO <- getOption("str")
-  if (!is.list(strO)) {
-    warning("invalid options(\"str\") -- using defaults instead")
-    strO <- utils::strOptions()
-  }
-  else {
+  if (is.list(strO)) {
     if (!all(names(strO) %in% oDefs))
       warning(gettextf("invalid components in options(\"str\"): %s",
                        paste(setdiff(names(strO), oDefs), collapse = ", ")),
               domain = NA)
     strO <- utils::modifyList(utils::strOptions(), strO)
+  }
+  else {
+    warning("invalid options(\"str\") -- using defaults instead")
+    strO <- utils::strOptions()
   }
 
   oo <- options(digits = digits.d)
@@ -188,7 +201,7 @@ str.clarify_est <- function(object,
                              ch = "| __truncated__") {
     ok <- {
       if (anyNA(nx)) !is.na(nx)
-    else TRUE
+      else TRUE
     }
 
     if (any(lrg <- ok & nx > nchar.max)) {
@@ -290,13 +303,16 @@ str.clarify_est <- function(object,
 
   if (give.attr) {
     nam <- names(a)
-    give.L <- give.length || identical(attr(give.length, "from"), "data.frame")
-    for (i in seq_along(a)) if (all(nam[i] != std.attr)) {
-      cat(indent.str, paste0("- attr(*, \"", nam[i], "\")="),
-          sep = "")
-      strSub(a[[i]], give.length = give.L,
-             indent.str = paste(indent.str, ".."),
-             nest.lev = nest.lev + 1)
+    give.L <- give.length || identical(.attr(give.length, "from"), "data.frame")
+    for (i in seq_along(a)) {
+      if (!any(nam[i] == std.attr)) {
+        cat(indent.str, paste0("- attr(*, \"", nam[i], "\")="),
+            sep = "")
+
+        strSub(a[[i]], give.length = give.L,
+               indent.str = paste(indent.str, ".."),
+               nest.lev = nest.lev + 1)
+      }
     }
   }
 

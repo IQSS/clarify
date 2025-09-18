@@ -1,6 +1,6 @@
-#' @title Simulate model coefficients after multiple imputation
+#' Simulate model coefficients after multiple imputation
 #'
-#' @description `misim()` simulates model parameters from multivariate normal or t distributions after multiple imputation that are then used by [sim_apply()] to calculate quantities of interest.
+#' `misim()` simulates model parameters from multivariate normal or t distributions after multiple imputation that are then used by [sim_apply()] to calculate quantities of interest.
 #'
 #' @param fitlist a list of model fits, one for each imputed dataset, or a `mira` object (the output of a call to `with()` applied to a `mids` object in `mice`).
 #' @param n the number of simulations to run for each imputed dataset; default is 1000. More is always better but resulting calculations will take longer.
@@ -8,7 +8,7 @@
 #' @param coefs a vector of coefficient estimates, a function to use to extract it from `fit`, or a list thereof with an element for each imputed dataset. By default, uses [stats::coef()] or [insight::get_parameters()] if that doesn't work.
 #' @param dist a character vector containing the name of the multivariate distribution(s) to use to draw simulated coefficients. Should be one of `"normal"` (multivariate normal distribution) or `"t_{#}"` (multivariate t distribution), where `{#}` corresponds to the desired degrees of freedom (e.g., `"t_100"`). If `NULL`, the right distributions to use will be determined based on heuristics; see [sim()] for details.
 #'
-#' @return
+#' @returns
 #' A `clarify_misim` object, which inherits from `clarify_sim` and has the following components:
 #'  \item{sim.coefs}{a matrix containing the simulated coefficients with a column for each coefficient and a row for each simulation for each imputation}
 #'  \item{coefs}{a matrix containing the original coefficients extracted from `fitlist` or supplied to `coefs`, with a row per imputation.}
@@ -20,8 +20,13 @@
 #' `misim()` essentially combines multiple `sim()` calls applied to a list of model fits, each fit in an imputed dataset, into a single combined pool of simulated coefficients. When simulation-based inference is to be used with multiply imputed data, many imputations are required; see Zhou and Reiter (2010).
 #'
 #' @references
-#'
 #' Zhou, X., & Reiter, J. P. (2010). A Note on Bayesian Inference After Multiple Imputation. *The American Statistician*, 64(2), 159–163. \doi{10.1198/tast.2010.09109}
+#'
+#' @seealso
+#' * [sim()] for simulating model coefficients for a single dataset
+#' * [sim_apply()] for applying a function to each set of simulated coefficients
+#' * [sim_ame()] for computing average marginal effects in each simulation draw
+#' * [sim_setx()] for computing marginal predictions and first differences at typical values in each simulation draw
 #'
 #' @examplesIf requireNamespace("Amelia", quietly = TRUE)
 #' data("africa", package = "Amelia")
@@ -37,34 +42,28 @@
 #' # Simulate coefficients
 #' s <- misim(fits)
 #' s
-#'
-#' @seealso
-#' * [sim()] for simulating model coefficients for a single dataset
-#' * [sim_apply()] for applying a function to each set of simulated coefficients
-#' * [sim_ame()] for computing average marginal effects in each simulation draw
-#' * [sim_setx()] for computing marginal predictions and first differences at typical values in each simulation draw
-#' @export
-#'
-misim <- function(fitlist,
-                  n = 1e3,
-                  vcov = NULL,
-                  coefs = NULL,
-                  dist = NULL) {
 
-  if (missing(fitlist)) fitlist <- NULL
+#' @export
+misim <- function(fitlist, n = 1e3, vcov = NULL, coefs = NULL, dist = NULL) {
+
+  if (missing(fitlist)) {
+    fitlist <- NULL
+  }
 
   if (inherits(fitlist, "mira")) {
     fitlist <- fitlist$analyses
   }
 
-  if (is.null(fitlist)) {
-    if (is.null(coefs) || is.null(vcov)) {
+  if (is_null(fitlist)) {
+    if (is_null(coefs) || is_null(vcov)) {
       .err("when `fitlist` is not supplied, arguments must be supplied to both `coefs` and `vcov`")
     }
+
     if (!is.list(coefs) && !is.list(vcov)) {
       .err("when `fitlist` is not supplied, at least one of `coefs` or `vcov` must be a list")
     }
-    nimp <- if (!is.list(coefs)) length(vcov) else length(coefs)
+
+    nimp <- if (is.list(coefs)) length(coefs) else length(vcov)
   }
   else {
     check_fitlist(fitlist)
@@ -74,10 +73,10 @@ misim <- function(fitlist,
   chk::chk_count(n)
 
   if (!is.list(coefs)) {
-    coefs <- lapply(seq_len(nimp), function(i) coefs)
+    coefs <- rep.int(list(coefs), nimp)
   }
   else if (length(coefs) != nimp) {
-    if (is.null(fitlist)) {
+    if (is_null(fitlist)) {
       .err("when `fitlist` is not supplied and `coefs` is supplied as a list, `coefs` must have as many entries as there are entries in `vcov`")
     }
     else {
@@ -86,19 +85,19 @@ misim <- function(fitlist,
   }
 
   coef_supplied <- {
-    if (all(vapply(coefs, is.null, logical(1L)))) "null"
-    else if (all(vapply(coefs, is.function, logical(1L)))) "fun"
-    else if (all(vapply(coefs, check_valid_coef, logical(1L)))) "num"
+    if (all(lengths(coefs) == 0L)) "null"
+    else if (all_apply(coefs, is.function)) "fun"
+    else if (all_apply(coefs, check_valid_coef)) "num"
     else {
       .err("`coefs` must be a vector of coefficients, a function that extracts one from each model in `fitlist`, or a list thereof")
     }
   }
 
   if (!is.list(vcov)) {
-    vcov <- lapply(seq_len(nimp), function(i) vcov)
+    vcov <- rep.int(list(vcov), nimp)
   }
   else if (length(vcov) != nimp) {
-    if (is.null(fitlist)) {
+    if (is_null(fitlist)) {
       .err("when `fitlist` is not supplied and `vcov` is supplied as a list, `vcov` must have as many entries as there are entries in `coefs`")
     }
     else {
@@ -107,8 +106,8 @@ misim <- function(fitlist,
   }
 
   vcov_supplied <- {
-    if (all(vapply(vcov, is.null, logical(1L)))) "null"
-    else if (all(vapply(vcov, is.matrix, logical(1L)))) "num"
+    if (all_apply(vcov, is_null)) "null"
+    else if (all_apply(vcov, is.matrix)) "num"
     else "marginaleffects_code"
   }
 
@@ -124,15 +123,15 @@ misim <- function(fitlist,
 
   chk::chk_count(n)
 
-  if (!is.null(dist)) {
-    if (length(dist) == 1) {
-      dist <- lapply(seq_len(nimp), function(i) dist)
+  if (is_not_null(dist)) {
+    if (length(dist) == 1L) {
+      dist <- rep.int(list(dist), nimp)
     }
-    else if (length(dist) != nimp) {
-      .err("when supplied as a vector, `dist` must have as many values as there are imputations")
+    else if (length(dist) == nimp) {
+      dist <- as.list(dist)
     }
     else {
-      dist <- as.list(dist)
+      .err("when supplied as a vector, `dist` must have as many values as there are imputations")
     }
   }
 
@@ -149,31 +148,36 @@ misim <- function(fitlist,
               fit = fitlist,
               imp = rep(seq_len(nimp), each = n))
 
-  dists <- unlist(lapply(samplers, attr, "dist"))
-  if (all_the_same(dists)) dists <- dists[1]
+  dists <- lapply(samplers, .attr, "dist") |>
+    unlist()
+
+  if (all_the_same(dists)) {
+    dists <- dists[1L]
+  }
 
   attr(out, "dist") <- dists
-  attr(out, "use_fit") <- !is.null(fitlist)
+  attr(out, "use_fit") <- is_not_null(fitlist)
   attr(out, "sim_hash") <- rlang::hash(out$sim.coefs)
   class(out) <- c("clarify_misim", "clarify_sim")
 
   out
 }
 
-#' @export
+#' @exportS3Method print clarify_misim
 print.clarify_misim <- function(x, ...) {
   obj <- deparse1(substitute(x))
+
   cat("A `clarify_misim` object\n")
   cat(sprintf(" - %s coefficients, %s imputations with %s simulated values each\n",
               ncol(x$sim.coefs), nrow(x$coefs), nrow(x$sim.coefs) / nrow(x$coefs)))
   cat(" - sampled distributions: ")
-  if (length(attr(x, "dist")) == 1) {
-    cat(sprintf("multivariate %s\n", attr(x, "dist")))
+  if (length(.attr(x, "dist")) == 1L) {
+    cat(sprintf("multivariate %s\n", .attr(x, "dist")))
   }
   else {
     cat("multiple different multivariate distributions")
     if (exists(obj)) {
-      cat(sprintf(" (use `attr(%s, \"dist\") to view them\n"), obj)
+      cat(sprintf(' (use `attr(%s, "dist") to view them\n', obj))
     }
     else {
       cat("\n")

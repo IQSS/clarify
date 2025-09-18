@@ -1,6 +1,5 @@
 #' Transform and combine `clarify_est` objects
 #'
-#' @description
 #' `transform()` modifies a `clarify_est` object by allowing for the calculation of new quantities from the existing quantities without re-simulating them. `cbind()` binds two `clarify_est` objects together.
 #'
 #' @param _data the `clarify_est` object to be transformed.
@@ -10,14 +9,14 @@
 #' @details
 #' For `transform()`, the expression on the right side of the `=` should use the names of the existing quantities (e.g., `` `E[Y(1)]` - `E[Y(1)]` ``), with `` ` `` appropriately included when the quantity name include parentheses or brackets. Alternatively, it can use indexes prefixed by `.b`, e.g., `.b2 - .b1`, to refer to the corresponding quantity by position. This can aid in computing derived quantities of quantities with complicated names. (Note that if a quantity is named something like `.b1`, it will need to be referred to by position rather than name, as the position-based label takes precedence). See examples. Setting an existing value to `NULL` will remove that quantity from the object.
 #'
-#' `cbind()` does not rename the quanities or check for uniqueness of the names, so it is important to rename them yourself prior to combining the objects.
+#' `cbind()` does not rename the quantities or check for uniqueness of the names, so it is important to rename them yourself prior to combining the objects.
 #'
-#' @return
+#' @returns
 #' A `clarify_est` object, either with new columns added (when using `transform()`) or combining two `clarify_est` objects. Note that any type attributes corresponding to the `sim_apply()` wrapper used (e.g., `sim_ame()`) is lost when using either function. This can affect any helper functions (e.g., `plot()`) designed to work with the output of specific wrappers.
 #'
 #' @seealso [transform()], [cbind()], [sim()]
 #'
-#' @examples
+#' @examplesIf rlang::is_installed("MatchIt")
 #' data("lalonde", package = "MatchIt")
 #'
 #' # Fit the model
@@ -74,32 +73,37 @@ transform.clarify_est <- function(`_data`, ...) {
 
   available_b <- sprintf(".b%s", seq_along(names(`_data`)))
 
-  names_list <- setNames(lapply(add_quotes(names(`_data`), "`"), str2lang),
-                         available_b)
+  names_list <- names(`_data`) |>
+    add_quotes("`") |>
+    lapply(str2lang) |>
+    setNames(available_b)
 
-  for (i in seq_along(dots)[-1]) {
-    if (!is.null(dots[[i]]))
+  for (i in seq_along(dots)[-1L]) {
+    if (is_not_null(dots[[i]])) {
       dots[[i]] <- do.call("substitute", list(dots[[i]], names_list))
+    }
   }
 
   e <- try(eval(dots, as.data.frame(`_data`), parent.frame()), silent = TRUE)
 
-  if (is_error(e)) .err(conditionMessage(attr(e, "condition")), tidy = FALSE)
+  if (is_error(e)) {
+    .err(conditionMessage(.attr(e, "condition")), tidy = FALSE)
+  }
 
   n <- nrow(`_data`)
-  if (!all(vapply(e, function(e.) length(e.) == 0 || (length(e.) == n && is.numeric(e.)), logical(1L)))) {
+  if (any_apply(e, function(e.) is_not_null(e.) && (length(e.) != n || !is.numeric(e.)))) {
     .err("all transformations must be vector operations of the variables in the original `clarify_est` object")
   }
 
-  e_original <- eval(dots, as.list(attr(`_data`, "original")), parent.frame())
+  e_original <- eval(dots, as.list(.attr(`_data`, "original")), parent.frame())
 
   inx <- match(names(e), names(`_data`))
   matched <- !is.na(inx)
 
   if (any(matched)) {
-    nulls <- lengths(e[matched]) == 0
+    nulls <- lengths(e[matched]) == 0L
 
-    if (any(!nulls)) {
+    if (!all(nulls)) {
       for (i in seq_along(e)[matched][!nulls]) {
         `_data`[, inx[i]] <- e[[i]]
         attr(`_data`, "original")[inx[i]] <- as.numeric(e_original[i])
@@ -112,12 +116,16 @@ transform.clarify_est <- function(`_data`, ...) {
   }
 
   if (!all(matched)) {
-    nulls <- lengths(e[!matched]) == 0
-    if (any(!nulls)) {
+    nulls <- lengths(e[!matched]) == 0L
+
+    if (!all(nulls)) {
       new_e <- as.matrix(do.call("cbind", e[!matched][!nulls]))
+
       attr(new_e, "original") <- do.call("c", e_original[!matched][!nulls])
-      attr(new_e, "sim_hash") <- attr(`_data`, "sim_hash")
+      attr(new_e, "sim_hash") <- .attr(`_data`, "sim_hash")
+
       class(new_e) <- c("clarify_est", class(new_e))
+
       return(cbind.clarify_est(`_data`, new_e))
     }
   }
@@ -128,28 +136,38 @@ transform.clarify_est <- function(`_data`, ...) {
 #' @exportS3Method cbind clarify_est
 #' @rdname transform.clarify_est
 cbind.clarify_est <- function(..., deparse.level = 1) {
-  if (...length() == 0) return(NULL)
+  if (...length() == 0L) {
+    return(NULL)
+  }
 
-  for (i in seq_len(...length())) {
-    if (!inherits(...elt(i), "clarify_est")) {
+  hashes <- vector("list", ...length())
+  obj <- vector("list", ...length())
+  coefs <- vector("list", ...length())
+
+  for (i in seq_along(obj)) {
+    obj[[i]] <- ...elt(i)
+
+    if (!inherits(obj[[i]], "clarify_est")) {
       .err("all supplied objects must be `clarify_est` objects, the output of calls to `sim_apply()` or its wrappers")
     }
-  }
 
-  obj <- list(...)
-  hashes <- lapply(obj, attr, "sim_hash")
+    hashes[[i]] <- .attr(obj[[i]], "sim_hash")
 
-  if (any(lengths(hashes) == 0) || any(!vapply(hashes, chk::vld_string, logical(1L)))) {
-    .err("all supplied objects must be unmodified `clarify_est` objects")
-  }
-  if (!all_the_same(unlist(hashes)) || !all_the_same(unlist(lapply(obj, nrow)))) {
-    .err("all supplied objects must be calls of `sim_apply()` or its wrappers on the same `clarify_sim` object")
+    if (is_null(hashes[[i]]) || !chk::vld_string(hashes[[i]])) {
+      .err("all supplied objects must be unmodified `clarify_est` objects")
+    }
+
+    if (i > 1L && (hashes[[i]] != hashes[[1L]] || nrow(obj[[i]]) != nrow(obj[[1L]]))) {
+      .err("all supplied objects must be calls of `sim_apply()` or its wrappers on the same `clarify_sim` object")
+    }
+
+    coefs[[i]] <- coef(obj[[i]])
   }
 
   out <- do.call("cbind", lapply(obj, drop_sim_class))
 
-  attr(out, "original") <- do.call("c", lapply(obj, attr, "original"))
-  attr(out, "sim_hash") <- hashes[[1]]
+  attr(out, "original") <- unlist(coefs)
+  attr(out, "sim_hash") <- hashes[[1L]]
   class(out) <- c("clarify_est", class(out))
 
   out

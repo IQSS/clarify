@@ -1,0 +1,11 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "clarify: Simulation-Based Inference for Regression Models",
+  author   = "Noah Greifer, Steven Worthington, Stefano Iacus, Gary King",
+  journal  = "The R Journal",
+  year     = "2025",
+  volume   = "16",
+  number   = "2",
+  pages    = "154--174",
+  doi      = "10.32614/RJ-2024-015"
+)

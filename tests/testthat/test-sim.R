@@ -214,6 +214,8 @@ test_that("sim() works with MASS::glm.nb()", {
 
 test_that("sim() works with betareg::betareg()", {
   skip_if_not_installed("betareg")
+  skip_if_not_installed("marginaleffects", "0.30.0.2")
+
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- betareg::betareg(propY ~ treat + age + educ + race + re74 | treat + age,
@@ -255,8 +257,7 @@ test_that("sim() works with betareg::betareg()", {
   expect_false(identical(s1$sim.coefs, s3$sim.coefs))
 
   #Using custom variances
-  if (packageVersion("marginaleffects") > '0.8.1')
-    expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL))
+  expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL))
   expect_good_clarify_sim(sim(fit, n = 5, vcov = sandwich::vcovCL(fit, cluster = ~subclass)))
   expect_error(sim(fit, n = 5, vcov = vcov(fit)[-2,-2]))
 

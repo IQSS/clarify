@@ -4,7 +4,7 @@
 \alias{sim}
 \title{Simulate model parameters}
 \usage{
-sim(fit, n = 1000, vcov = NULL, coefs = NULL, dist = NULL)
+sim(fit, n = 1000L, vcov = NULL, coefs = NULL, dist = NULL)
 }
 \arguments{
 \item{fit}{a model fit, such as the output of a call to \code{\link[=lm]{lm()}} or \code{\link[=glm]{glm()}}. Can be left unspecified if \code{coefs} and \code{vcov} are not functions.}
@@ -30,13 +30,12 @@ The \code{"dist"} attribute contains \code{"normal"} if the coefficients were sa
 }
 \details{
 When \code{dist} is \code{NULL}, \code{sim()} samples from a multivariate normal or t distribution depending on the degrees of freedom extracted from \code{insight::get_df(., type = "wald")}. If \code{Inf}, a normal distribution will be used; otherwise, a t-distribution with the returned degrees of freedom will be used. Models not supported by \code{insight} will use a normal distribution.
-
-When a multivariate normal is used, it is sampled from with means equal to the estimated coefficients and the parameter covariance matrix as the covariance matrix using \code{\link[mvnfast:rmvn]{mvnfast::rmvn()}}. When a multivariate t distribution is used, it is sampled from with means equal to the estimated coefficients and scaling matrix equal to \code{cov*(df - 2)/df}, where \code{cov} is the parameter covariance matrix and \code{df} is the residual degrees of freedom for the model, using \code{\link[mvnfast:rmvt]{mvnfast::rmvt()}}.
 }
 \examples{
-
+\dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "MatchIt")
-fit <- lm(re78 ~ treat * (age + race + nodegree + re74), data = lalonde)
+fit <- lm(re78 ~ treat * (age + race + nodegree + re74),
+          data = lalonde)
 
 # Simulate coefficients
 s <- sim(fit)
@@ -50,7 +49,7 @@ s <- sim(fit, vcov = "HC3")
 # distribution
 s <- sim(fit, dist = "normal")
 s
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \itemize{

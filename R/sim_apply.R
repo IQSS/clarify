@@ -1,29 +1,18 @@
 #' Apply a function to simulated parameter values
 #'
-#' @description `sim_apply()` applies a function that produces quantities of
-#'   interest to each set of simulated coefficients produced by [sim()]; these
-#'   calculated quantities form the posterior sampling distribution for the
-#'   quantities of interest. Capabilities are available for parallelization.
+#' `sim_apply()` applies a function that produces quantities of interest to each set of simulated coefficients produced by [sim()]; these calculated quantities form the posterior sampling distribution for the quantities of interest. Capabilities are available for parallelization.
 #'
-#' @param sim a `clarify_sim` object; the output of a call to [sim()] or
-#'   [misim()].
-#' @param FUN a function to be applied to each set of simulated coefficients.
-#'   See Details.
-#' @param verbose `logical`; whether to display a text progress bar indicating
-#'   progress and estimated time remaining for the procedure. Default is `TRUE`.
-#' @param cl a cluster object created by [parallel::makeCluster()], or an
-#'   integer to indicate the number of child-processes (integer values are
-#'   ignored on Windows) for parallel evaluations. See [pbapply::pblapply()] for
-#'   details. If `NULL`, no parallelization will take place.
-#' @param ... optional arguments passed to `FUN`.
+#' @param sim a `clarify_sim` object; the output of a call to [sim()] or [misim()].
+#' @param FUN a function to be applied to each set of simulated coefficients. See Details.
+#' @param verbose `logical`; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is `TRUE`.
+#' @param cl a cluster object created by [parallel::makeCluster()], or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See [pbapply::pblapply()] for details. If `NULL`, no parallelization will take place.
+#' @param ... for `sim_apply()`, optional arguments passed to `FUN`. For `print()`, ignored.
+#' @param x a `clarify_est` object.
+#' @param digits the minimum number of significant digits to be used; passed to [print.data.frame()].
+#' @param max.ests the maximum number of estimates to display.
 #'
-#' @details `sim_apply()` applies a function, `FUN`, to each set of simulated
-#'   coefficients, similar to [apply()]. This function should return a numeric
-#'   vector containing one or more estimated quantities. This should be a named
-#'   vector to more easily keep track of the meaning of each estimated quantity.
-#'   Care should be taken to ensure that the returned vector is the same length
-#'   each time `FUN` is called. `NA`s are allowed in the output but should be
-#'   avoided if possible.
+#' @details
+#' `sim_apply()` applies a function, `FUN`, to each set of simulated coefficients, similar to [apply()]. This function should return a numeric vector containing one or more estimated quantities. This should be a named vector to more easily keep track of the meaning of each estimated quantity. Care should be taken to ensure that the returned vector is the same length each time `FUN` is called. `NA`s are allowed in the output but should be avoided if possible.
 #'
 #'   The arguments to `FUN` can be specified in a few ways. If `FUN` has an
 #'   argument called `coefs`, a simulated set of coefficients will be passed to
@@ -49,7 +38,7 @@
 #'
 #'   If `FUN` is not supplied at all, the simulated values of the coefficients will be returned in the output with a warning. Set `FUN` to `NULL` or `verbose` to `FALSE` to suppress this warning.
 #'
-#'   ## `sim_apply()` with multiply imputed data
+#' ## `sim_apply()` with multiply imputed data
 #'
 #'   When using [misim()] and `sim_apply()` with multiply imputed data, the
 #'   coefficients are supplied to the model fit corresponding to the imputation
@@ -70,7 +59,8 @@
 #'   can be transformed from their log versions using
 #'   [transform()].
 #'
-#' @return A `clarify_est` object, which is a matrix with a column for each
+#' @returns
+#' A `clarify_est` object, which is a matrix with a column for each
 #'   estimated quantity and a row for each simulation. The original estimates
 #'   (`FUN` applied to the original coefficients or model fit object) are stored
 #'   in the attribute `"original"`. The `"sim_hash"` attribute contains the
@@ -83,8 +73,7 @@
 #' * [plot.clarify_est()] for plotting estimated
 #' quantities and their simulated posterior sampling distribution.
 #'
-#' @examples
-#'
+#' @examplesIf rlang::is_installed("MatchIt")
 #' data("lalonde", package = "MatchIt")
 #' fit <- lm(re78 ~ treat + age + race + nodegree + re74,
 #'           data = lalonde)
@@ -128,7 +117,7 @@
 #'                  `wh - his` = `racewhite` - `racehispan`)
 #'
 #' summary(est, parm = "wh - his")
-#'
+
 #' @export
 sim_apply <- function(sim,
                       FUN,
@@ -141,19 +130,20 @@ sim_apply <- function(sim,
 
   missing.fun <- missing(FUN)
 
-  if (missing.fun || is.null(FUN)) {
+  if (missing.fun || is_null(FUN)) {
     if (verbose && missing.fun) {
       .wrn("`FUN` not supplied; returning simulated coefficients")
     }
 
     ests <- sim$sim.coefs
+
     attr(ests, "original") <- {
-      if (inherits(sim, "clarify_misim"))
-        colMeans(sim$coefs)
-      else
-        sim$coefs
+      if (inherits(sim, "clarify_misim")) colMeans(sim$coefs)
+      else sim$coefs
     }
-    attr(ests, "sim_hash") <- attr(sim, "sim_hash")
+
+    attr(ests, "sim_hash") <- .attr(sim, "sim_hash")
+
     class(ests) <- c("clarify_est", class(ests))
 
     return(ests)
@@ -177,13 +167,15 @@ sim_apply <- function(sim,
 
     if (is_error(test)) {
       .err("`FUN` failed to run on an initial check with the following error:\n",
-           conditionMessage(attr(test, "condition")))
+           conditionMessage(.attr(test, "condition")))
     }
 
     # test <- apply(do.call("rbind", test), 2, median)
     test <- colMeans(do.call("rbind", test))
 
-    if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
+    if (is_null(names(test))) {
+      names(test) <- paste0("est", seq_along(test))
+    }
 
     ests.list <- pbapply::pblapply(seq_len(nrow(sim$sim.coefs)), function(i) {
       apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i, ], imp = sim$imp[i], ...)
@@ -196,10 +188,12 @@ sim_apply <- function(sim,
     test <- try(apply_FUN(fit = sim$fit, coefs = sim$coefs, ...), silent = TRUE)
     if (is_error(test)) {
       .err("`FUN` failed to run on an initial check with the following error:\n",
-           conditionMessage(attr(test, "condition")))
+           conditionMessage(.attr(test, "condition")))
     }
 
-    if (is.null(names(test))) names(test) <- paste0("est", seq_along(test))
+    if (is_null(names(test))) {
+      names(test) <- paste0("est", seq_along(test))
+    }
 
     ests.list <- pbapply::pblapply(seq_len(nrow(sim$sim.coefs)), function(i) {
       apply_FUN(fit = sim$fit, coefs = sim$sim.coefs[i, ], ...)
@@ -213,16 +207,20 @@ sim_apply <- function(sim,
   colnames(ests) <- names(test)
 
   attr(ests, "original") <- test
-  attr(ests, "sim_hash") <- attr(sim, "sim_hash")
+  attr(ests, "sim_hash") <- .attr(sim, "sim_hash")
   class(ests) <- c("clarify_est", class(ests))
 
   ests
 }
 
-#' @export
-print.clarify_est <- function(x, digits = NULL, max.ests = 6, ...) {
+#' @exportS3Method print clarify_est
+#' @rdname sim_apply
+print.clarify_est <- function(x, digits = 4L, max.ests = 6L, ...) {
+  chk::chk_whole_number(digits)
   chk::chk_count(max.ests)
-  max.ests <- min(max.ests, length(attr(x, "original")))
+
+  n.ests <- length(coef(x))
+  max.ests <- min(max.ests, n.ests)
 
   cat(sprintf("A `clarify_est` object (from %s)\n",
               if (inherits(x, "clarify_ame")) "`sim_ame()`"
@@ -230,35 +228,32 @@ print.clarify_est <- function(x, digits = NULL, max.ests = 6, ...) {
               else "`sim_apply()`"))
 
   cat(sprintf(" - %s simulated values\n", nrow(x)))
-  cat(sprintf(" - %s %s estimated:", length(attr(x, "original")),
-              ngettext(length(attr(x, "original")), "quantity", "quantities")))
+  cat(sprintf(" - %s %s estimated:", n.ests,
+              ngettext(n.ests, "quantity", "quantities")))
 
-  print.data.frame(data.frame(names(attr(x, "original"))[seq_len(max.ests)],
-                              attr(x, "original")[seq_len(max.ests)],
-                              fix.empty.names	= FALSE),
-                   row.names = FALSE, right = FALSE)
-
-  if (max.ests != length(attr(x, "original"))) {
-    cat(sprintf("# ... and %s more\n", length(attr(x, "original")) - max.ests))
-  }
+  data.frame(names(coef(x)),
+             coef(x),
+             fix.empty.names = FALSE) |>
+    .print_estimate_table(digits = digits,
+                          topn = floor(max.ests / 2))
 
   invisible(x)
 }
 
 .make_apply_FUN <- function(FUN) {
 
-  if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
+  if (isTRUE(.attr(FUN, "use_coefs")) && isTRUE(.attr(FUN, "use_fit"))) {
     function(fit, coefs, ...) {
       fit <- marginaleffects::set_coef(fit, coefs)
       FUN(fit = fit, coefs = coefs, ...)
     }
   }
-  else if (isTRUE(attr(FUN, "use_coefs"))) {
+  else if (isTRUE(.attr(FUN, "use_coefs"))) {
     function(fit, coefs, ...) {
       FUN(coefs = coefs, ...)
     }
   }
-  else if (isTRUE(attr(FUN, "use_fit"))) {
+  else if (isTRUE(.attr(FUN, "use_fit"))) {
     function(fit, coefs, ...) {
       fit <- marginaleffects::set_coef(fit, coefs)
       FUN(fit = fit, ...)
@@ -274,18 +269,18 @@ print.clarify_est <- function(x, digits = NULL, max.ests = 6, ...) {
 
 .make_apply_FUN_mi <- function(FUN) {
 
-  if (isTRUE(attr(FUN, "use_coefs")) && isTRUE(attr(FUN, "use_fit"))) {
+  if (isTRUE(.attr(FUN, "use_coefs")) && isTRUE(.attr(FUN, "use_fit"))) {
     function(fit, coefs, imp, ...) {
       fit <- marginaleffects::set_coef(fit[[imp]], coefs)
       FUN(fit = fit, coefs = coefs, ...)
     }
   }
-  else if (isTRUE(attr(FUN, "use_coefs"))) {
+  else if (isTRUE(.attr(FUN, "use_coefs"))) {
     function(fit, coefs, imp, ...) {
       FUN(coefs = coefs, ...)
     }
   }
-  else if (isTRUE(attr(FUN, "use_fit"))) {
+  else if (isTRUE(.attr(FUN, "use_fit"))) {
     function(fit, coefs, imp, ...) {
       fit <- marginaleffects::set_coef(fit[[imp]], coefs)
       FUN(fit = fit, ...)

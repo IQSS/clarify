@@ -13,13 +13,29 @@
   level = 0.95,
   method = "quantile",
   reference = FALSE,
-  ncol = 3,
+  ncol = 3L,
+  simultaneous = FALSE,
   ...
 )
 
-\method{summary}{clarify_est}(object, parm, level = 0.95, method = "quantile", null = NA, ...)
+\method{summary}{clarify_est}(
+  object,
+  parm,
+  level = 0.95,
+  method = "quantile",
+  null = NA,
+  simultaneous = FALSE,
+  ...
+)
 
-\method{confint}{clarify_est}(object, parm, level = 0.95, method = "quantile", ...)
+\method{confint}{clarify_est}(
+  object,
+  parm,
+  level = 0.95,
+  method = "quantile",
+  simultaneous = FALSE,
+  ...
+)
 }
 \arguments{
 \item{parm}{a vector of the names or indices of the estimates to plot. If unspecified, all estimates will be displayed.}
@@ -33,6 +49,8 @@
 \item{reference}{\code{logical}; whether to overlay a normal density reference distribution over the plots. Default is \code{FALSE}.}
 
 \item{ncol}{the number of columns used when wrapping multiple plots; default is 3.}
+
+\item{simultaneous}{\code{logical}; whether confidence intervals and p-values should be simultaneous or not (i.e., adjusted for multiple comparisons); default is \code{FALSE}. See Details.}
 
 \item{...}{for \code{plot()}, further arguments passed to \code{\link[ggplot2:geom_density]{ggplot2::geom_density()}}.}
 
@@ -55,9 +73,12 @@ For \code{plot()}, a \code{ggplot} object.
 
 When \code{method = "wald"}, the standard deviation of the simulation estimates is used as the standard error, which is used in the z-statistics and the confidence intervals. The p-values and confidence intervals are valid only when the sampling distribution of the resulting statistic is normal (which can be assessed using \code{plot()}). When \code{method = "quantile"}, the confidence interval is calculated using the quantiles of the simulation estimates corresponding to \code{level}, and the p-value is calculated as twice the proportion of simulation estimates less than or greater than \code{null}, whichever is smaller; this is equivalent to inverting the confidence interval but is only truly valid when the true sampling distribution is only a location shift from the sampling distribution under the null hypothesis and should therefore be interpreted with caution. Using \verb{"method = "quantile"} (the default) is recommended because the confidence intervals will be valid even if the sampling distribution is not Normally distributed. The precision of the p-values and confidence intervals depends on the number of simulations requested (the value of \code{n} supplied to \code{\link[=sim]{sim()}}).
 
+When \code{simultaneous = TRUE}, confidence intervals and p-values are adjusted to account for multiple comparisons using the "sup-t" confidence region and its inversion. The sup-t confidence region is the smallest rectangular region that ensures simultaneous coverage of all parameters at the desired confidence level. It is found by adjusting the nominal confidence level until a new level is found that, when simultaneously applied to all estimates, yields intervals that contain all estimates with rates equal to the original level. Unlike some other adjustments for multiple comparisons (e.g., Holm, Bonferroni, Benjamini-Hochberg), this method takes into account the joint distribution of the estimates, often yielding narrower regions that are less conservative (but still valid). P-values are found by finding the level of the narrowest band that guarantees simultaneous coverage while containing the null value of the given parameter. When \code{method = "quantile"}, the Bayesian algorithm described by Montiel Olea and Plagborg-Møller (2019) is used with the simulated estimates; when \code{method = "wald"}, a new simulation is performed treating the estimates as coming from a multivariate normal distribution.
+
 The plots are produced using \code{\link[ggplot2:geom_density]{ggplot2::geom_density()}} and can be customized with \pkg{ggplot2} functions. When \code{reference = TRUE}, a reference Normal distribution is produced using the empirical mean and standard deviation of the simulated values. A blue references line is plotted at the median of the simulated values. For Wald-based inference to be valid, the reference distribution should overlap with the empirical distribution, in which case the quantile-based and Wald-based intervals should be similar. For quantile-based inference to be valid, the median of the estimates should overlap with the estimated value; this is a necessary but not sufficient condition, though.
 }
 \examples{
+\dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "MatchIt")
 fit <- glm(I(re78 > 0) ~ treat + age + race + nodegree + re74,
           data = lalonde)
@@ -89,9 +110,11 @@ plot(est, parm = c("RD", "RR"), reference = TRUE,
 
 # Plot the RD and RR with quantile confidence bounds
 plot(est, parm = c("RD", "RR"), ci = TRUE)
-
+\dontshow{\}) # examplesIf}
 }
 \references{
+Montiel Olea, J. L., & Plagborg-Møller, M. (2019). Simultaneous confidence bands: Theory, implementation, and an application to SVARs. \emph{Journal of Applied Econometrics}, 34(1), 1–17. \doi{10.1002/jae.2656}
+
 Rainey, C. (2023). A careful consideration of CLARIFY: Simulation-induced bias in point estimates of quantities of interest. \emph{Political Science Research and Methods}, 1–10. \doi{10.1017/psrm.2023.8}
 }
 \seealso{

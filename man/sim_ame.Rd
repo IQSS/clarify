@@ -15,22 +15,18 @@ sim_ame(
   type = NULL,
   eps = 1e-05,
   verbose = TRUE,
-  cl = NULL
+  cl = NULL,
+  ...
 )
 
-\method{print}{clarify_ame}(x, digits = NULL, max.ests = 6, ...)
+\method{print}{clarify_ame}(x, digits = 4L, max.ests = 6L, ...)
 }
 \arguments{
-\item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or
-\code{\link[=misim]{misim()}}.}
+\item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or \code{\link[=misim]{misim()}}.}
 
-\item{var}{either the names of the variables for which marginal effects are
-to be computed or a named list containing the values the variables should
-take. See Details.}
+\item{var}{either the names of the variables for which marginal effects are to be computed or a named list containing the values the variables should take. See Details.}
 
-\item{subset}{optional; a vector used to subset the data used to compute the
-marginal effects. This will be evaluated within the original dataset used
-to fit the model using \code{\link[=subset]{subset()}}, so nonstandard evaluation is allowed.}
+\item{subset}{optional; a vector used to subset the data used to compute the marginal effects. This will be evaluated within the original dataset used to fit the model using \code{\link[=subset]{subset()}}, so nonstandard evaluation is allowed.}
 
 \item{by}{a one-sided formula or character vector containing the names of
 variables for which to stratify the estimates. Each quantity will be
@@ -60,21 +56,17 @@ scale (e.g., predicted probabilities for binomial models).}
 \item{eps}{when the variable named in \code{var} is continuous, the value by which
 to change the variable values to approximate the derivative. See Details.}
 
-\item{verbose}{\code{logical}; whether to display a text progress bar indicating
-progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
+\item{verbose}{\code{logical}; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
 
-\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an
-integer to indicate the number of child-processes (integer values are
-ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for
-details. If \code{NULL}, no parallelization will take place.}
+\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
+
+\item{\dots}{for \code{sim_ame()}, additional arguments passed to \code{\link[marginaleffects:get_predict]{marginaleffects::get_predict()}} (and eventually to \code{predict()}) to compute predictions. For \code{print()}, ignored.}
 
 \item{x}{a \code{clarify_ame} object.}
 
 \item{digits}{the minimum number of significant digits to be used; passed to \code{\link[=print.data.frame]{print.data.frame()}}.}
 
 \item{max.ests}{the maximum number of estimates to display.}
-
-\item{...}{optional arguments passed to \code{FUN}.}
 }
 \value{
 A \code{clarify_ame} object, which inherits from \code{clarify_est} and is
@@ -90,10 +82,7 @@ continuous \code{var} will be named \code{E[dY/d({x})]} where \code{{x}} is repl
 the quantity is computed. See examples.
 }
 \description{
-\code{sim_ame()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes average
-marginal effects, the average effect of changing a single variable from one
-value to another (i.e., from one category to another for categorical
-variables or a tiny change for continuous variables).
+\code{sim_ame()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes average marginal effects, the average effect of changing a single variable from one value to another (i.e., from one category to another for categorical variables or a tiny change for continuous variables).
 }
 \details{
 \code{sim_ame()} computes average adjusted predictions or average marginal effects depending on which variables are named in \code{var} and how they are specified. Canonically, \code{var} should be specified as a named list with the value(s) each variable should be set to. For example, specifying \code{var = list(x1 = 0:1)} computes average adjusted predictions setting \code{x1} to 0 and 1. Specifying a variable's values as \code{NULL}, e.g., \code{list(x1 = NULL)}, is equivalent to requesting average adjusted predictions at each unique value of the variable when that variable is binary or a factor or character and requests the average marginal effect of that variable otherwise. Specifying an unnamed entry in the list with a string containing the value of that variable, e.g., \code{list("x1")} is equivalent to specifying \code{list(x1 = NULL)}. Similarly, supplying a vector with the names of the variables is equivalent to specifying a list, e.g., \code{var = "x1"} is equivalent to \code{var = list(x1 = NULL)}.
@@ -151,6 +140,7 @@ corresponding effect measure.
 }
 }
 \examples{
+\dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "MatchIt")
 
 # Fit the model
@@ -220,12 +210,10 @@ est
 # Average marginal effect of `age` setting `married` to 1
 est <- sim_ame(s, var = list("age", married = 1),
                verbose = FALSE)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=sim_apply]{sim_apply()}}, which provides a general interface to computing any
-quantities for simulation-based inference; \code{\link[=plot.clarify_est]{plot.clarify_est()}} for plotting the
-output of a call to \code{sim_ame()}; \code{\link[=summary.clarify_est]{summary.clarify_est()}} for computing
-p-values and confidence intervals for the estimated quantities.
+\code{\link[=sim_apply]{sim_apply()}}, which provides a general interface to computing any quantities for simulation-based inference; \code{\link[=plot.clarify_est]{plot.clarify_est()}} for plotting the output of a call to \code{sim_ame()}; \code{\link[=summary.clarify_est]{summary.clarify_est()}} for computing p-values and confidence intervals for the estimated quantities.
 
 \code{\link[marginaleffects:predictions]{marginaleffects::avg_predictions()}}, \code{\link[marginaleffects:comparisons]{marginaleffects::avg_comparisons()}} and \code{\link[marginaleffects:slopes]{marginaleffects::avg_slopes()}} for delta method-based implementations of computing average marginal effects.
 }

@@ -16,7 +16,8 @@ knitr::opts_chunk$set(
 # `clarify`: Simulation-Based Inference for Regression Models
 
 <!-- badges: start -->
-[![CRAN status](https://www.r-pkg.org/badges/version/clarify)](https://CRAN.R-project.org/package=clarify)
+[![](https://r-pkg.org/badges/version/clarify)](https://cran.rstudio.com/package=clarify)
+[![](https://cranlogs.r-pkg.org/badges/clarify)](https://cran.rstudio.com/package=clarify)
 <!-- badges: end -->
 
 `clarify` implements simulation-based inference for computing functions of model parameters, such as average marginal effects and predictions at representative values of the predictors. See the `clarify` [website](https://iqss.github.io/clarify/) for documentation and other examples. `clarify` was designed to replicate and expand on functionality previously provided by the `Zelig` package.
@@ -59,8 +60,11 @@ set.seed(123)
 sim_coefs <- sim(fit)
 
 # Marginal risk ratio ATT, simulation-based
-sim_est <- sim_ame(sim_coefs, var = "treat", subset = treat == 1,
-                   contrast = "RR", verbose = FALSE)
+sim_est <- sim_ame(sim_coefs,
+                   var = "treat",
+                   subset = treat == 1,
+                   contrast = "RR",
+                   verbose = FALSE)
 
 sim_est
 
@@ -127,7 +131,8 @@ We can also use `clarify` to compute predictions and first differences at set an
 ```{r, fig.width=7, fig.height=3}
 # Predictions across age and treat at typical values
 # of the other predictors
-sim_est <- sim_setx(sim_coefs, x = list(age = 20:50, treat = 0:1),
+sim_est <- sim_setx(sim_coefs,
+                    x = list(age = 20:50, treat = 0:1),
                     verbose = FALSE)
 
 #Plot of predicted values across age for each value of treat

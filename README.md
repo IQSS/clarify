@@ -5,8 +5,8 @@
 
 <!-- badges: start -->
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/clarify)](https://CRAN.R-project.org/package=clarify)
+[![](https://r-pkg.org/badges/version/clarify)](https://cran.rstudio.com/package=clarify)
+[![](https://cranlogs.r-pkg.org/badges/clarify)](https://cran.rstudio.com/package=clarify)
 <!-- badges: end -->
 
 `clarify` implements simulation-based inference for computing functions
@@ -62,24 +62,27 @@ set.seed(123)
 sim_coefs <- sim(fit)
 
 # Marginal risk ratio ATT, simulation-based
-sim_est <- sim_ame(sim_coefs, var = "treat", subset = treat == 1,
-                   contrast = "RR", verbose = FALSE)
+sim_est <- sim_ame(sim_coefs,
+                   var = "treat",
+                   subset = treat == 1,
+                   contrast = "RR",
+                   verbose = FALSE)
 
 sim_est
 #> A `clarify_est` object (from `sim_ame()`)
 #>  - Average adjusted predictions for `treat`
 #>  - 1000 simulated values
-#>  - 3 quantities estimated:                  
-#>  E[Y(0)] 0.6830995
-#>  E[Y(1)] 0.7567568
-#>  RR      1.1078280
+#>  - 3 quantities estimated:               
+#>  E[Y(0)] 0.6831
+#>  E[Y(1)] 0.7568
+#>  RR      1.1078
 
 # View the estimates, confidence intervals, and p-values
 summary(sim_est, null = c(`RR` = 1))
 #>         Estimate 2.5 % 97.5 % P-value
-#> E[Y(0)]    0.683 0.587  0.753       .
-#> E[Y(1)]    0.757 0.686  0.813       .
-#> RR         1.108 0.971  1.298    0.13
+#> E[Y(0)]    0.683 0.592  0.754       .
+#> E[Y(1)]    0.757 0.693  0.807       .
+#> RR         1.108 0.979  1.289    0.12
 
 # Plot the resulting sampling distributions
 plot(sim_est)
@@ -153,18 +156,18 @@ sim_est <- sim_apply(sim_coefs, ATT_fun, verbose = FALSE)
 sim_est
 #> A `clarify_est` object (from `sim_apply()`)
 #>  - 1000 simulated values
-#>  - 3 quantities estimated:                  
-#>  E[Y(0)] 0.6830995
-#>  E[Y(1)] 0.7567568
-#>  RR      1.1078280
+#>  - 3 quantities estimated:               
+#>  E[Y(0)] 0.6831
+#>  E[Y(1)] 0.7568
+#>  RR      1.1078
 
 # View the estimates, confidence intervals, and p-values;
 # they are the same as when using sim_ame() above
 summary(sim_est, null = c(`RR` = 1))
 #>         Estimate 2.5 % 97.5 % P-value
-#> E[Y(0)]    0.683 0.587  0.753       .
-#> E[Y(1)]    0.757 0.686  0.813       .
-#> RR         1.108 0.971  1.298    0.13
+#> E[Y(0)]    0.683 0.592  0.754       .
+#> E[Y(1)]    0.757 0.693  0.807       .
+#> RR         1.108 0.979  1.289    0.12
 
 # Plot the resulting sampling distributions
 plot(sim_est, reference = TRUE, ci = FALSE)
@@ -189,10 +192,10 @@ If we want to compute the risk difference, we can do that using
 sim_est <- transform(sim_est, `RD` = `E[Y(1)]` - `E[Y(0)]`)
 summary(sim_est, null = c(`RR` = 1, `RD` = 0))
 #>         Estimate   2.5 %  97.5 % P-value
-#> E[Y(0)]   0.6831  0.5872  0.7528       .
-#> E[Y(1)]   0.7568  0.6859  0.8134       .
-#> RR        1.1078  0.9708  1.2976    0.13
-#> RD        0.0737 -0.0215  0.1757    0.13
+#> E[Y(0)]   0.6831  0.5925  0.7543       .
+#> E[Y(1)]   0.7568  0.6934  0.8067       .
+#> RR        1.1078  0.9789  1.2888    0.12
+#> RD        0.0737 -0.0155  0.1742    0.12
 ```
 
 We can also use `clarify` to compute predictions and first differences
@@ -202,7 +205,8 @@ of `Zelig`’s `setx()` and `setx1()` functions, using `sim_setx()`:
 ``` r
 # Predictions across age and treat at typical values
 # of the other predictors
-sim_est <- sim_setx(sim_coefs, x = list(age = 20:50, treat = 0:1),
+sim_est <- sim_setx(sim_coefs,
+                    x = list(age = 20:50, treat = 0:1),
                     verbose = FALSE)
 
 #Plot of predicted values across age for each value of treat

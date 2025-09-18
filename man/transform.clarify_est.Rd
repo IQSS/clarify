@@ -25,9 +25,10 @@ A \code{clarify_est} object, either with new columns added (when using \code{tra
 \details{
 For \code{transform()}, the expression on the right side of the \code{=} should use the names of the existing quantities (e.g., \code{`E[Y(1)]` - `E[Y(1)]`}), with \verb{`} appropriately included when the quantity name include parentheses or brackets. Alternatively, it can use indexes prefixed by \code{.b}, e.g., \code{.b2 - .b1}, to refer to the corresponding quantity by position. This can aid in computing derived quantities of quantities with complicated names. (Note that if a quantity is named something like \code{.b1}, it will need to be referred to by position rather than name, as the position-based label takes precedence). See examples. Setting an existing value to \code{NULL} will remove that quantity from the object.
 
-\code{cbind()} does not rename the quanities or check for uniqueness of the names, so it is important to rename them yourself prior to combining the objects.
+\code{cbind()} does not rename the quantities or check for uniqueness of the names, so it is important to rename them yourself prior to combining the objects.
 }
 \examples{
+\dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "MatchIt")
 
 # Fit the model
@@ -74,6 +75,7 @@ summary(est,
 
 # Remove last quantity by using `NULL`
 transform(est, `diff-diff` = NULL)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=transform]{transform()}}, \code{\link[=cbind]{cbind()}}, \code{\link[=sim]{sim()}}

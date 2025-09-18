@@ -208,7 +208,7 @@ test_that("sim_ame() works with misim() and glm()", {
   expect_identical(attr(e, "var"), list(treat = 0:1))
 
   expect_warning(sim_ame(s, "race", contrast = "diff", verbose = FALSE),
-                 "`contrast` is ignored")
+                 "`contrast`\\s+is\\s+ignored")
 
   e <- sim_ame(s, "race", verbose = FALSE)
   expect_good_clarify_est(e)
@@ -236,23 +236,23 @@ test_that("sim_ame() works with misim() and glm()", {
   expect_identical(attr(e, "var"), list(age = NULL))
 
   expect_warning(sim_ame(s, "age", contrast = "diff", verbose = FALSE),
-                 "`contrast` is ignored")
+                 "`contrast`\\s+is\\s+ignored")
 
   e <- sim_ame(s, "age", subset = treat == 1, verbose = FALSE)
   expect_good_clarify_est(e)
 
   #Bad args
   expect_error(sim_ame(s, list(race = c("black", "whiteAAA")), verbose = FALSE),
-               "values mentioned in")
+               "values\\s+mentioned\\s+in")
   expect_error(sim_ame(s, list(race = 1:2), verbose = FALSE),
-               "values mentioned in")
+               "values\\s+mentioned\\s+in")
   expect_error(sim_ame(s, list(raceAAA = 1:2), verbose = FALSE),
-               "not present in the original model")
+               "not\\s+present\\s+in\\s+the\\s+original\\s+model")
   expect_error(sim_ame(s, "raceAAA", verbose = FALSE),
-               "not present in the original model")
+               "not\\s+present\\s+in\\s+the\\s+original\\s+model")
   expect_no_error(sim_ame(s, c("race", "treat"), verbose = FALSE))
   expect_no_error(sim_ame(s, list(race = "black", treat = 0:1), verbose = FALSE))
   expect_error(sim_ame(s, list(0:1), verbose = FALSE),
-               "desired focal variable or a named list")
+               "desired\\s+focal\\s+variable\\s+or\\s+a\\s+named\\s+list")
 
 })
