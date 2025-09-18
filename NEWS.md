@@ -1,9 +1,11 @@
 clarify News and Updates
 ======
 
-# `clarify` 0.2.3
+# `clarify` 0.2.2
 
 * Simultaneous confidence bands and p-values are now available by setting `simultaneous = TRUE` in calls to `summary()` or `plot()`.
+
+* `sim_setx()`, `sim_ame()`, and `sim_adrf()` now accept other arguments passed through `...`, which are passed to `marginaleffects::get_predict()` to compute predictions.
 
 * Fixed a bug when using `sim_ame()` after `misim()` with `by` specified. Thanks to Arvind Ilamaran for pointing out this bug.
 
@@ -12,10 +14,6 @@ clarify News and Updates
 * Fixed an issue where sampling from a t-distribution used a slightly incorrect covariance matrix, leading to intervals that could be a tiny bit too wide in small samples.
 
 * Now using a new random number generator that is more tolerant of nearly singular covariance matrices. The removes a dependence on `mvnfast`. Results from prior versions of `clarify` will not be reproducible using this and future versions, even when using the same seed.
-
-# `clarify` 0.2.2
-
-* `sim_setx()`, `sim_ame()`, and `sim_adrf()` now accept other arguments passed through `...`, which are passed to `marginaleffects::get_predict()` to compute predictions.
 
 * Documentation updates.
 
