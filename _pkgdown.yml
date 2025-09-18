@@ -1,7 +1,5 @@
-url: https://iqss.github.io/clarify/
 template:
   bootstrap: 5
-
 reference:
 - title: Main Functions
 - contents:
@@ -17,3 +15,4 @@ reference:
   - sim_setx
   - plot.clarify_setx
   - misim
+
