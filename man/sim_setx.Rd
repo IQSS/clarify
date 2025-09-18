@@ -16,11 +16,10 @@ sim_setx(
   ...
 )
 
-\method{print}{clarify_setx}(x, digits = NULL, max.ests = 6, ...)
+\method{print}{clarify_setx}(x, digits = 4L, max.ests = 6L, ...)
 }
 \arguments{
-\item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or
-\code{\link[=misim]{misim()}}.}
+\item{sim}{a \code{clarify_sim} object; the output of a call to \code{\link[=sim]{sim()}} or \code{\link[=misim]{misim()}}.}
 
 \item{x}{a data.frame containing a reference grid of predictor values or a named list of values each predictor should take defining such a reference grid, e.g., \code{list(v1 = 1:4, v2 = c("A", "B"))}. Any omitted predictors are fixed at a "typical" value. See Details. When \code{x1} is specified, \code{x} should identify a single reference unit.
 
@@ -34,13 +33,9 @@ only identify a single unit. See Details.}
 
 \item{type}{a string containing the type of predicted values (e.g., the link or the response). Passed to \code{\link[marginaleffects:get_predict]{marginaleffects::get_predict()}} and eventually to \code{predict()} in most cases. The default and allowable option depend on the type of model supplied, but almost always corresponds to the response scale (e.g., predicted probabilities for binomial models).}
 
-\item{verbose}{\code{logical}; whether to display a text progress bar indicating
-progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
+\item{verbose}{\code{logical}; whether to display a text progress bar indicating progress and estimated time remaining for the procedure. Default is \code{TRUE}.}
 
-\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an
-integer to indicate the number of child-processes (integer values are
-ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for
-details. If \code{NULL}, no parallelization will take place.}
+\item{cl}{a cluster object created by \code{\link[parallel:makeCluster]{parallel::makeCluster()}}, or an integer to indicate the number of child-processes (integer values are ignored on Windows) for parallel evaluations. See \code{\link[pbapply:pbapply]{pbapply::pblapply()}} for details. If \code{NULL}, no parallelization will take place.}
 
 \item{\dots}{for \code{sim_setx()}, additional arguments passed to \code{\link[marginaleffects:get_predict]{marginaleffects::get_predict()}} (and eventually to \code{predict()}) to compute predictions. For \code{print()}, ignored.}
 
@@ -49,20 +44,14 @@ details. If \code{NULL}, no parallelization will take place.}
 \item{max.ests}{the maximum number of estimates to display.}
 }
 \value{
-a \code{clarify_setx} object, which inherits from \code{clarify_est} and is similar to the output of \code{sim_apply()}, with the following additional attributes:
+A \code{clarify_setx} object, which inherits from \code{clarify_est} and is similar to the output of \code{sim_apply()}, with the following additional attributes:
 \itemize{
 \item \code{"setx"} - a data frame containing the values at which predictions are to be made
 \item \code{"fd"} - whether or not the first difference is to be computed; set to \code{TRUE} if \code{x1} is specified and \code{FALSE} otherwise
 }
 }
 \description{
-\code{sim_setx()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes predicted values of
-the outcome at specified values of the predictors, sometimes called marginal
-predictions. One can also compute the difference between two marginal
-predictions (the "first difference"). Although any function that accepted
-\code{clarify_est} objects can be used with \code{sim_setx()} output objects, a
-special plotting function, \code{\link[=plot.clarify_setx]{plot.clarify_setx()}}, can be used to plot marginal
-predictions.
+\code{sim_setx()} is a wrapper for \code{\link[=sim_apply]{sim_apply()}} that computes predicted values of the outcome at specified values of the predictors, sometimes called marginal predictions. One can also compute the difference between two marginal predictions (the "first difference"). Although any function that accepted \code{clarify_est} objects can be used with \code{sim_setx()} output objects, a special plotting function, \code{\link[=plot.clarify_setx]{plot.clarify_setx()}}, can be used to plot marginal predictions.
 }
 \details{
 When \code{x} is a named list of predictor values, they will be crossed
@@ -81,6 +70,7 @@ prediction must be specified in \code{x} and another, ideally with a single
 predictor changed, specified in \code{x1}.
 }
 \examples{
+\dontshow{if (rlang::is_installed("MatchIt")) withAutoprint(\{ # examplesIf}
 data("lalonde", package = "MatchIt")
 
 fit <- lm(re78 ~ treat + age + educ + married + race + re74,
@@ -113,7 +103,7 @@ est <- sim_setx(s, x = data.frame(treat = 0, race = "hispan"),
                 verbose = FALSE)
 summary(est)
 plot(est)
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=sim_apply]{sim_apply()}}, which provides a general interface to computing any

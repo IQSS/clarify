@@ -11,6 +11,7 @@
   level = 0.95,
   method = "quantile",
   reference = FALSE,
+  simultaneous = FALSE,
   ...
 )
 }
@@ -26,6 +27,8 @@
 \item{method}{the method used to compute confidence intervals or bands. Can be \code{"wald"} to use a Normal approximation or \code{"quantile"} to use the simulated sampling distribution (default). See \code{\link[=summary.clarify_est]{summary.clarify_est()}} for details. Abbreviations allowed.}
 
 \item{reference}{\code{logical}; whether to overlay a normal density reference distribution over the plots. Default is \code{FALSE}. Ignored when variables other than the focal varying predictor vary.}
+
+\item{simultaneous}{\code{logical}; whether confidence bands should be simultaneous or not (i.e., for nominal coverage of the whole effect curve); default is \code{FALSE}, but \code{TRUE} is recommended. See Details at \code{\link[=summary.clarify_est]{summary.clarify_est()}} for details.}
 
 \item{...}{for \code{plot()}, further arguments passed to \code{\link[ggplot2:geom_density]{ggplot2::geom_density()}}.}
 }
@@ -44,7 +47,6 @@ Marginal predictions are identified by the corresponding levels of the predictor
 }
 \examples{
 ## See help("sim_setx") for examples
-
 }
 \seealso{
 \code{\link[=summary.clarify_est]{summary.clarify_est()}} for computing p-values and confidence intervals for the estimated quantities.

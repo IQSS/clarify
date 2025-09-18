@@ -6,7 +6,10 @@
 \alias{clarify-package}
 \title{clarify: Simulation-Based Inference for Regression Models}
 \description{
-Performs simulation-based inference as an alternative to the delta method for obtaining valid confidence intervals and p-values for regression post-estimation quantities, such as average marginal effects and predictions at representative values. This framework for simulation-based inference is especially useful when the resulting quantity is not normally distributed and the delta method approximation fails. The methodology is described in King, Tomz, and Wittenberg (2000) \doi{10.2307/2669316}. 'clarify' is meant to replace some of the functionality of the archived package 'Zelig'; see the vignette "Translating Zelig to clarify" for replicating this functionality.
+Performs simulation-based inference as an alternative to the delta method for obtaining valid confidence intervals and p-values for regression post-estimation quantities, such as average marginal effects and predictions at representative values. This framework for simulation-based inference is especially useful when the resulting quantity is not normally distributed and the delta method approximation fails. The methodology is described in Greifer, et al. (2025) \doi{10.32614/RJ-2024-015}. 'clarify' is meant to replace some of the functionality of the archived package 'Zelig'; see the vignette "Translating Zelig to clarify" for replicating this functionality.
+}
+\references{
+Greifer, N., Worthington, S., Iacus, S., & King, G. (2025). clarify: Simulation-Based Inference for Regression Models. \emph{The R Journal} 16(2), 154–174. \doi{10.32614/RJ-2024-015}
 }
 \seealso{
 Useful links:

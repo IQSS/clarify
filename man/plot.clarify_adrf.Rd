@@ -9,8 +9,9 @@
   ci = TRUE,
   level = 0.95,
   method = "quantile",
-  baseline,
+  baseline = NULL,
   color = "black",
+  simultaneous = FALSE,
   ...
 )
 }
@@ -27,6 +28,8 @@
 
 \item{color}{the color of the line and confidence band in the plot.}
 
+\item{simultaneous}{\code{logical}; whether confidence bands should be simultaneous or not (i.e., for nominal coverage of the whole effect curve); default is \code{FALSE}, but \code{TRUE} is recommended. See Details at \code{\link[=summary.clarify_est]{summary.clarify_est()}} for details.}
+
 \item{...}{for \code{plot()}, further arguments passed to \code{\link[ggplot2:geom_density]{ggplot2::geom_density()}}.}
 }
 \value{
@@ -36,11 +39,10 @@ A \code{ggplot} object.
 \code{plot.clarify_adrf()} plots the output of \code{\link[=sim_adrf]{sim_adrf()}}. For the average dose-response function (ADRF, requested with \code{contrast = "adrf"} in \code{sim_adrf()}), this is a plot of the average marginal mean of the outcome against the requested values of the focal predictor; for the average marginal effects function (AMEF, requested with \code{contrast = "amef"} in \code{sim_adrf()}), this is a plot of the instantaneous average marginal effect of the focal predictor on the outcome against the requested values of the focal predictor.
 }
 \details{
-These plots are produced using \code{\link[ggplot2:geom_path]{ggplot2::geom_line()}} and \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon()}}. The confidence bands should be interpreted pointwise (i.e., they do not account for simultaneous inference).
+These plots are produced using \code{\link[ggplot2:geom_path]{ggplot2::geom_line()}} and \code{\link[ggplot2:geom_ribbon]{ggplot2::geom_ribbon()}}. The confidence bands should be interpreted pointwise (i.e., they do not account for simultaneous inference) unless \code{simultaneous = TRUE}.
 }
 \examples{
 ## See help("sim_adrf") for examples
-
 }
 \seealso{
 \code{\link[=summary.clarify_est]{summary.clarify_est()}} for computing p-values and confidence intervals for the estimated quantities.
