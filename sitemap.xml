@@ -1,60 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://iqss.github.io/clarify/404.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/articles/Zelig.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/articles/clarify.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/index.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/clarify-package.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/misim.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/plot.clarify_adrf.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/plot.clarify_setx.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/sim.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/sim_adrf.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/sim_ame.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/sim_apply.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/sim_setx.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/summary.clarify_est.html</loc>
-  </url>
-  <url>
-    <loc>https://iqss.github.io/clarify/reference/transform.clarify_est.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/Zelig.html</loc></url>
+<url><loc>/articles/clarify.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/clarify-package.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/misim.html</loc></url>
+<url><loc>/reference/plot.clarify_adrf.html</loc></url>
+<url><loc>/reference/plot.clarify_setx.html</loc></url>
+<url><loc>/reference/sim.html</loc></url>
+<url><loc>/reference/sim_adrf.html</loc></url>
+<url><loc>/reference/sim_ame.html</loc></url>
+<url><loc>/reference/sim_apply.html</loc></url>
+<url><loc>/reference/sim_setx.html</loc></url>
+<url><loc>/reference/summary.clarify_est.html</loc></url>
+<url><loc>/reference/transform.clarify_est.html</loc></url>
 </urlset>
+
