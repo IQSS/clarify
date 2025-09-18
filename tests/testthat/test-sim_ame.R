@@ -359,6 +359,8 @@ test_that("sim_ame() works with MASS::polr()", {
 
 test_that("sim_ame() works with betareg::betareg()", {
   skip_if_not_installed("betareg")
+  skip_if_not_installed("marginaleffects", "0.30.0.2")
+
   mdata <- readRDS(test_path("fixtures", "mdata.rds"))
 
   fit <- betareg::betareg(propY ~ treat + age + educ + race + re74 | treat + age,
