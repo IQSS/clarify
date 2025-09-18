@@ -3,7 +3,7 @@ title: "Translating Zelig to clarify"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Translating Zelig to clarify}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown_notangle}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
 ---
