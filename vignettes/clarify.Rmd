@@ -1,11 +1,11 @@
 ---
-title: "`clarify`: Simulation-Based Inference for Regression Models"
+title: "clarify: Simulation-Based Inference for Regression Models"
 output:
   rmarkdown::html_vignette:
     toc: true
 date: "`r Sys.Date()`"
 vignette: >
-  %\VignetteIndexEntry{`clarify`: Simulation-Based Inference for Regression Models}
+  %\VignetteIndexEntry{clarify: Simulation-Based Inference for Regression Models}
   %\VignetteEngine{knitr::rmarkdown_notangle}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -207,7 +207,7 @@ To examine the uncertainty around and perform inference on our estimated quantit
 `plot()` displays a density plot of the resulting estimates across the simulations, with markers identifying the point estimate (computed using the original model coefficients as recommended by @raineyCarefulConsiderationCLARIFY2023) and, optionally, uncertainty bounds (which function like confidence or credible interval bounds). The arguments to `plot()` are below:
 
 ``` r
-plot(x = , parm = , ci = , level = , method = , reference =)
+plot(x = , parm = , ci = , level = , method = , reference = , simultaneous =)
 ```
 
 -   `x` -- the `clarify_est` object (the output of a call to `sim_apply()`).
@@ -222,6 +222,8 @@ plot(x = , parm = , ci = , level = , method = , reference =)
 
 -   `reference` -- whether to display a normal density over the plot for each estimate and an indicator line for the median of the estimate. The default is `FALSE` to omit them.
 
+-   `simultaneous` -- whether confidence intervals and bands should adjust for multiple comparisons. If `TRUE`, the "sup-t" bands as described by @hothornSimultaneousInferenceGeneral2008 and @montieloleaSimultaneousConfidenceBands2019 are used. The default is not to perform such an adjustment.
+
 Below, we plot the first estimate we computed above, the predicted probability for participant PSID1:
 
 ```{r plot1, fig.width=4, fig.alt="A plot of the density of the simulated predicted probability for participant PSID1, overlaid with a Normal distribution and a reference line for the median of the estimates"}
@@ -235,7 +237,7 @@ Overlaid on the plot in red is a Normal distribution with the same mean and stan
 We can use `summary()` to display the value of the point estimate, the uncertainty bounds, and other statistics that describe the distribution of estimates. The arguments to `summary()` are below:
 
 ``` r
-summary(object = , parm = , level = , method = , null = )
+summary(object = , parm = , level = , method = , null = , simultaneous =)
 ```
 
 -   `object` -- the `clarify_est` object (the output of a call to `sim_apply()`).
@@ -248,7 +250,7 @@ summary(object = , parm = , level = , method = , null = )
 
 -   `null` -- an optional argument specifying the desired null value in a hypothesis test for the estimates. If specified, a p-value will be computed using either a standard Z-test (if `method` is `"wald"`) or an inversion of the uncertainty interval (described below). The default is not to display any p-values.
 
--   `simultaneous` -- whether inference (confidence intervals and p-values) should adjust for multiple comparisons. If `TRUE`, the "sup-t" intervals as described by @hothornSimultaneousInferenceGeneral2008 and @montieloleaSimultaneousConfidenceBands2019 and their inversion are used. The default is not perform such an adjustment.
+-   `simultaneous` -- whether inference (confidence intervals and p-values) should adjust for multiple comparisons. If `TRUE`, the "sup-t" intervals as described by @hothornSimultaneousInferenceGeneral2008 and @montieloleaSimultaneousConfidenceBands2019 and their inversion are used. The default is not to perform such an adjustment.
 
 We can use `summary()` with the default arguments on our first `clarify_est` object to view the point estimate and quantile-based uncertainty bounds.
 
