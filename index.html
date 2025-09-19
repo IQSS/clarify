@@ -6,7 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Simulation-Based Inference for Regression Models • clarify</title>
-<script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -59,14 +65,15 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><code>clarify</code> implements simulation-based inference for computing functions of model parameters, such as average marginal effects and predictions at representative values of the predictors. See the <code>clarify</code> <a href="https://iqss.github.io/clarify/" class="external-link">website</a> for documentation and other examples. <code>clarify</code> was designed to replicate and expand on functionality previously provided by the <code>Zelig</code> package.</p>
+<!-- badges: end -->
+<p><em>clarify</em> implements simulation-based inference for functions of model parameters, such as average marginal effects and predictions at representative values of the predictors. See the <em>clarify</em> <a href="https://iqss.github.io/clarify/" class="external-link">website</a> for documentation and other examples, and see Greifer et al. (<a href="#ref-greiferClarifySimulationBasedInference2025">2025</a>) for the paper describing the package (also available at <code><a href="articles/clarify.html">vignette("clarify")</a></code>). <em>clarify</em> was designed to replicate and expand on functionality previously provided by the <em>Zelig</em> package.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p><code>clarify</code> can be installed from CRAN using</p>
+<p><em>clarify</em> can be installed from <a href="https://CRAN.R-project.org/package=clarify" class="external-link">CRAN</a> using</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"clarify"</span><span class="op">)</span></span></code></pre></div>
-<p>You can install the development version of <code>clarify</code> from <a href="https://github.com/iqss/clarify" class="external-link">GitHub</a> with</p>
+<p>You can install the development version of <em>clarify</em> from <a href="https://github.com/iqss/clarify" class="external-link">GitHub</a> with</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"iqss/clarify"</span><span class="op">)</span></span></code></pre></div>
@@ -74,7 +81,7 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>Below is an example of performing g-computation for the average treatment effect on the treated (ATT) after logistic regression to compute the average causal risk ratio and its confidence interval. First we load the data (in this case the <code>lalonde</code> dataset from <code>MatchIt</code>) and fit a logistic regression using functions outside of <code>clarify</code>:</p>
+<p>Below is an example of performing g-computation for the average treatment effect on the treated (ATT) after logistic regression to compute the average causal risk ratio and its confidence interval. First we load the data (in this case the <code>lalonde</code> dataset from <em>MatchIt</em>) and fit a logistic regression using functions outside of <em>clarify</em>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/iqss/clarify" class="external-link">clarify</a></span><span class="op">)</span></span>
 <span></span>
@@ -116,13 +123,13 @@
 <span><span class="co"># Plot the resulting sampling distributions</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-example-1.png" width="80%"></p>
-<p>Below, we provide information on the framework <code>clarify</code> uses and some other examples. For a complete vignette, see <code><a href="articles/clarify.html">vignette("clarify")</a></code>.</p>
+<p>Below, we provide information on the framework <em>clarify</em> uses and some other examples. For a complete vignette, see <code><a href="articles/clarify.html">vignette("clarify")</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Simulation-based inference is an alternative to the delta method and bootstrapping for performing inference on quantities that are functions of model parameters. It involves simulating model coefficients from their multivariate distribution using their estimated values and covariance from a single model fit to the original data, computing the quantities of interest from each set of model coefficients, and then performing inference using the resulting distribution of the estimates as their sampling distribution. Confidence intervals can be computed using the percentiles of the resulting sampling distribution, and p-values can be computed by inverting the confidence intervals. Alternatively, if the resulting sampling distribution is normally distributed, its standard error can be estimated as the standard deviation of the estimates and normal-theory Wald confidence intervals and p-values can be computed. The methodology of simulation-based inference is explained in King, Tomz, and Wittenberg (2000).</p>
-<p><code>clarify</code> was designed to provide a simple, general interface for simulation-based inference and includes a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of <code>clarify</code> are <code><a href="reference/sim.html">sim()</a></code>, <code><a href="reference/sim_apply.html">sim_apply()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. These work together to create a simple workflow for simulation-based inference.</p>
+<p>Simulation-based inference is an alternative to the delta method and bootstrapping for performing inference on quantities that are functions of model parameters. It involves simulating model coefficients from their multivariate distribution using their estimated values and covariance from a single model fit to the original data, computing the quantities of interest from each set of model coefficients, and then performing inference using the resulting distribution of the estimates as their sampling distribution. Confidence intervals can be computed using the percentiles of the resulting sampling distribution, and p-values can be computed by inverting the confidence intervals. Alternatively, if the resulting sampling distribution is normally distributed, its standard error can be estimated as the standard deviation of the estimates and normal-theory Wald confidence intervals and p-values can be computed. The methodology of simulation-based inference is explained in King, Tomz, and Wittenberg (<a href="#ref-kingMakingMostStatistical2000">2000</a>) and Herron (<a href="#ref-herronPostestimationUncertaintyLimited1999">1999</a>).</p>
+<p><em>clarify</em> was designed to provide a simple, general interface for simulation-based inference and includes a few convenience functions to perform common tasks like computing average marginal effects. The primary functions of <em>clarify</em> are <code><a href="reference/sim.html">sim()</a></code>, <code><a href="reference/sim_apply.html">sim_apply()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. These work together to create a simple workflow for simulation-based inference.</p>
 <ul>
 <li>
 <code><a href="reference/sim.html">sim()</a></code> simulates model parameters from a fitted model</li>
@@ -133,7 +140,7 @@
 <li>
 <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> produces plots of the simulated sampling distribution of the resulting estimates</li>
 </ul>
-<p>There are also some wrappers for <code><a href="reference/sim_apply.html">sim_apply()</a></code> for performing some common operations: <code><a href="reference/sim_ame.html">sim_ame()</a></code> computes the average marginal effect of a variable, mirroring <code><a href="https://marginaleffects.com/man/r/predictions.html" class="external-link">marginaleffects::avg_predictions()</a></code> and <code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">marginaleffects::avg_slopes()</a></code>; <code><a href="reference/sim_setx.html">sim_setx()</a></code> computes predictions at typical values of the covariates and differences between them, mirroring <code>Zelig::setx()</code> and <code>Zelig::setx1()</code>; and <code><a href="reference/sim_adrf.html">sim_adrf()</a></code> computes average dose-response functions. <code>clarify</code> also offers support for models fit to multiply imputed data with the <code><a href="reference/misim.html">misim()</a></code> function.</p>
+<p>There are also some wrappers for <code><a href="reference/sim_apply.html">sim_apply()</a></code> for performing some common operations: <code><a href="reference/sim_ame.html">sim_ame()</a></code> computes the average marginal effect of a variable, mirroring <code><a href="https://marginaleffects.com/man/r/predictions.html" class="external-link">marginaleffects::avg_predictions()</a></code> and <code><a href="https://marginaleffects.com/man/r/slopes.html" class="external-link">marginaleffects::avg_slopes()</a></code>; <code><a href="reference/sim_setx.html">sim_setx()</a></code> computes predictions at typical values of the covariates and differences between them, mirroring <code>Zelig::setx()</code> and <code>Zelig::setx1()</code>; and <code><a href="reference/sim_adrf.html">sim_adrf()</a></code> computes average dose-response functions. <em>clarify</em> also offers support for models fit to multiply imputed data with the <code><a href="reference/misim.html">misim()</a></code> function.</p>
 <p>In the example above, we used <code><a href="reference/sim_ame.html">sim_ame()</a></code> to compute the ATT, but we could have also done so manually using <code><a href="reference/sim_apply.html">sim_apply()</a></code>, as demonstrated below:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Write a function that computes the g-computation estimate for the ATT</span></span>
@@ -168,18 +175,19 @@
 <span><span class="co"># Plot the resulting sampling distributions</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span>, reference <span class="op">=</span> <span class="cn">TRUE</span>, ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-example2-1.png" width="80%"></p>
-<p>The plot of the simulated sampling distribution indicates that the sampling distribution for the risk ratio is not normally distributed around the estimate, indicating that the delta method may be a poor approximation and the asymmetric confidence intervals produced using the simulation may be more valid. Note that the estimates are those computed from the original model coefficients; the distribution is used only for computing confidence intervals, in line with recommendations by Rainey (2023).</p>
+<p>The plot of the simulated sampling distribution indicates that the sampling distribution for the risk ratio is not normally distributed around the estimate, indicating that the delta method may be a poor approximation and the asymmetric confidence intervals produced using the simulation may be more valid. Note that the estimates are those computed from the original model coefficients; the distribution is used only for computing confidence intervals, in line with recommendations by Rainey (<a href="#ref-raineyCarefulConsiderationCLARIFY2023">2023</a>).</p>
 <p>If we want to compute the risk difference, we can do that using <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> on the already-produced output:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Transform estimates into new quantities of interest</span></span>
 <span><span class="va">sim_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">sim_est</span>, `RD` <span class="op">=</span> <span class="va">`E[Y(1)]`</span> <span class="op">-</span> <span class="va">`E[Y(0)]`</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sim_est</span>, null <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`RR` <span class="op">=</span> <span class="fl">1</span>, `RD` <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         Estimate   2.5 %  97.5 % P-value</span></span>
 <span><span class="co">#&gt; E[Y(0)]   0.6831  0.5925  0.7543       .</span></span>
 <span><span class="co">#&gt; E[Y(1)]   0.7568  0.6934  0.8067       .</span></span>
 <span><span class="co">#&gt; RR        1.1078  0.9789  1.2888    0.12</span></span>
 <span><span class="co">#&gt; RD        0.0737 -0.0155  0.1742    0.12</span></span></code></pre></div>
-<p>We can also use <code>clarify</code> to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of <code>Zelig</code>’s <code>setx()</code> and <code>setx1()</code> functions, using <code><a href="reference/sim_setx.html">sim_setx()</a></code>:</p>
+<p>We can also use <em>clarify</em> to compute predictions and first differences at set and typical values of the predictors, mimicking the functionality of <em>Zelig</em>’s <code>setx()</code> and <code>setx1()</code> functions, using <code><a href="reference/sim_setx.html">sim_setx()</a></code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Predictions across age and treat at typical values</span></span>
 <span><span class="co"># of the other predictors</span></span>
@@ -190,14 +198,26 @@
 <span><span class="co">#Plot of predicted values across age for each value of treat</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sim_est</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="80%"></p>
-<p>See <code><a href="articles/Zelig.html">vignette("Zelig", package = "clarify")</a></code> for more examples of translating a <code>Zelig</code>-based workflow into one that uses <code>clarify</code> to estimate the same quantities of interest.</p>
-<p><code>clarify</code> offers parallel processing for all estimation functions to speed up computation. Functionality is also available for the analysis of models fit to multiply imputed data. See <code><a href="articles/clarify.html">vignette("clarify")</a></code> for more details.</p>
+<p>See <code><a href="articles/Zelig.html">vignette("Zelig", package = "clarify")</a></code> for more examples of translating a <em>Zelig</em>-based workflow into one that uses <em>clarify</em> to estimate the same quantities of interest.</p>
+<p><em>clarify</em> offers parallel processing for all estimation functions to speed up computation. Functionality is also available for the analysis of models fit to multiply imputed data. See <code><a href="articles/clarify.html">vignette("clarify")</a></code> for more details.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>King, G., Tomz, M., &amp; Wittenberg, J. (2000). Making the Most of Statistical Analyses: Improving Interpretation and Presentation. <em>American Journal of Political Science</em>, 44(2), 347–361. <a href="https://doi.org/10.2307/2669316" class="external-link uri">https://doi.org/10.2307/2669316</a></p>
-<p>Rainey, C. (2023). A careful consideration of CLARIFY: Simulation-induced bias in point estimates of quantities of interest. <em>Political Science Research and Methods</em>, 1–10. <a href="https://doi.org/10.1017/psrm.2023.8" class="external-link uri">https://doi.org/10.1017/psrm.2023.8</a></p>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-greiferClarifySimulationBasedInference2025" class="csl-entry">
+Greifer, Noah, Steven Worthington, Stefano Iacus, and Gary King. 2025. “Clarify: Simulation-Based Inference for Regression Models.” <em>The R Journal</em> 16 (2): 154–74. <a href="https://doi.org/10.32614/RJ-2024-015" class="external-link uri">https://doi.org/10.32614/RJ-2024-015</a>.
+</div>
+<div id="ref-herronPostestimationUncertaintyLimited1999" class="csl-entry">
+Herron, Michael C. 1999. “Postestimation Uncertainty in Limited Dependent Variable Models.” <em>Political Analysis</em> 8 (1): 83–98. <a href="https://doi.org/10.1093/oxfordjournals.pan.a029806" class="external-link uri">https://doi.org/10.1093/oxfordjournals.pan.a029806</a>.
+</div>
+<div id="ref-kingMakingMostStatistical2000" class="csl-entry">
+King, Gary, Michael Tomz, and Jason Wittenberg. 2000. “Making the Most of Statistical Analyses: Improving Interpretation and Presentation.” <em>American Journal of Political Science</em> 44 (2): 347–61. <a href="https://doi.org/10.2307/2669316" class="external-link uri">https://doi.org/10.2307/2669316</a>.
+</div>
+<div id="ref-raineyCarefulConsiderationCLARIFY2023" class="csl-entry">
+Rainey, Carlisle. 2023. “A Careful Consideration of CLARIFY: Simulation-Induced Bias in Point Estimates of Quantities of Interest.” <em>Political Science Research and Methods</em>, 1–10. <a href="https://doi.org/10.1017/psrm.2023.8" class="external-link uri">https://doi.org/10.1017/psrm.2023.8</a>.
+</div>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -237,8 +257,8 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.rstudio.com/package=clarify" class="external-link"><img src="https://r-pkg.org/badges/version/clarify"></a></li>
-<li><a href="https://cran.rstudio.com/package=clarify" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/clarify"></a></li>
+<li><a href="https://CRAN.R-project.org/package=clarify" class="external-link"><img src="https://r-pkg.org/badges/version/clarify"></a></li>
+<li><a href="https://CRAN.R-project.org/package=clarify" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/clarify"></a></li>
 </ul>
 </div>
 

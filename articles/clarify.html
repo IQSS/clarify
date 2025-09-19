@@ -6,7 +6,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>`clarify`: Simulation-Based Inference for Regression Models • clarify</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -59,7 +65,7 @@
 
       <h1>`clarify`: Simulation-Based Inference for Regression Models</h1>
             
-            <h4 data-toc-skip class="date">2025-09-18</h4>
+            <h4 data-toc-skip class="date">2025-09-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/iqss/clarify/blob/main/vignettes/clarify.Rmd" class="external-link"><code>vignettes/clarify.Rmd</code></a></small>
       <div class="d-none name"><code>clarify.Rmd</code></div>
@@ -146,113 +152,66 @@ parameters. Methods for computing valid confidence intervals in cases
 when the quantity of interest has a complicated distribution are better
 developed when bootstrapping, however <span class="citation">(<a href="#ref-efronBootstrapMethodsStandard1986">Efron and Tibshirani
 1986</a>)</span>.</p>
-<p>More formally, we fit a regression model
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>=</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>;</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">y_i = f(x_i; \beta)</annotation></semantics></math>,
-such as a linear or other generalized linear model with model
-coefficients
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>.
-We assume
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo>∼</mo><mtext mathvariant="normal">MVN</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo>,</mo><msub><mi>Σ</mi><mover><mi>β</mi><mo accent="true">̂</mo></mover></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\beta} \sim \text{MVN}(\beta, \Sigma_{\hat{\beta}})</annotation></semantics></math>
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>β</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\beta}</annotation></semantics></math>
-is the vector of estimates of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Σ</mi><mover><mi>β</mi><mo accent="true">̂</mo></mover></msub><annotation encoding="application/x-tex">\Sigma_{\hat{\beta}}</annotation></semantics></math>
-is their asymptotic covariance matrix. We define a function
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tau(\beta)</annotation></semantics></math>
-that represents a quantity of interest derived from the model
-parameters, and compute its estimate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\widehat{\tau(\beta)}</annotation></semantics></math>
-as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tau(\hat{\beta})</annotation></semantics></math>.</p>
-<p>To perform simulation-based inference, we take
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
-draws
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mover><mi>β</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\tilde{\beta}^{(j)}</annotation></semantics></math>
-for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>M</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">j\in(1, \dots, M)</annotation></semantics></math>
-from a multivariate Normal distribution with mean vector
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover></mrow><annotation encoding="application/x-tex">\mu = \hat{\beta}</annotation></semantics></math>
-and covariance
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Σ</mi><mo>=</mo><msub><mover><mi>Σ</mi><mo accent="true">̂</mo></mover><mover><mi>β</mi><mo accent="true">̂</mo></mover></msub></mrow><annotation encoding="application/x-tex">\Sigma = \hat{\Sigma}_{\hat{\beta}}</annotation></semantics></math>,
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>Σ</mi><mo accent="true">̂</mo></mover><mover><mi>β</mi><mo accent="true">̂</mo></mover></msub><annotation encoding="application/x-tex">\hat{\Sigma}_{\hat{\beta}}</annotation></semantics></math>
-is an estimate of the asymptotic covariance matrix of the parameter
-estimates. We use the distribution of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>τ</mi><mo accent="true">̃</mo></mover><mo>=</mo><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̃</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tilde{\tau}=\tau(\tilde{\beta})</annotation></semantics></math>
-as the “posterior” distribution of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\widehat{\tau(\beta)}</annotation></semantics></math>,
-and compute its variance as
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mover><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">̂</mo></mover><mn>2</mn></msubsup><mo>=</mo><mfrac><mn>1</mn><mrow><mi>M</mi><mo>−</mo><mn>1</mn></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><msup><mrow><mo stretchy="true" form="prefix">(</mo><msup><mover><mi>τ</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><mover><mover><mi>τ</mi><mo accent="true">̃</mo></mover><mo accent="true">‾</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\begin{equation}
-\hat\sigma^2_{\widehat{\tau(\beta)}} = \frac{1}{M-1}\sum^M_{j=1}{(\tilde{\tau}^{(j)} - \bar{\tilde{\tau}})^2}
-\end{equation}</annotation></semantics></math> and quantile
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>100</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>%</mi></mrow><annotation encoding="application/x-tex">100(1-\alpha)\%</annotation></semantics></math>
-confidence interval limits as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mover><mi>τ</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>α</mi><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></msub><mo>,</mo><msub><mover><mi>τ</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mfrac><mi>α</mi><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\left[\tilde{\tau}_{(\frac{\alpha}{2})}, \tilde{\tau}_{(1-\frac{\alpha}{2})}\right]</annotation></semantics></math>
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>τ</mi><mo accent="true">̃</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>q</mi><mo stretchy="true" form="postfix">)</mo></mrow></msub><annotation encoding="application/x-tex">\tilde{\tau}_{(q)}</annotation></semantics></math>
-is the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>th
-value of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>τ</mi><mo accent="true">̃</mo></mover><annotation encoding="application/x-tex">\tilde{\tau}</annotation></semantics></math>
-when arranged in ascending order (i.e., the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>th
-quantile of the empirical cumulative distribution function of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>τ</mi><mo accent="true">̃</mo></mover><annotation encoding="application/x-tex">\tilde{\tau}</annotation></semantics></math>).
-Simulation-based Wald-type confidence intervals can be computed as
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mover><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">̂</mo></mover></msub><msub><mi>Z</mi><mfrac><mi>α</mi><mn>2</mn></mfrac></msub><mo>,</mo><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mover><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">̂</mo></mover></msub><msub><mi>Z</mi><mrow><mn>1</mn><mo>−</mo><mfrac><mi>α</mi><mn>2</mn></mfrac></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\begin{equation}
-\left[\tau(\hat{\beta}) + \hat\sigma_{\widehat{\tau(\beta)}} Z_{\frac{\alpha}{2}}, \tau(\hat{\beta}) + \hat\sigma_{\widehat{\tau(\beta)}} Z_{1-\frac{\alpha}{2}} \right]
-\end{equation}</annotation></semantics></math> where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Z</mi><mi>q</mi></msub><annotation encoding="application/x-tex">Z_q</annotation></semantics></math>
-is the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>th
-quantile of a standard Normal distribution. The delta method-based
-Wald-type confidence intervals use this formula but with the first-order
-Taylor approximation to the asymptotic variance:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mover><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">̂</mo></mover><mn>2</mn></msubsup><mo>=</mo><mi>∇</mi><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>Σ</mi><mover><mi>β</mi><mo accent="true">̂</mo></mover></msub><mi>∇</mi><mi>τ</mi><mi>′</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\begin{equation}
-\hat\sigma^2_{\widehat{\tau(\beta)}}=\nabla\tau(\hat{\beta}) \Sigma_{\hat{\beta}} \nabla\tau'(\hat{\beta})
-\end{equation}</annotation></semantics></math> where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>∇</mi><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\nabla\tau(\hat{\beta})</annotation></semantics></math>
-is the gradient of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tau(\beta)</annotation></semantics></math>
-with respect to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-evaluated at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>β</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{\beta}</annotation></semantics></math>.</p>
+<p>More formally, we fit a regression model <span class="math inline">\(y_i = f(x_i; \beta)\)</span>, such as a linear or
+other generalized linear model with model coefficients <span class="math inline">\(\beta\)</span>. We assume <span class="math inline">\(\hat{\beta} \sim \text{MVN}(\beta,
+\Sigma_{\hat{\beta}})\)</span> where <span class="math inline">\(\hat{\beta}\)</span> is the vector of estimates of
+<span class="math inline">\(\beta\)</span> and <span class="math inline">\(\Sigma_{\hat{\beta}}\)</span> is their asymptotic
+covariance matrix. We define a function <span class="math inline">\(\tau(\beta)\)</span> that represents a quantity of
+interest derived from the model parameters, and compute its estimate
+<span class="math inline">\(\widehat{\tau(\beta)}\)</span> as <span class="math inline">\(\tau(\hat{\beta})\)</span>.</p>
+<p>To perform simulation-based inference, we take <span class="math inline">\(M\)</span> draws <span class="math inline">\(\tilde{\beta}^{(j)}\)</span> for <span class="math inline">\(j\in(1, \dots, M)\)</span> from a multivariate
+Normal distribution with mean vector <span class="math inline">\(\mu =
+\hat{\beta}\)</span> and covariance <span class="math inline">\(\Sigma =
+\hat{\Sigma}_{\hat{\beta}}\)</span>, where <span class="math inline">\(\hat{\Sigma}_{\hat{\beta}}\)</span> is an estimate
+of the asymptotic covariance matrix of the parameter estimates. We use
+the distribution of <span class="math inline">\(\tilde{\tau}=\tau(\tilde{\beta})\)</span> as the
+“posterior” distribution of <span class="math inline">\(\widehat{\tau(\beta)}\)</span>, and compute its
+variance as <span class="math display">\[\begin{equation}
+\hat\sigma^2_{\widehat{\tau(\beta)}} =
+\frac{1}{M-1}\sum^M_{j=1}{(\tilde{\tau}^{(j)} - \bar{\tilde{\tau}})^2}
+\end{equation}\]</span> and quantile <span class="math inline">\(100(1-\alpha)\%\)</span> confidence interval
+limits as <span class="math inline">\(\left[\tilde{\tau}_{(\frac{\alpha}{2})},
+\tilde{\tau}_{(1-\frac{\alpha}{2})}\right]\)</span> where <span class="math inline">\(\tilde{\tau}_{(q)}\)</span> is the <span class="math inline">\(q\)</span>th value of <span class="math inline">\(\tilde{\tau}\)</span> when arranged in ascending
+order (i.e., the <span class="math inline">\(q\)</span>th quantile of
+the empirical cumulative distribution function of <span class="math inline">\(\tilde{\tau}\)</span>). Simulation-based Wald-type
+confidence intervals can be computed as <span class="math display">\[\begin{equation}
+\left[\tau(\hat{\beta}) + \hat\sigma_{\widehat{\tau(\beta)}}
+Z_{\frac{\alpha}{2}}, \tau(\hat{\beta}) +
+\hat\sigma_{\widehat{\tau(\beta)}} Z_{1-\frac{\alpha}{2}} \right]
+\end{equation}\]</span> where <span class="math inline">\(Z_q\)</span>
+is the <span class="math inline">\(q\)</span>th quantile of a standard
+Normal distribution. The delta method-based Wald-type confidence
+intervals use this formula but with the first-order Taylor approximation
+to the asymptotic variance: <span class="math display">\[\begin{equation}
+\hat\sigma^2_{\widehat{\tau(\beta)}}=\nabla\tau(\hat{\beta})
+\Sigma_{\hat{\beta}} \nabla\tau'(\hat{\beta})
+\end{equation}\]</span> where <span class="math inline">\(\nabla\tau(\hat{\beta})\)</span> is the gradient
+of <span class="math inline">\(\tau(\beta)\)</span> with respect to
+<span class="math inline">\(\beta\)</span> evaluated at <span class="math inline">\(\hat{\beta}\)</span>.</p>
 <p>To compute a p-value for a hypothesis test involving the quantity of
-interest, i.e.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">H</mtext><mn>0</mn></msub><mo>:</mo><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>τ</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\text{H}_0: \tau (\beta) = \tau_0</annotation></semantics></math>
-with a given null value
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>τ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\tau_0</annotation></semantics></math>,
-we can invert the confidence interval <span class="citation">(<a href="#ref-thulinModernStatisticsWrangling2021">Thulin 2024</a>)</span>;
-that is, we find the largest value of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
-such that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>τ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\tau_0</annotation></semantics></math>
-is within the confidence interval and use that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
-as the p-value for the test. For Wald-based inference (either using the
+interest, i.e., <span class="math inline">\(\text{H}_0: \tau (\beta) =
+\tau_0\)</span> with a given null value <span class="math inline">\(\tau_0\)</span>, we can invert the confidence
+interval <span class="citation">(<a href="#ref-thulinModernStatisticsWrangling2021">Thulin 2024</a>)</span>;
+that is, we find the largest value of <span class="math inline">\(\alpha\)</span> such that <span class="math inline">\(\tau_0\)</span> is within the confidence interval
+and use that <span class="math inline">\(\alpha\)</span> as the p-value
+for the test. For Wald-based inference (either using the
 simulation-based variance or delta method-based variance), this is
 equivalent to performing a standard two-sided Z-test using the test
-statistic
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Z</mi><mo>=</mo><mfrac><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>τ</mi><mn>0</mn></msub></mrow><msub><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mover><mrow><mi>τ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">̂</mo></mover></msub></mfrac></mrow><annotation encoding="application/x-tex">\begin{equation}
+statistic <span class="math display">\[\begin{equation}
 Z=\frac{\tau(\hat\beta)-\tau_0}{\hat\sigma_{\widehat{\tau(\beta)}}}
-\end{equation}</annotation></semantics></math> One benefit of using the
-quantile p-values for inference is that equivalent tests of the same
-hypothesis will always yield identical p-values; for example, testing
-the equality of two derived quantities will yield the same p-value when
-comparing the difference between the quantities against a null
-hypothesis of 0 and the ratio of the quantities against a null
-hypothesis of 1, as each of these hypothesis is true if and only if the
-other is true.</p>
+\end{equation}\]</span> One benefit of using the quantile p-values for
+inference is that equivalent tests of the same hypothesis will always
+yield identical p-values; for example, testing the equality of two
+derived quantities will yield the same p-value when comparing the
+difference between the quantities against a null hypothesis of 0 and the
+ratio of the quantities against a null hypothesis of 1, as each of these
+hypothesis is true if and only if the other is true.</p>
 <p>One would expect simulation-based quantile inference,
 simulation-based Wald inference, and delta method-based Wald inference
 to align when the posterior is Normally distributed around the estimate,
 in which case any discrepancies would be due to Monte Carlo error in the
 simulated values (and therefore would shrink with increasing draws).
-However, for low values of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>,
+However, for low values of <span class="math inline">\(\alpha\)</span>,
 it may require many draws for the simulation-based intervals to
 stabilize; delta method-based intervals are not subject to this error.
 There are a few cases in which the results might diverge: in some cases,
@@ -667,6 +626,12 @@ p-value will be computed using either a standard Z-test (if
 <code>method</code> is <code>"wald"</code>) or an inversion of the
 uncertainty interval (described below). The default is not to display
 any p-values.</p></li>
+<li><p><code>simultaneous</code> – whether inference (confidence
+intervals and p-values) should adjust for multiple comparisons. If
+<code>TRUE</code>, the “sup-t” intervals as described by <span class="citation">Hothorn, Bretz, and Westfall (<a href="#ref-hothornSimultaneousInferenceGeneral2008">2008</a>)</span> and
+<span class="citation">Montiel Olea and Plagborg-Møller (<a href="#ref-montieloleaSimultaneousConfidenceBands2019">2019</a>)</span>
+and their inversion are used. The default is not perform such an
+adjustment.</p></li>
 </ul>
 <p>We can use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> with the default arguments on our
 first <code>clarify_est</code> object to view the point estimate and
@@ -1097,9 +1062,11 @@ and 50 (here we only use even ages to speed up computation).</p>
 <span>                 contrast <span class="op">=</span> <span class="st">"adrf"</span>,</span>
 <span>                 at <span class="op">=</span> <span class="va">age_seq</span>,</span>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p>We can plot the ADRF using <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</p>
+<p>We can plot the ADRF using <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>; here we set
+<code>simultaneous = TRUE</code> to request simultaneous confidence
+bands.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est8</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est8</span>, simultaneous <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="clarify_files/figure-html/plot8-1.png" alt="A plot of the average dose-response function for the outcome against age. The line has an uncertainty band around it." width="480" style="display: block; margin: auto;"></p>
 <p>From the plot, we can see that as <code>age</code> increases, the
 expected outcome decreases.</p>
@@ -1124,7 +1091,7 @@ level of <code>age</code>.</p>
 <span>                 verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>We can plot the AMEF using <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est9</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">est9</span>, simultaneous <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="clarify_files/figure-html/plot9-1.png" alt="A plot of the average marginal effect function for the outcome against age. The line has an uncertainty band around it." width="480" style="display: block; margin: auto;"></p>
 <p>From the plot, we can see the AME of <code>age</code> decreases
 slightly but is mostly constant across values of <code>age</code>, and
@@ -1535,6 +1502,11 @@ Hole, Arne Risa. 2007. <span>“A Comparison of Approaches to Estimating
 Confidence Intervals for Willingness to Pay Measures.”</span> <em>Health
 Economics</em> 16 (8): 827–40. <a href="https://doi.org/10.1002/hec.1197" class="external-link">https://doi.org/10.1002/hec.1197</a>.
 </div>
+<div id="ref-hothornSimultaneousInferenceGeneral2008" class="csl-entry">
+Hothorn, Torsten, Frank Bretz, and Peter Westfall. 2008.
+<span>“Simultaneous Inference in General Parametric Models.”</span>
+<em>Biometrical Journal</em> 50 (3): 346–63. <a href="https://doi.org/10.1002/bimj.200810425" class="external-link">https://doi.org/10.1002/bimj.200810425</a>.
+</div>
 <div id="ref-imaiCommonFrameworkStatistical2008a" class="csl-entry">
 Imai, Kosuke, Gary King, and Olivia Lau. 2008. <span>“Toward a Common
 Framework for Statistical Analysis and Development.”</span> <em>Journal
@@ -1574,6 +1546,12 @@ Research</em> 39 (1): 99–128. <a href="https://doi.org/10.1207/s15327906mbr390
 Makowski, Dominique, Mattan S. Ben-Shachar, Indrajeet Patil, and Daniel
 Lüdecke. 2020. <span>“Estimation of Model-Based Predictions, Contrasts
 and Means.”</span> <em>CRAN</em>. <a href="https://doi.org/10.32614/CRAN.package.modelbased" class="external-link">https://doi.org/10.32614/CRAN.package.modelbased</a>.
+</div>
+<div id="ref-montieloleaSimultaneousConfidenceBands2019" class="csl-entry">
+Montiel Olea, José Luis, and Mikkel Plagborg-Møller. 2019.
+<span>“Simultaneous Confidence Bands: Theory, Implementation, and an
+Application to SVARs.”</span> <em>Journal of Applied Econometrics</em>
+34 (1): 1–17. <a href="https://doi.org/10.1002/jae.2656" class="external-link">https://doi.org/10.1002/jae.2656</a>.
 </div>
 <div id="ref-preacherAdvantagesMonteCarlo2012" class="csl-entry">
 Preacher, Kristopher J., and James P. Selig. 2012. <span>“Advantages of
