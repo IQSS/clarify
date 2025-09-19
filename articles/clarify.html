@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>`clarify`: Simulation-Based Inference for Regression Models • clarify</title>
+<title>clarify: Simulation-Based Inference for Regression Models • clarify</title>
 <!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
   window.MathJax = {
     chtml: {
@@ -16,7 +16,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="`clarify`: Simulation-Based Inference for Regression Models">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="clarify: Simulation-Based Inference for Regression Models">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -63,7 +63,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>`clarify`: Simulation-Based Inference for Regression Models</h1>
+      <h1>clarify: Simulation-Based Inference for Regression Models</h1>
             
             <h4 data-toc-skip class="date">2025-09-19</h4>
       
@@ -545,7 +545,7 @@ optionally, uncertainty bounds (which function like confidence or
 credible interval bounds). The arguments to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> are
 below:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> , parm <span class="op">=</span> , ci <span class="op">=</span> , level <span class="op">=</span> , method <span class="op">=</span> , reference <span class="op">=</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> , parm <span class="op">=</span> , ci <span class="op">=</span> , level <span class="op">=</span> , method <span class="op">=</span> , reference <span class="op">=</span> , simultaneous <span class="op">=</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li><p><code>x</code> – the <code>clarify_est</code> object (the output
 of a call to <code><a href="../reference/sim_apply.html">sim_apply()</a></code>).</p></li>
@@ -571,6 +571,12 @@ use quantile-based bounds.</p></li>
 <li><p><code>reference</code> – whether to display a normal density over
 the plot for each estimate and an indicator line for the median of the
 estimate. The default is <code>FALSE</code> to omit them.</p></li>
+<li><p><code>simultaneous</code> – whether confidence intervals and
+bands should adjust for multiple comparisons. If <code>TRUE</code>, the
+“sup-t” bands as described by <span class="citation">Hothorn, Bretz, and
+Westfall (<a href="#ref-hothornSimultaneousInferenceGeneral2008">2008</a>)</span> and
+<span class="citation">Montiel Olea and Plagborg-Møller (<a href="#ref-montieloleaSimultaneousConfidenceBands2019">2019</a>)</span>
+are used. The default is not to perform such an adjustment.</p></li>
 </ul>
 <p>Below, we plot the first estimate we computed above, the predicted
 probability for participant PSID1:</p>
@@ -604,7 +610,7 @@ estimate, the uncertainty bounds, and other statistics that describe the
 distribution of estimates. The arguments to <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> are
 below:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span>object <span class="op">=</span> , parm <span class="op">=</span> , level <span class="op">=</span> , method <span class="op">=</span> , null <span class="op">=</span> <span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span>object <span class="op">=</span> , parm <span class="op">=</span> , level <span class="op">=</span> , method <span class="op">=</span> , null <span class="op">=</span> , simultaneous <span class="op">=</span><span class="op">)</span></span></code></pre></div>
 <ul>
 <li><p><code>object</code> – the <code>clarify_est</code> object (the
 output of a call to <code><a href="../reference/sim_apply.html">sim_apply()</a></code>).</p></li>
@@ -630,7 +636,7 @@ any p-values.</p></li>
 intervals and p-values) should adjust for multiple comparisons. If
 <code>TRUE</code>, the “sup-t” intervals as described by <span class="citation">Hothorn, Bretz, and Westfall (<a href="#ref-hothornSimultaneousInferenceGeneral2008">2008</a>)</span> and
 <span class="citation">Montiel Olea and Plagborg-Møller (<a href="#ref-montieloleaSimultaneousConfidenceBands2019">2019</a>)</span>
-and their inversion are used. The default is not perform such an
+and their inversion are used. The default is not to perform such an
 adjustment.</p></li>
 </ul>
 <p>We can use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> with the default arguments on our
