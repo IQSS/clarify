@@ -5,26 +5,31 @@
 
 <!-- badges: start -->
 
-[![](https://r-pkg.org/badges/version/clarify)](https://cran.rstudio.com/package=clarify)
-[![](https://cranlogs.r-pkg.org/badges/clarify)](https://cran.rstudio.com/package=clarify)
+[![](https://r-pkg.org/badges/version/clarify)](https://CRAN.R-project.org/package=clarify)
+[![](https://cranlogs.r-pkg.org/badges/clarify)](https://CRAN.R-project.org/package=clarify)
+
 <!-- badges: end -->
 
-`clarify` implements simulation-based inference for computing functions
-of model parameters, such as average marginal effects and predictions at
-representative values of the predictors. See the `clarify`
+*clarify* implements simulation-based inference for functions of model
+parameters, such as average marginal effects and predictions at
+representative values of the predictors. See the *clarify*
 [website](https://iqss.github.io/clarify/) for documentation and other
-examples. `clarify` was designed to replicate and expand on
-functionality previously provided by the `Zelig` package.
+examples, and see Greifer et al.
+([2025](#ref-greiferClarifySimulationBasedInference2025)) for the paper
+describing the package (also available at `vignette("clarify")`).
+*clarify* was designed to replicate and expand on functionality
+previously provided by the *Zelig* package.
 
 ## Installation
 
-`clarify` can be installed from CRAN using
+*clarify* can be installed from
+[CRAN](https://CRAN.R-project.org/package=clarify) using
 
 ``` r
 install.packages("clarify")
 ```
 
-You can install the development version of `clarify` from
+You can install the development version of *clarify* from
 [GitHub](https://github.com/iqss/clarify) with
 
 ``` r
@@ -37,8 +42,8 @@ remotes::install_github("iqss/clarify")
 Below is an example of performing g-computation for the average
 treatment effect on the treated (ATT) after logistic regression to
 compute the average causal risk ratio and its confidence interval. First
-we load the data (in this case the `lalonde` dataset from `MatchIt`) and
-fit a logistic regression using functions outside of `clarify`:
+we load the data (in this case the `lalonde` dataset from *MatchIt*) and
+fit a logistic regression using functions outside of *clarify*:
 
 ``` r
 library(clarify)
@@ -90,7 +95,7 @@ plot(sim_est)
 
 <img src="man/figures/README-example-1.png" width="80%" />
 
-Below, we provide information on the framework `clarify` uses and some
+Below, we provide information on the framework *clarify* uses and some
 other examples. For a complete vignette, see `vignette("clarify")`.
 
 ## Introduction
@@ -109,12 +114,14 @@ Alternatively, if the resulting sampling distribution is normally
 distributed, its standard error can be estimated as the standard
 deviation of the estimates and normal-theory Wald confidence intervals
 and p-values can be computed. The methodology of simulation-based
-inference is explained in King, Tomz, and Wittenberg (2000).
+inference is explained in King, Tomz, and Wittenberg
+([2000](#ref-kingMakingMostStatistical2000)) and Herron
+([1999](#ref-herronPostestimationUncertaintyLimited1999)).
 
-`clarify` was designed to provide a simple, general interface for
+*clarify* was designed to provide a simple, general interface for
 simulation-based inference and includes a few convenience functions to
 perform common tasks like computing average marginal effects. The
-primary functions of `clarify` are `sim()`, `sim_apply()`, `summary()`,
+primary functions of *clarify* are `sim()`, `sim_apply()`, `summary()`,
 and `plot()`. These work together to create a simple workflow for
 simulation-based inference.
 
@@ -132,7 +139,7 @@ variable, mirroring `marginaleffects::avg_predictions()` and
 `marginaleffects::avg_slopes()`; `sim_setx()` computes predictions at
 typical values of the covariates and differences between them, mirroring
 `Zelig::setx()` and `Zelig::setx1()`; and `sim_adrf()` computes average
-dose-response functions. `clarify` also offers support for models fit to
+dose-response functions. *clarify* also offers support for models fit to
 multiply imputed data with the `misim()` function.
 
 In the example above, we used `sim_ame()` to compute the ATT, but we
@@ -182,7 +189,7 @@ approximation and the asymmetric confidence intervals produced using the
 simulation may be more valid. Note that the estimates are those computed
 from the original model coefficients; the distribution is used only for
 computing confidence intervals, in line with recommendations by Rainey
-(2023).
+([2023](#ref-raineyCarefulConsiderationCLARIFY2023)).
 
 If we want to compute the risk difference, we can do that using
 `transform()` on the already-produced output:
@@ -190,6 +197,7 @@ If we want to compute the risk difference, we can do that using
 ``` r
 #Transform estimates into new quantities of interest
 sim_est <- transform(sim_est, `RD` = `E[Y(1)]` - `E[Y(0)]`)
+
 summary(sim_est, null = c(`RR` = 1, `RD` = 0))
 #>         Estimate   2.5 %  97.5 % P-value
 #> E[Y(0)]   0.6831  0.5925  0.7543       .
@@ -198,9 +206,9 @@ summary(sim_est, null = c(`RR` = 1, `RD` = 0))
 #> RD        0.0737 -0.0155  0.1742    0.12
 ```
 
-We can also use `clarify` to compute predictions and first differences
+We can also use *clarify* to compute predictions and first differences
 at set and typical values of the predictors, mimicking the functionality
-of `Zelig`’s `setx()` and `setx1()` functions, using `sim_setx()`:
+of *Zelig*’s `setx()` and `setx1()` functions, using `sim_setx()`:
 
 ``` r
 # Predictions across age and treat at typical values
@@ -216,22 +224,53 @@ plot(sim_est)
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="80%" />
 
 See `vignette("Zelig", package = "clarify")` for more examples of
-translating a `Zelig`-based workflow into one that uses `clarify` to
+translating a *Zelig*-based workflow into one that uses *clarify* to
 estimate the same quantities of interest.
 
-`clarify` offers parallel processing for all estimation functions to
+*clarify* offers parallel processing for all estimation functions to
 speed up computation. Functionality is also available for the analysis
 of models fit to multiply imputed data. See `vignette("clarify")` for
 more details.
 
 ## References
 
-King, G., Tomz, M., & Wittenberg, J. (2000). Making the Most of
-Statistical Analyses: Improving Interpretation and Presentation.
-*American Journal of Political Science*, 44(2), 347–361.
-<https://doi.org/10.2307/2669316>
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
 
-Rainey, C. (2023). A careful consideration of CLARIFY:
-Simulation-induced bias in point estimates of quantities of interest.
+<div id="ref-greiferClarifySimulationBasedInference2025"
+class="csl-entry">
+
+Greifer, Noah, Steven Worthington, Stefano Iacus, and Gary King. 2025.
+“Clarify: Simulation-Based Inference for Regression Models.” *The R
+Journal* 16 (2): 154–74. <https://doi.org/10.32614/RJ-2024-015>.
+
+</div>
+
+<div id="ref-herronPostestimationUncertaintyLimited1999"
+class="csl-entry">
+
+Herron, Michael C. 1999. “Postestimation Uncertainty in Limited
+Dependent Variable Models.” *Political Analysis* 8 (1): 83–98.
+<https://doi.org/10.1093/oxfordjournals.pan.a029806>.
+
+</div>
+
+<div id="ref-kingMakingMostStatistical2000" class="csl-entry">
+
+King, Gary, Michael Tomz, and Jason Wittenberg. 2000. “Making the Most
+of Statistical Analyses: Improving Interpretation and Presentation.”
+*American Journal of Political Science* 44 (2): 347–61.
+<https://doi.org/10.2307/2669316>.
+
+</div>
+
+<div id="ref-raineyCarefulConsiderationCLARIFY2023" class="csl-entry">
+
+Rainey, Carlisle. 2023. “A Careful Consideration of CLARIFY:
+Simulation-Induced Bias in Point Estimates of Quantities of Interest.”
 *Political Science Research and Methods*, 1–10.
-<https://doi.org/10.1017/psrm.2023.8>
+<https://doi.org/10.1017/psrm.2023.8>.
+
+</div>
+
+</div>

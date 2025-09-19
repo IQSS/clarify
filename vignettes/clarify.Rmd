@@ -248,6 +248,8 @@ summary(object = , parm = , level = , method = , null = )
 
 -   `null` -- an optional argument specifying the desired null value in a hypothesis test for the estimates. If specified, a p-value will be computed using either a standard Z-test (if `method` is `"wald"`) or an inversion of the uncertainty interval (described below). The default is not to display any p-values.
 
+-   `simultaneous` -- whether inference (confidence intervals and p-values) should adjust for multiple comparisons. If `TRUE`, the "sup-t" intervals as described by @hothornSimultaneousInferenceGeneral2008 and @montieloleaSimultaneousConfidenceBands2019 and their inversion are used. The default is not perform such an adjustment.
+
 We can use `summary()` with the default arguments on our first `clarify_est` object to view the point estimate and quantile-based uncertainty bounds.
 
 ```{r summary1}
@@ -494,10 +496,10 @@ est8 <- sim_adrf(s,
                  verbose = FALSE)
 ```
 
-We can plot the ADRF using `plot()`.
+We can plot the ADRF using `plot()`; here we set `simultaneous = TRUE` to request simultaneous confidence bands.
 
 ```{r plot8, fig.width=5, fig.alt = "A plot of the average dose-response function for the outcome against age. The line has an uncertainty band around it."}
-plot(est8)
+plot(est8, simultaneous = TRUE)
 ```
 
 From the plot, we can see that as `age` increases, the expected outcome decreases.
@@ -521,7 +523,7 @@ est9 <- sim_adrf(s,
 We can plot the AMEF using `plot()`:
 
 ```{r plot9, fig.width=5, fig.alt = "A plot of the average marginal effect function for the outcome against age. The line has an uncertainty band around it."}
-plot(est9)
+plot(est9, simultaneous = TRUE)
 ```
 
 From the plot, we can see the AME of `age` decreases slightly but is mostly constant across values of `age`, and the uncertainty intervals for the AMEs consistently exclude 0.
